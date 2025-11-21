@@ -1,36 +1,45 @@
-// client/src/App.js (Updated)
-import React from 'react';
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// Admin Layout
 import Navbar from "./layout/Navbar";
-import Sidebar from "./layout/Sidebar";
 import PageContainer from "./layout/PageContainer";
+
+// Admin Pages
 import AdminReportsPage from "./pages/reports/AdminReportsPage";
-import AdminUsersPage from "./pages/users/AdminUsersPage"; // <-- NEW IMPORT
+
+// Auth Pages
+import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import OtpVerificationPage from "./pages/auth/OtpVerificationPage";
+
 
 function App() {
   return (
     <Router>
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
-        <Sidebar />
-        <div style={{ flexGrow: 1 }}>
-          <Navbar />
-          <PageContainer>
-            <Routes>
-              {/* Home Page Route */}
-              <Route path="/" element={<h2>⭐ Welcome to BragBoard Admin Dashboard!</h2>} />
+      <Routes>
+        {/* ------------------ AUTH PAGES ------------------ */}
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/verify-otp" element={<OtpVerificationPage />} />
 
-              {/* Reports Page Route */}
-              <Route path="/reports" element={<AdminReportsPage />} />
+        {/* ------------------ ADMIN PAGES ------------------ */}
+        <Route
+          path="/reports"
+          element={
+            <PageContainer>
+              <Navbar />
+              <AdminReportsPage />
+            </PageContainer>
+          }
+        />
 
-              {/* Users Page Route <-- NEW ROUTE */}
-              <Route path="/users" element={<AdminUsersPage />} />
-
-              {/* Catch-All Route */}
-              <Route path="*" element={<h3>404 - Page Not Found</h3>} />
-            </Routes>
-          </PageContainer>
-        </div>
-      </div>
+        {/* ------------------ 404 PAGE ------------------ */}
+        <Route path="*" element={<h2>Page Not Found</h2>} />
+      </Routes>
     </Router>
   );
 }
