@@ -1,0 +1,44 @@
+/* colorful social media vibe */
+.brand-title {
+  background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 30%, #fbc2eb 60%, #a18cd1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gradient-left {
+  background: linear-gradient(135deg, rgba(255,154,158,0.95), rgba(251,194,235,0.95));
+  border-radius: 12px;
+}
+
+.shoutout-card {
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
+  border: 0;
+}
+
+.shoutout-title {
+  color: #333;
+  background: linear-gradient(90deg,#ffecd2,#fcb69f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+.shoutout-message {
+  color: #444;
+  font-size: 0.98rem;
+}
+
+.shoutout-form .form-control {
+  border-radius: 8px;
+}
+
+.shoutout-form .btn-primary {
+  background: linear-gradient(90deg,#ff7aa2,#ffc371);
+  border: 0;
+}
+
+.shoutout-form .btn-light {
+  background: rgba(255,255,255,0.85);
+}
