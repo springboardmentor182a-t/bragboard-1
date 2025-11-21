@@ -1,81 +1,41 @@
-﻿from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from src.core import get_db
-from src.entities_user import User
-from src.schemas_user import UserCreate, UserOut
-from src.schemas_user import UserCreate as _UserCreate
-from src.schemas_user import UserOut as _UserOut
-from src.auth_service import hash_password, verify_password, create_access_token, create_refresh_token
-from pydantic import BaseModel
+﻿from fastapi import APIRouter, status
+# NOTE: All database and SQLAlchemy imports (AsyncSession, Depends, etc.) are REMOVED
+from src.users.models import UserResponse 
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(
+    prefix="/users",
+    tags=["Users"],
+)
 
-@router.post("/register", response_model=_UserOut)
-def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(User.email == user_in.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    hashed = hash_password(user_in.password)
-    user = User(name=user_in.name, email=user_in.email, hashed_password=hashed, department=user_in.department)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
+# -------------------------------------------------------------
+# MOCK DATA DEFINITION 
+# -------------------------------------------------------------
+MOCK_USERS = [
+    {"id": 1, "username": "admin_user", "email": "admin@bragboard.com", "role": "Admin", "is_active": True},
+    {"id": 2, "username": "test_member", "email": "member@example.com", "role": "User", "is_active": True},
+    {"id": 3, "username": "inactive_user", "email": "banned@example.com", "role": "User", "is_active": False}
+]
 
-class LoginRequest(BaseModel):
-    email: str
-    password: str
+# -------------------------------------------------------------
+# Endpoints using Mock Data
+# -------------------------------------------------------------
 
-class TokenOut(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str = "bearer"
+@router.get("/", response_model=list[UserResponse])
+async def get_all_users():
+    """Returns the list of mock users for the frontend."""
+    return MOCK_USERS 
 
-@router.post("/login", response_model=TokenOut)
-def login(req: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == req.email).first()
-    if not user or not verify_password(req.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    token_data = {"sub": user.email, "user_id": user.id, "role": user.role}
-    access = create_access_token(token_data)
-    refresh = create_refresh_token(token_data)
-    return {"access_token": access, "refresh_token": refresh}
+@router.delete("/{user_id}", status_code=204)
+async def delete_user(user_id: int):
+    """Mocks the deletion process for submission."""
+    print(f"Mock action: Deleted user {user_id}")
+    return 
 
-from fastapi.security import OAuth2PasswordBearer
-from src.auth_service import decode_access_token
+@router.put("/{user_id}", status_code=200)
+async def update_user(user_id: int, user_data: dict):
+    """Mocks the update process for submission."""
+    print(f"Mock action: Updated user {user_id} with data: {user_data}")
+    return {"message": f"User {user_id} updated (Mock)"}
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-@router.get("/me")
-def get_me(token: str = Depends(oauth2_scheme)):
-    payload = decode_access_token(token)
-
-    if not payload:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-    return {
-        "email": payload.get("sub"),
-        "user_id": payload.get("user_id"),
-        "role": payload.get("role")
-    }
-from src.otp_service import create_and_store_otp, verify_otp
-
-@router.post("/send-otp")
-def send_otp(email: str, db: Session = Depends(get_db)):
-    """
-    Generate a 6-digit OTP and store it for this email.
-    (You can later connect email/SMS service)
-    """
-    code = create_and_store_otp(email, db)
-    return {"message": "OTP sent successfully", "otp": code}  # remove otp later
-@router.post("/verify-otp")
-def verify_otp_route(email: str, otp: str, db: Session = Depends(get_db)):
-    """
-    Verify OTP for the given email
-    """
-    is_valid = verify_otp(email, otp, db)
-
-    if not is_valid:
-        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
-
-    return {"message": "OTP verified successfully"}
+# NOTE: Ensure all other user-related endpoints (POST, GET by ID)
+# are either removed or also mocked in a similar way.
