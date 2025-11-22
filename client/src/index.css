@@ -1,0 +1,42 @@
+@import url('https://fonts.google.com/share?selection.family=Noto+Sans:ital,wght@0,100..900;1,100..900');
+
+
+:root{
+  --bg: #0F0F0F;                
+  --card-bg: rgba(255,255,255,0.02); 
+  --card-border: rgba(255,255,255,0.08); 
+  --muted: #FFFFFF;             
+  --text: #ffffff;              
+  --accent-start: #628EFF;     
+  --accent-end: #580475;        
+  --input-border: rgba(255,255,255,0.12);
+  --input-placeholder: rgba(255,255,255,0.5);
+  --card-radius: 20px;         
+  --card-width: 520px;        
+}
+
+/* 3) Global reset & page sizing */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* 4) Make sure links look right */
+a { color: var(--accent-end); text-decoration: none; }
+
+/* 5) Utility small helpers */
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.center-vertical { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+
+/* 6) Ensure root layout works — helpful for absolute/decorative circles */
+.app-layout { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+
+body {
+  font-family: sans-serif;
+  background: #0F0F0F; 
+}
