@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext"; // make sure folder is 'context', not 'Context'
 
 const Reports = () => {
   const { user } = useAuth();
-  const [timeRange, setTimeRange] = useState('week');
+  const [timeRange, setTimeRange] = useState("week");
 
-  // Mock data for reports
   const reportData = {
     week: {
       shoutoutsSent: 12,
@@ -70,82 +69,69 @@ const Reports = () => {
     <div className="max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Analytics & Reports</h1>
-        
-        {/* Time Range Selector with Yearly Option */}
+
+        {/* Time Range Buttons */}
         <div className="flex space-x-2">
-          <button
-            onClick={() => setTimeRange('week')}
-            className={`px-4 py-2 rounded-lg font-medium ${
-              timeRange === 'week'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            This Week
-          </button>
-          <button
-            onClick={() => setTimeRange('month')}
-            className={`px-4 py-2 rounded-lg font-medium ${
-              timeRange === 'month'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            This Month
-          </button>
-          <button
-            onClick={() => setTimeRange('year')}
-            className={`px-4 py-2 rounded-lg font-medium ${
-              timeRange === 'year'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            This Year
-          </button>
+          {["week", "month", "year"].map((range) => (
+            <button
+              key={range}
+              onClick={() => setTimeRange(range)}
+              className={`px-4 py-2 rounded-lg font-medium ${
+                timeRange === range
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {range === "week" && "This Week"}
+              {range === "month" && "This Month"}
+              {range === "year" && "This Year"}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Personal Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="text-center">
-            <p className="text-3xl font-bold text-blue-600">{currentData.shoutoutsSent}</p>
-            <p className="text-gray-600">Shout-outs Sent</p>
+        {[
+          { value: currentData.shoutoutsSent, label: "Shout-outs Sent", color: "text-blue-600" },
+          { value: currentData.reactionsReceived, label: "Reactions Received", color: "text-green-600" },
+          { value: currentData.commentsMade, label: "Comments Made", color: "text-purple-600" }
+        ].map((item, index) => (
+          <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="text-center">
+              <p className={`text-3xl font-bold ${item.color}`}>{item.value}</p>
+              <p className="text-gray-600">{item.label}</p>
+            </div>
           </div>
-        </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="text-center">
-            <p className="text-3xl font-bold text-green-600">{currentData.reactionsReceived}</p>
-            <p className="text-gray-600">Reactions Received</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="text-center">
-            <p className="text-3xl font-bold text-purple-600">{currentData.commentsMade}</p>
-            <p className="text-gray-600">Comments Made</p>
-          </div>
-        </div>
+        ))}
       </div>
 
+      {/* Top Contributors */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Top Contributors */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Top Contributors</h2>
           <div className="space-y-3">
             {currentData.topContributors.map((contributor, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    index === 0 ? 'bg-yellow-500' : 
-                    index === 1 ? 'bg-gray-400' : 
-                    index === 2 ? 'bg-orange-500' : 'bg-blue-500'
-                  }`}>
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      index === 0
+                        ? "bg-yellow-500"
+                        : index === 1
+                        ? "bg-gray-400"
+                        : index === 2
+                        ? "bg-orange-500"
+                        : "bg-blue-500"
+                    }`}
+                  >
                     <span className="text-white font-bold text-sm">{index + 1}</span>
                   </div>
-                  <span className={`font-medium ${
-                    contributor.name === "You" ? 'text-blue-600' : 'text-gray-800'
-                  }`}>
+                  <span
+                    className={`font-medium ${
+                      contributor.name === "You" ? "text-blue-600" : "text-gray-800"
+                    }`}
+                  >
                     {contributor.name}
                   </span>
                 </div>
@@ -166,9 +152,15 @@ const Reports = () => {
                   <span className="text-sm text-gray-600">{dept.shoutouts} shoutouts</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-500 h-2 rounded-full" 
-                    style={{ width: `${(dept.shoutouts / Math.max(...currentData.departmentStats.map(d => d.shoutouts))) * 100}%` }}
+                  <div
+                    className="bg-blue-500 h-2 rounded-full"
+                    style={{
+                      width: `${
+                        (dept.shoutouts /
+                          Math.max(...currentData.departmentStats.map((d) => d.shoutouts))) *
+                        100
+                      }%`
+                    }}
                   ></div>
                 </div>
               </div>
@@ -176,50 +168,6 @@ const Reports = () => {
           </div>
         </div>
       </div>
-
-      {/* Time Range Summary */}
-      <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">
-          {timeRange === 'week' && 'Weekly Summary'}
-          {timeRange === 'month' && 'Monthly Summary'}
-          {timeRange === 'year' && 'Yearly Summary'}
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-          <div className="p-4 bg-blue-50 rounded-lg">
-            <p className="text-2xl font-bold text-blue-600">{currentData.shoutoutsSent}</p>
-            <p className="text-sm text-gray-600">Total Shout-outs</p>
-          </div>
-          <div className="p-4 bg-green-50 rounded-lg">
-            <p className="text-2xl font-bold text-green-600">{currentData.reactionsReceived}</p>
-            <p className="text-sm text-gray-600">Total Reactions</p>
-          </div>
-          <div className="p-4 bg-purple-50 rounded-lg">
-            <p className="text-2xl font-bold text-purple-600">{currentData.commentsMade}</p>
-            <p className="text-sm text-gray-600">Total Comments</p>
-          </div>
-          <div className="p-4 bg-orange-50 rounded-lg">
-            <p className="text-2xl font-bold text-orange-600">{currentData.topContributors.length}</p>
-            <p className="text-sm text-gray-600">Active Contributors</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Export Options */}
-      {user.role === 'admin' && (
-        <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Export Reports</h2>
-          <div className="flex space-x-4">
-            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex items-center space-x-2">
-              <span>📊</span>
-              <span>Export as CSV</span>
-            </button>
-            <button className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex items-center space-x-2">
-              <span>📄</span>
-              <span>Export as PDF</span>
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
