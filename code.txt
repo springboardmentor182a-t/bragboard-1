@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard with SVG Graphics</title>
+    <style>
+        body { 
+            margin: 0; 
+            font-family: Arial; 
+            background: #f0f0f0; 
+        }
+
+        /* Header */
+        .header {
+            background: #4A90E2;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            float: left;
+            width: 180px;
+            height: 100vh;
+            background: #ddd;
+            padding: 15px;
+        }
+
+        /* Main content */
+        .content {
+            margin-left: 200px;
+            padding: 20px;
+        }
+
+        /* Cards */
+        .row { display: flex; gap: 15px; margin-bottom: 20px; }
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            flex: 1;
+            border: 1px solid #ccc;
+        }
+
+        /* Graph container */
+        .graph-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        th { background: #eee; }
+    </style>
+</head>
+
+<body>
+
+<!-- Header -->
+<div class="header">Dashboard with SVG Graphics</div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <h3>Menu</h3>
+    <p>Dashboard</p>
+    <p>Analytics</p>
+    <p>Users</p>
+    <p>Reports</p>
+    <p>Settings</p>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+    <!-- Cards -->
+    <div class="row">
+        <div class="card">
+            <h3>Total Users</h3>
+            <p>150 Users</p>
+        </div>
+
+        <div class="card">
+            <h3>Revenue</h3>
+            <p>₹75,000</p>
+        </div>
+
+        <div class="card">
+            <h3>Orders</h3>
+            <p>320 Orders</p>
+        </div>
+    </div>
+
+    <!-- SVG GRAPH -->
+    <div class="graph-box">
+        <h3>Sales Graph (SVG Graphics)</h3>
+
+        <!-- SVG BAR GRAPH -->
+        <svg width="100%" height="250">
+            <!-- Bars -->
+            <rect x="50"  y="120" width="40" height="80" fill="#4A90E2"></rect>
+            <rect x="130" y="90"  width="40" height="110" fill="#50C878"></rect>
+            <rect x="210" y="140" width="40" height="60" fill="#F39C12"></rect>
+            <rect x="290" y="70"  width="40" height="130" fill="#E74C3C"></rect>
+            <rect x="370" y="100" width="40" height="100" fill="#9B59B6"></rect>
+
+            <!-- Labels -->
+            <text x="55"  y="220" font-size="14">Jan</text>
+            <text x="135" y="220" font-size="14">Feb</text>
+            <text x="215" y="220" font-size="14">Mar</text>
+            <text x="295" y="220" font-size="14">Apr</text>
+            <text x="375" y="220" font-size="14">May</text>
+        </svg>
+
+    </div>
+
+    <!-- Table -->
+    <h3>Recent Users</h3>
+    <table>
+        <tr>
+            <th>ashli</th>
+            <th>Department</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>benita</td>
+            <td>IT</td>
+            <td>Active</td>
+        </tr>
+        <tr>
+            <td>harini</td>
+            <td>Admin</td>
+            <td>Active</td>
+        </tr>
+        <tr>
+            <td>GAYATHIRI</td>
+            <td>HR</td>
+            <td>Inactive</td>
+        </tr>
+    </table>
+
+</div>
+
+</body>
+</html>
