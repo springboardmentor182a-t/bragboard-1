@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext"; // make sure folder is 'context', not 'Context'
+import { useAuth } from "../context/AuthContext"; 
 
 const Reports = () => {
   const { user } = useAuth();
