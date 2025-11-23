@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const Settings = () => {
-  const { user, toggleTheme, userSettings, updateSettings } = useAuth(); // Removed unused 'theme'
+  const { user, toggleTheme, userSettings, updateSettings } = useAuth(); 
   
   // Use settings from context instead of local state
   const [settings, setSettings] = useState(userSettings);
