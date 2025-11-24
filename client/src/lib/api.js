@@ -1,18 +1,37 @@
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8000";
+const API_BASE =
+  process.env.REACT_APP_API_BASE || "http://127.0.0.1:8000";
 
-async function parseResponse(res) {
-  const text = await res.text();
-  try { return JSON.parse(text); } catch { return text; }
+// Generic request helper
+async function request(path, options = {}) {
+  const resp = await fetch(API_BASE + path, {
+    credentials: "include", // allows cookies if backend sets them
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+
+  let data = null;
+  try {
+    data = await resp.json();
+  } catch (e) {
+    // ignore parse error if no JSON body
+  }
+
+  return { status: resp.status, data };
 }
 
-export async function postJson(path, body, includeCredentials = true) {
-  const res = await fetch(`${API_BASE}${path}`, {
+// POST helper: send JSON body
+export function postJson(path, body) {
+  return request(path, {
     method: "POST",
-    credentials: includeCredentials ? "include" : "same-origin",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const data = await parseResponse(res);
-  return { status: res.status, data };
+}
+
+// Optional GET helper if you need it later
+export function getJson(path) {
+  return request(path, { method: "GET" });
 }

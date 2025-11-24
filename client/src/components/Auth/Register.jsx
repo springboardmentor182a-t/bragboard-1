@@ -1,8 +1,8 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../Common/Input";
 import "../../styles/auth.css";
+import { postJson } from "../../lib/api";   
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -41,24 +41,47 @@ export default function Signup() {
       setErr("Password should be at least 8 characters.");
       return;
     }
+    if (form.password.length > 50) {
+      setErr("Password must be at most 50 characters.");
+      return;
+    }
 
     setLoading(true);
     try {
-      // Call API if available:
-      // const { status, data } = await postJson("/api/auth/register", {
-      //   name: form.username, email: form.email, password: form.password
-      // });
-      // if success, navigate to OTP or login
-      // For now simulate:
-      setTimeout(() => {
-        setLoading(false);
+      
+      const { status, data } = await postJson("/auth/register/", {
+        email: form.email,
+        password: form.password,
+        name: form.username,
+      });
+
+      console.log("Register response:", status, data);
+
+      if (status === 200 || status === 201) {
         setOk("Account created — please check email for verification code.");
-        // navigate to verify OTP and pass email
+        
         navigate("/verify-otp", { state: { email: form.email } });
-      }, 800);
+      } else if (status === 409) {
+        
+        setErr(data?.detail || "An account with this email already exists.");
+      }  else {
+  // FastAPI 422: detail is usually an array of error objects
+  let message = "Failed to send OTP.";
+
+  if (Array.isArray(data?.detail) && data.detail.length > 0) {
+    message = data.detail[0]?.msg || message;
+  } else if (typeof data?.detail === "string") {
+    message = data.detail;
+  } else if (data?.message) {
+    message = data.message;
+  }
+
+  setErr(message);
+}
     } catch (e) {
       console.error(e);
       setErr("Network/server error. Try again.");
+    } finally {
       setLoading(false);
     }
   }
@@ -67,7 +90,6 @@ export default function Signup() {
     <div className="auth-page">
       <div className="auth-hero">
         <h1 className="big-title">Roll the Carpet .!</h1>
-        
       </div>
 
       <div className="auth-card">
@@ -111,26 +133,28 @@ export default function Signup() {
             required
           />
 
-          {err && <div className="error" role="alert">{err}</div>}
+          {err && (
+  <div className="error" role="alert">
+    {String(err)}
+  </div>
+)}
+
           {ok && <div className="success" role="status">{ok}</div>}
 
           <button className="btn primary" type="submit" disabled={loading}>
             {loading ? "Creating…" : "Signup"}
           </button>
 
-          <div style={{height:18}}></div>
+          <div style={{ height: 18 }}></div>
 
-          <div style={{display:"flex", alignItems:"center", justifyContent:"center", gap:16}}>
-            <div style={{flex:1, height:1, background:"rgba(255,255,255,0.06)"}}></div>
-            <div style={{color:"var(--muted)"}}>Or</div>
-            <div style={{flex:1, height:1, background:"rgba(255,255,255,0.06)"}}></div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
+            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }}></div>
+            <div style={{ color: "var(--muted)" }}>Or</div>
+            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }}></div>
           </div>
 
-          
-
-          <div className="auth-footer" style={{marginTop:18}}>
+          <div className="auth-footer" style={{ marginTop: 18 }}>
             <div>Already have an account ? <a href="/login">login</a></div>
-            
           </div>
         </form>
       </div>

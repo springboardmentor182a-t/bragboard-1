@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../Common/Input";
 import "../../styles/auth.css";
+import { postJson } from "../../lib/api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -11,26 +12,61 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  async function handleLogin(e) {
-    e.preventDefault();
-    setErr("");
-    if (!email || !password) { setErr("Email and password are required."); return; }
-    setLoading(true);
-    try {
-      // If backend is available, call API here using your helper
-      // Example: const { status, data } = await postJson("/api/auth/login", { email, password });
-      // On success: navigate("/")
-      // For now we'll simulate success
-      setTimeout(() => {
-        setLoading(false);
-        navigate("/", { replace: true });
-      }, 700);
-    } catch (e) {
-      console.error(e);
-      setErr("Network error — try again.");
-      setLoading(false);
-    }
+ async function handleLogin(e) {
+  e.preventDefault();
+  setErr("");
+
+  if (!email || !password) {
+    setErr("Email and password are required.");
+    return;
   }
+
+  setLoading(true);
+  try {
+    
+    const { status, data } = await postJson("/auth/login/", {
+      email,        // same fields you used in Swagger
+      password,
+    });
+
+    if (status === 200) {
+      console.log("Login success:", data);
+
+      // store access token (simple version)
+      if (data?.access_token) {
+        localStorage.setItem("access_token", data.access_token);
+      }
+
+      // redirect to some page (later your dashboard)
+      navigate("/", { replace: true });
+    } else if (status === 403 && data?.detail?.toLowerCase().includes("not verified")) {
+      setErr("Account not verified. Please verify your email.");
+      // optionally navigate("/verify-otp", { state: { email } });
+    } else if (status === 401) {
+      setErr("Invalid email or password.");
+    }  else {
+  // FastAPI 422: detail is usually an array of error objects
+  let message = "Failed to send OTP.";
+
+  if (Array.isArray(data?.detail) && data.detail.length > 0) {
+    message = data.detail[0]?.msg || message;
+  } else if (typeof data?.detail === "string") {
+    message = data.detail;
+  } else if (data?.message) {
+    message = data.message;
+  }
+
+  setErr(message);
+}
+  } catch (err) {
+    console.error(err);
+    setErr("Network error — please try again.");
+  } finally {
+    setLoading(false);
+  }
+}
+
+
 
   return (
     <div className="auth-page">
@@ -66,7 +102,12 @@ export default function Login() {
 
           
 
-          {err && <div className="error" role="alert">{err}</div>}
+          {err && (
+  <div className="error" role="alert">
+    {String(err)}
+  </div>
+)}
+
 
           <button className="btn primary" type="submit" disabled={loading}>
             {loading ? "Signing in…" : "Login"}

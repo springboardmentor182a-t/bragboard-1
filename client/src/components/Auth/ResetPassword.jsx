@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { postJson } from "../../lib/api";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../lib/authContext";
+
 import "../../styles/auth.css";
 
 export default function ResetPassword() {
@@ -19,35 +19,71 @@ export default function ResetPassword() {
   const [msg, setMsg] = useState("");
 
   async function handleReset(e) {
-    e.preventDefault();
-    setError("");
-    setMsg("");
+  e.preventDefault();
+  setError("");
+  setMsg("");
 
-    if (!email) { setError("Please enter your email."); return; }
-    if (!otp) { setError("Please enter the OTP sent to your email."); return; }
-    if (!newPassword) { setError("Please enter a new password."); return; }
-    if (newPassword !== confirmPassword) { setError("Passwords do not match."); return; }
-    if (newPassword.length < 8) { setError("Password should be at least 8 characters."); return; }
-
-    setLoading(true);
-    try {
-      const payload = { email, otp, new_password: newPassword };
-      const { status, data } = await postJson("/api/auth/reset-password", payload);
-
-      if (status === 200) {
-        setMsg("Password reset successful. Redirecting to login...");
-        // short delay for user to read message
-        setTimeout(() => navigate("/login", { replace: true }), 1200);
-      } else {
-        setError(data?.detail || data?.message || JSON.stringify(data));
-      }
-    } catch (err) {
-      console.error("Reset password error:", err);
-      setError("Network error — please try again.");
-    } finally {
-      setLoading(false);
-    }
+  if (!email) {
+    setError("Please enter your email.");
+    return;
   }
+  if (!otp) {
+    setError("Please enter the OTP sent to your email.");
+    return;
+  }
+  if (!newPassword) {
+    setError("Please enter a new password.");
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
+  if (newPassword.length < 8) {
+    setError("Password should be at least 8 characters.");
+    return;
+  }
+  if (newPassword.length > 50) {
+    setError("Password must be at most 50 characters.");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const payload = {
+      email,
+      otp,
+      new_password: newPassword, 
+    };
+
+    
+    const { status, data } = await postJson("/auth/reset-password/", payload);
+
+    if (status === 200) {
+      setMsg("Password reset successful. Redirecting to login...");
+      setTimeout(() => navigate("/login", { replace: true }), 1200);
+    }  else {
+  // FastAPI 422: detail is usually an array of error objects
+  let message = "Failed to send OTP.";
+
+  if (Array.isArray(data?.detail) && data.detail.length > 0) {
+    message = data.detail[0]?.msg || message;
+  } else if (typeof data?.detail === "string") {
+    message = data.detail;
+  } else if (data?.message) {
+    message = data.message;
+  }
+
+  setError(message);
+}
+  } catch (err) {
+    console.error("Reset password error:", err);
+    setError("Network error — please try again.");
+  } finally {
+    setLoading(false);
+  }
+}
+
 
   return (
     <div className="auth-page">
@@ -76,7 +112,12 @@ export default function ResetPassword() {
             <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm new password" />
           </label>
 
-          {error && <div className="error" role="alert">{error}</div>}
+          {error && (
+  <div className="error" role="alert">
+    {String(error)}
+  </div>
+)}
+
           {msg && <div className="success" role="status">{msg}</div>}
 
           <button className="btn primary" type="submit" disabled={loading}>

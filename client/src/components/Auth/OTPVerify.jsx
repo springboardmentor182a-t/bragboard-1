@@ -1,8 +1,22 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Input from "../Common/Input";
 import "../../styles/auth.css";
+import { postJson } from "../../lib/api";  
+function extractMessage(data, fallback) {
+  // FastAPI 422-style errors: { detail: [ { msg, ... }, ... ] }
+  if (Array.isArray(data?.detail) && data.detail.length > 0) {
+    return data.detail.map((item) => item.msg).join(", ");
+  }
+  if (typeof data?.detail === "string") {
+    return data.detail;
+  }
+  if (typeof data?.message === "string") {
+    return data.message;
+  }
+  return fallback;
+}
+
 
 export default function OTPVerify() {
   const loc = useLocation();
@@ -21,57 +35,86 @@ export default function OTPVerify() {
   }, [preEmail]);
 
   async function handleVerify(e) {
-    e.preventDefault();
-    setError("");
-    setMsg("");
+  e.preventDefault();
+  setError("");
+  setMsg("");
 
-    if (!email || !otp) {
-      setError("Email and OTP are required.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // === Replace this simulated block with your real API call ===
-      // Example when backend is ready:
-      // const { status, data } = await postJson("/api/auth/verify-otp", { email, otp });
-      // if (status === 200) { setMsg("Verified — redirecting to login..."); navigate("/login"); }
-      // else setError(data?.detail || "Invalid code");
-
-      // simulated success for now
-      setTimeout(() => {
-        setLoading(false);
-        setMsg("Email verified — redirecting to login...");
-        setTimeout(() => navigate("/login", { replace: true }), 900);
-      }, 700);
-      // ============================================================
-    } catch (err) {
-      console.error(err);
-      setError("Network error — please try again.");
-      setLoading(false);
-    }
+  if (!email || !otp) {
+    setError("Email and OTP are required.");
+    return;
   }
+
+  setLoading(true);
+  try {
+    const qs = new URLSearchParams({
+  email,
+  otp,   // or 'code': otp if backend expects "code"
+}).toString();
+
+const { status, data } = await postJson(`/auth/verify-otp/?${qs}`, {});
+
+
+    if (status === 200) {
+      setMsg("Email verified — redirecting to login...");
+      setTimeout(() => navigate("/login", { replace: true }), 900);
+    } else {
+      // turn FastAPI’s detail array into a readable string
+      let message = "Invalid or expired code.";
+      if (Array.isArray(data?.detail) && data.detail.length > 0) {
+        message = data.detail.map((d) => d.msg).join(", ");
+      } else if (typeof data?.detail === "string") {
+        message = data.detail;
+      } else if (data?.message) {
+        message = data.message;
+      }
+      setError(message);
+    }
+  } catch (err) {
+    console.error(err);
+    setError("Network error — please try again.");
+  } finally {
+    setLoading(false);
+  }
+}
+
+
 
   async function handleResend(e) {
-    e && e.preventDefault();
-    setError("");
-    setMsg("");
-    setLoading(true);
+  e && e.preventDefault();
+  setError("");
+  setMsg("");
 
-    try {
-      // Call backend to resend OTP:
-      // const { status } = await postJson("/api/auth/resend-otp", { email });
-
-      setTimeout(() => {
-        setLoading(false);
-        setMsg("A new OTP was sent to your email.");
-      }, 700);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to resend OTP. Try again later.");
-      setLoading(false);
-    }
+  if (!email) {
+    setError("Please enter your email before resending.");
+    return;
   }
+
+  setLoading(true);
+  try {
+    const { status, data } = await postJson("/auth/verify-otp/", { email }); 
+    // 👆 adjust path to match Swagger if it's different
+
+    if (status === 200) {
+      const message = extractMessage(
+        data,
+        "A new OTP was sent to your email (check backend log in dev)."
+      );
+      setMsg(message);
+    } else {
+      const message = extractMessage(
+        data,
+        "Failed to resend OTP. Try again later."
+      );
+      setError(message);
+    }
+  } catch (err) {
+    console.error(err);
+    setError("Failed to resend OTP. Try again later.");
+  } finally {
+    setLoading(false);
+  }
+}
+
 
   return (
     <div className="auth-page">
@@ -103,14 +146,37 @@ export default function OTPVerify() {
             required
           />
 
-          {error && <div className="error" role="alert">{error}</div>}
-          {msg && <div className="success" role="status" style={{ color: "#d1ffd6" }}>{msg}</div>}
+          {error && <div className="error" role="alert">{String(error)}</div>}
+{msg && (
+  <div className="success" role="status" style={{ color: "#d1ffd6" }}>
+    {String(msg)}
+  </div>
+)}
 
-          <button className="btn primary" type="submit" disabled={loading} style={{ marginTop: 8 }}>
+
+          {msg && (
+            <div className="success" role="status" style={{ color: "#d1ffd6" }}>
+              {msg}
+            </div>
+          )}
+
+          <button
+            className="btn primary"
+            type="submit"
+            disabled={loading}
+            style={{ marginTop: 8 }}
+          >
             {loading ? "Verifying…" : "Verify"}
           </button>
 
-          <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            style={{
+              marginTop: 12,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <button
               className="btn"
               type="button"
@@ -121,20 +187,23 @@ export default function OTPVerify() {
                 color: "var(--muted)",
                 border: "none",
                 cursor: "pointer",
-                padding: 0
+                padding: 0,
               }}
             >
               Resend code
             </button>
 
-            <a href="/login" style={{ color: "var(--muted)" }}>Back to login</a>
+            <a href="/login" style={{ color: "var(--muted)" }}>
+              Back to login
+            </a>
           </div>
 
           <div style={{ flex: 1 }}></div>
 
           <div className="auth-footer" style={{ marginTop: 28 }}>
-            <div>Don't have an account ? <a href="/register">Signup</a></div>
-           
+            <div>
+              Don't have an account ? <a href="/register">Signup</a>
+            </div>
           </div>
         </form>
       </div>

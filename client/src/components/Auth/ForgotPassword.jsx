@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../Common/Input";     // the reusable Input component you already added
 import "../../styles/auth.css";         // shared styles used by Login/Signup
+import { postJson } from "../../lib/api";
+
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -12,33 +14,52 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-    setMsg("");
+  e.preventDefault();
+  setError("");
+  setMsg("");
 
-    if (!email) {
-      setError("Please enter your email.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // CALL BACKEND (uncomment & adapt when backend is available)
-      // const { status, data } = await postJson("/api/auth/forgot", { email });
-      // if (status === 200) { setMsg(data?.message || "If that account exists, a reset OTP was sent."); }
-
-      // For now simulate success (remove simulated block when integrating real API)
-      setTimeout(() => {
-        setMsg("If that account exists, a reset code was sent to your email.");
-        setLoading(false);
-        
-      }, 700);
-    } catch (err) {
-      console.error(err);
-      setError("Network error — please try again.");
-      setLoading(false);
-    }
+  if (!email) {
+    setError("Please enter your email.");
+    return;
   }
+
+  setLoading(true);
+  try {
+    const { status, data } = await postJson("/auth/forgot-password/", {
+      email,
+    });
+
+    if (status === 200) {
+      setMsg(
+        data?.message ||
+          "If that account exists, a reset code was sent to your email."
+      );
+
+      setTimeout(() => {
+        navigate("/reset-password", { state: { email } });
+      }, 800);
+    } else {
+  // FastAPI 422: detail is usually an array of error objects
+  let message = "Failed to send OTP.";
+
+  if (Array.isArray(data?.detail) && data.detail.length > 0) {
+    message = data.detail[0]?.msg || message;
+  } else if (typeof data?.detail === "string") {
+    message = data.detail;
+  } else if (data?.message) {
+    message = data.message;
+  }
+
+  setError(message);
+}
+  } catch (err) {
+    console.error(err);
+    setError("Network error — please try again.");
+  } finally {
+    setLoading(false);
+  }
+}
+
 
   return (
     <div className="auth-page">
@@ -63,7 +84,12 @@ export default function ForgotPassword() {
             required
           />
 
-          {error && <div className="error" role="alert">{error}</div>}
+          {error && (
+  <div className="error" role="alert">
+    {String(error)}
+  </div>
+)}
+
           {msg && <div className="success" role="status" style={{ color: "#d1ffd6" }}>{msg}</div>}
 
           <button
