@@ -7,6 +7,8 @@ from src.schemas_user import UserCreate as _UserCreate
 from src.schemas_user import UserOut as _UserOut
 from src.auth_service import hash_password, verify_password, create_access_token, create_refresh_token
 from pydantic import BaseModel
+from src.schemas_user import ChangePasswordRequest
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -79,3 +81,25 @@ def verify_otp_route(email: str, otp: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid or expired OTP")
 
     return {"message": "OTP verified successfully"}
+from fastapi import Depends
+from src.auth_service import verify_password, hash_password
+from src.auth_service import decode_access_token
+from fastapi.security import OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+@router.post("/change-password")
+def change_password(request: ChangePasswordRequest, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    payload = decode_access_token(token)
+
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    user = db.query(User).filter(User.id == payload.get("user_id")).first()
+
+    if not verify_password(request.old_password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Old password is incorrect")
+
+    user.hashed_password = hash_password(request.new_password)
+    db.commit()
+
+    return {"message": "Password changed successfully"}
