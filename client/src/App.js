@@ -1,13 +1,21 @@
+// src/App.js
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import { AuthProvider } from "./lib/authContext";
+import BrandBadge from "./components/Common/BrandBadge";
+
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import OTPVerify from "./components/Auth/OTPVerify";
 import ForgotPassword from "./components/Auth/ForgotPassword";
 import ResetPassword from "./components/Auth/ResetPassword";
-import { AuthProvider } from "./lib/authContext";
-import "./index.css"; 
-import BrandBadge from "./components/Common/BrandBadge";
 
+import AdminDashboard from "./pages/AdminDashboard";
+import EmployeeDashboard from "./pages/EmpDashboard";
+import Shoutouts from "./pages/Shoutouts";
+
+import "./index.css";
 
 function App() {
   return (
@@ -25,7 +33,12 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* fallback: any unknown route -> redirect to /login */}
+          {/* App pages */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/employee" element={<EmployeeDashboard />} />
+          <Route path="/shoutouts" element={<Shoutouts />} />
+
+          {/* fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

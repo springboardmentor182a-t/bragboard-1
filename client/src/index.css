@@ -1,29 +1,48 @@
-@import url('https://fonts.google.com/share?selection.family=Noto+Sans:ital,wght@0,100..900;1,100..900');
+/* src/index.css */
 
+/* --- Fonts: use the proper Google Fonts URL (optional) --- */
+/* replace family with the font you actually need; Noto Sans used as example */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,400;0,700;1,100;1,400;1,700&display=swap');
 
+/* --- Tailwind directives (keep these if your project uses Tailwind) --- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Theme variables and base reset (custom) --- */
 :root{
-  --bg: #0F0F0F;                
-  --card-bg: rgba(255,255,255,0.02); 
-  --card-border: rgba(255,255,255,0.08); 
-  --muted: #FFFFFF;             
-  --text: #ffffff;              
-  --accent-start: #628EFF;     
-  --accent-end: #580475;        
+  --bg: #0F0F0F;
+  --card-bg: rgba(255,255,255,0.02);
+  --card-border: rgba(255,255,255,0.08);
+  --muted: #FFFFFF;
+  --text: #ffffff;
+  --accent-start: #628EFF;
+  --accent-end: #580475;
   --input-border: rgba(255,255,255,0.12);
   --input-placeholder: rgba(255,255,255,0.5);
-  --card-radius: 20px;         
-  --card-width: 520px;        
+  --card-radius: 20px;
+  --card-width: 520px;
 }
 
 /* 3) Global reset & page sizing */
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
+
+/* Single unified body rule — merges both versions.
+   Uses custom theme variables and sensible system fallbacks.
+*/
 body {
-  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  margin: 0;
+  font-family: 'Noto Sans', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* code font-family from the incoming file */
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 /* 4) Make sure links look right */
@@ -35,8 +54,3 @@ a { color: var(--accent-end); text-decoration: none; }
 
 /* 6) Ensure root layout works — helpful for absolute/decorative circles */
 .app-layout { display:flex; align-items:center; justify-content:center; min-height:100vh; }
-
-body {
-  font-family: sans-serif;
-  background: #0F0F0F; 
-}
