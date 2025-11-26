@@ -1,2 +1,3 @@
-env-backup-bragboard.env
 .venv
+__pycache__/
+*.pyc

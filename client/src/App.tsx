@@ -6,7 +6,7 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage.tsx';
 import OtpVerificationPage from './pages/auth/OtpVerificationPage.tsx';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage.tsx';
 import RegisterPage from './pages/auth/RegisterPage.js';
-import { Dashboard } from './pages/dashboard/Dashboard.tsx';
+import { Dashboard } from './pages/dashboard/Dasboard.tsx';
 
 type UserRole = 'admin' | 'employee';
 

@@ -1,13 +1,10 @@
-<<<<<<< HEAD
 ﻿# server/src/schemas_user.py
 
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
-=======
-﻿from pydantic import BaseModel
+from pydantic import BaseModel
 from datetime import datetime
->>>>>>> origin/main-group-c
 
 # Schema the client sends during registration
 class UserCreate(BaseModel):
@@ -16,7 +13,6 @@ class UserCreate(BaseModel):
     password: str
     department: str
 
-<<<<<<< HEAD
 
 class UserOut(BaseModel):
     id: int
@@ -32,7 +28,6 @@ class UserOut(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-=======
 # Schema returned to the client after registration
 class UserOut(BaseModel):
     id: int
@@ -49,4 +44,3 @@ from pydantic import BaseModel
 class ChangePasswordRequest(BaseModel):
     old_password: str
     new_password: str
->>>>>>> origin/main-group-c
