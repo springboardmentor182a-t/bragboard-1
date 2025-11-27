@@ -1,50 +1,87 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { api } from "../../utils/api";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../../components/ui/button.tsx";
+import { Input } from "../../components/ui/input.tsx";
+import { Label } from "../../components/ui/label.tsx";
 
-const RegisterPage = () => {
+export default function RegisterPage() {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    department: "",
+  });
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    try {
+      await api.post("/auth/register", form);
+      setSuccess("Registration successful! Please login.");
+      setError("");
+      setTimeout(() => navigate("/login"), 1500);
+    } catch (err) {
+      setError(err.response?.data?.detail || "Registration failed");
+    }
+  };
+
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Register</h2>
-      <input style={styles.input} type="text" placeholder="Name" />
-      <input style={styles.input} type="email" placeholder="Email" />
-      <input style={styles.input} type="password" placeholder="Password" />
-      <button style={styles.button}>Register</button>
-      <div style={styles.links}>
-        <Link to="/login">Already have an account? Login</Link>
-      </div>
+    <div className="auth-container">
+      <h2>Register</h2>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {success && <p style={{ color: "green" }}>{success}</p>}
+
+      <form onSubmit={handleRegister}>
+        <input
+          type="text"
+          name="name"
+          placeholder="Full Name"
+          value={form.name}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="text"
+          name="department"
+          placeholder="Department"
+          value={form.department}
+          onChange={handleChange}
+          required
+        />
+
+        <button type="submit">Register</button>
+      </form>
+
+      <p onClick={() => navigate("/login")}>Already have an account? Login</p>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    maxWidth: "400px",
-    margin: "80px auto",
-    padding: "20px",
-    borderRadius: "10px",
-    background: "#fff",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-    textAlign: "center",
-  },
-  title: { marginBottom: "20px" },
-  input: {
-    width: "100%",
-    padding: "10px",
-    marginBottom: "15px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
-  },
-  button: {
-    width: "100%",
-    padding: "10px",
-    borderRadius: "6px",
-    border: "none",
-    backgroundColor: "#4CAF50",
-    color: "#fff",
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
-  links: { marginTop: "15px", fontSize: "14px" },
-};
-
-export default RegisterPage;
+}
