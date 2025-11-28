@@ -3,3 +3,21 @@ server/node_modules/
 node_modules/
 dist/
 .env
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+# Virtual environments
+venv/
+.venv/
+# Logs
+*.log
+# OS files
+.DS_Store
+# Editor folders
+.vscode/
+# Testing cache
+.pytest_cache/
+# Builds
+dist/
+build/
