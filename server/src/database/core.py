@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 DATABASE_URL = "sqlite:///./shoutouts.db"   # Use PostgreSQL later in internship 😄
+DATABASE_URL = "sqlite:///./auth.db"
 
 engine = create_engine(
     DATABASE_URL, connect_args={"check_same_thread": False}
