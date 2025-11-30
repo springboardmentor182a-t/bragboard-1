@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from .models import Comment
+from entities.comments import Comment
 from .schemas import CommentCreate, CommentUpdate
 from datetime import datetime
 
@@ -26,3 +26,4 @@ def update_comment(db: Session, db_comment: Comment, update: CommentUpdate):
 def delete_comment(db: Session, db_comment: Comment):
     db.delete(db_comment)
     db.commit()
+
