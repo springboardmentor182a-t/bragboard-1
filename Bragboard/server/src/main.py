@@ -15,3 +15,7 @@ app.include_router(employee_router, prefix="/employee", tags=["Employee Analytic
 @app.get("/")
 def root():
     return {"message": "API Server Running ✅"}
+from src.auth import router as auth_router
+app = FastAPI()
+
+app.include_router(auth_router, prefix="/auth")
