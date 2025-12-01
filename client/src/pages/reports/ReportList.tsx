@@ -1,21 +1,38 @@
+// src/reports/ReportList.tsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+// Define the type for a report
+interface Report {
+  id: number;
+  shoutout_text: string;
+  reason: string;
+  reported_by: string;
+  status: string;
+}
+
 export default function ReportList() {
-  const [reports, setReports] = useState([]);
+  const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8000/reports")
-      .then(res => setReports(res.data))
-      .catch(() => alert("Error fetching reports"));
+    const fetchReports = async () => {
+      try {
+        const res = await axios.get<Report[]>("http://localhost:8000/reports");
+        setReports(res.data);
+      } catch (error) {
+        alert("Error fetching reports");
+        console.error(error);
+      }
+    };
+    fetchReports();
   }, []);
 
   return (
     <div style={{ padding: "20px" }}>
       <h2>Reported Shoutouts</h2>
 
-      <table border="1" cellPadding="10" style={{ marginTop: "20px", width: "100%" }}>
+      <table border={1} cellPadding={10} style={{ marginTop: "20px", width: "100%" }}>
         <thead>
           <tr>
             <th>ID</th>
@@ -27,7 +44,7 @@ export default function ReportList() {
         </thead>
 
         <tbody>
-          {reports.map(r => (
+          {reports.map((r) => (
             <tr key={r.id}>
               <td>{r.id}</td>
               <td>{r.shoutout_text}</td>

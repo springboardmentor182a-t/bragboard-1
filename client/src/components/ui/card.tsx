@@ -1,33 +1,30 @@
-import React from 'react';
-import clsx from 'clsx';
+import React, { ReactNode } from "react";
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
+interface CardProps {
+  children: ReactNode;
   className?: string;
 }
 
-export const Card: React.FC<CardProps> = ({ children, className, ...props }) => (
-  <div {...props} className={clsx("bg-white shadow-md rounded-xl p-6 relative", className)}>
-    {children}
-  </div>
-);
+export function Card({ children, className = "" }: CardProps) {
+  return (
+    <div className={`rounded-xl border bg-white p-4 shadow-sm ${className}`}>
+      {children}
+    </div>
+  );
+}
 
-export const CardHeader: React.FC<CardProps> = ({ children, className, ...props }) => (
-  <div {...props} className={clsx("mb-4", className)}>
-    {children}
-  </div>
-);
+export function CardHeader({ children, className = "" }: CardProps) {
+  return <div className={`mb-2 ${className}`}>{children}</div>;
+}
 
-export const CardContent: React.FC<CardProps> = ({ children, className, ...props }) => (
-  <div {...props} className={clsx("mt-2", className)}>
-    {children}
-  </div>
-);
+export function CardTitle({ children, className = "" }: CardProps) {
+  return <h2 className={`text-xl font-bold ${className}`}>{children}</h2>;
+}
 
-export const CardTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-  <h2 className={clsx("text-xl font-bold text-gray-900", className)}>{children}</h2>
-);
+export function CardDescription({ children, className = "" }: CardProps) {
+  return <p className={`text-gray-600 text-sm ${className}`}>{children}</p>;
+}
 
-export const CardDescription: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-  <p className={clsx("text-sm text-gray-500", className)}>{children}</p>
-);
+export function CardContent({ children, className = "" }: CardProps) {
+  return <div className={className}>{children}</div>;
+}

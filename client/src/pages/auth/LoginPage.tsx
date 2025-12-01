@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { MessageSquare, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from '../../components/ui/button.tsx';
-import { Input } from '../../components/ui/input.tsx';
-import { Label } from '../../components/ui/label.tsx';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
 
 import { toast } from "sonner";
 
