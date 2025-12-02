@@ -19,3 +19,4 @@ app.add_middleware(
 
 # ⭐ ROUTES
 app.include_router(shoutouts_router)
+app.include_router(router, prefix="/auth", tags=["Auth"])
