@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import update
 from sqlalchemy.orm import Session
-from comments.models import Comment
+from entities.comments import Comment
 from database import get_db
 from . import crud, schemas
 from typing import List
@@ -45,4 +45,5 @@ def remove_comment(comment_id: int, user_id: int, db: Session = Depends(get_db))
         raise HTTPException(status_code=403, detail="Not authorized")
     crud.delete_comment(db, comment)
     return None
+
 
