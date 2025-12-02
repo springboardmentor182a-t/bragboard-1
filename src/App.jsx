@@ -4,6 +4,9 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import DashboardLayout from "./layouts/DashboardLayout";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import Reports from "./pages/Reports";
 import NotAuthorized from "./pages/NotAuthorized";
 
 function ProtectedRoute({ children, role }) {
@@ -20,11 +23,14 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <DashboardLayout>
-          <Routes>
-            {/* Employee + Admin can see this */}
+        <Routes>
+
+          {/* Layout route */}
+          <Route path="/" element={<DashboardLayout />}>
+
+            {/* Employee + Admin Dashboard */}
             <Route
-              path="/"
+              index
               element={
                 <ProtectedRoute role={["employee", "admin"]}>
                   <EmployeeDashboard />
@@ -32,9 +38,39 @@ export default function App() {
               }
             />
 
-            {/* Only Admin */}
+            {/* Profile (employee + admin) */}
             <Route
-              path="/admin"
+              path="profile"
+              element={
+                <ProtectedRoute role={["employee", "admin"]}>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Settings (employee + admin) */}
+            <Route
+              path="settings"
+              element={
+                <ProtectedRoute role={["employee", "admin"]}>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Reports (admin only) */}
+            <Route
+              path="reports"
+              element={
+                <ProtectedRoute role={["admin"]}>
+                  <Reports />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Dashboard */}
+            <Route
+              path="admin"
               element={
                 <ProtectedRoute role={["admin"]}>
                   <AdminDashboard />
@@ -42,10 +78,21 @@ export default function App() {
               }
             />
 
+            {/* Not Found */}
             <Route path="*" element={<NotAuthorized />} />
-          </Routes>
-        </DashboardLayout>
+          </Route>
+        </Routes>
       </BrowserRouter>
     </AuthProvider>
   );
 }
+<Route
+  path="settings"
+  element={
+    <ProtectedRoute role={["employee", "admin"]}>
+      <Settings />
+    </ProtectedRoute>
+  }
+/>
+
+
