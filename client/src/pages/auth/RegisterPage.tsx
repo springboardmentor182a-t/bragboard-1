@@ -1,35 +1,41 @@
-import React, { useState } from "react";
-import { api } from "../../utils/api";
+import React, { useState, ChangeEvent, FormEvent } from "react";
+import { api } from "../../api"; // Correct path for your project
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/ui/button.tsx";
-import { Input } from "../../components/ui/input.tsx";
-import { Label } from "../../components/ui/label.tsx";
+
+interface RegisterForm {
+  name: string;
+  email: string;
+  password: string;
+  department: string;
+}
 
 export default function RegisterPage() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<RegisterForm>({
     name: "",
     email: "",
     password: "",
     department: "",
   });
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
 
-  const handleChange = (e) =>
+  // Correctly type the event
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleRegister = async (e) => {
+  const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
       await api.post("/auth/register", form);
       setSuccess("Registration successful! Please login.");
       setError("");
-      setTimeout(() => navigate("/login"), 1500);
-    } catch (err) {
+      setTimeout(() => navigate("/auth/login"), 1500);
+    } catch (err: any) {
+      // Type-safe access to error response
       setError(err.response?.data?.detail || "Registration failed");
     }
   };
@@ -81,7 +87,12 @@ export default function RegisterPage() {
         <button type="submit">Register</button>
       </form>
 
-      <p onClick={() => navigate("/login")}>Already have an account? Login</p>
+      <p
+        onClick={() => navigate("/auth/login")}
+        className="cursor-pointer text-blue-500 mt-4"
+      >
+        Already have an account? Login
+      </p>
     </div>
   );
 }

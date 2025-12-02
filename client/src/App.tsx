@@ -1,16 +1,15 @@
-// src/App.tsx
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { LoginPage } from './pages/auth/LoginPage.tsx';
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage.tsx';
-import OtpVerificationPage from './pages/auth/OtpVerificationPage.tsx';
-import ResetPasswordPage from './pages/auth/ResetPasswordPage.tsx';
-import RegisterPage from './pages/auth/RegisterPage.js';
-import { Dashboard } from './pages/dashboard/Dasboard.tsx';
+import { LoginPage } from './pages/auth/LoginPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import OtpVerificationPage from './pages/auth/OtpVerificationPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import { Dashboard } from './pages/dashboard/Dashboard';
 
-type UserRole = 'admin' | 'employee';
+export type UserRole = 'admin' | 'employee';
 
-interface UserData {
+export interface UserData {
   name: string;
   email: string;
 }
@@ -31,26 +30,29 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen">
-        <Routes>
-          <Route
-            path="/"
-            element={userRole && userData ? (
+      <Routes>
+        {/* Root route: if logged in, go to Dashboard; otherwise redirect to login */}
+        <Route
+          path="/"
+          element={
+            userRole && userData ? (
               <Dashboard userRole={userRole} userData={userData} onLogout={handleLogout} />
             ) : (
               <Navigate to="/auth/login" replace />
-            )}
-          />
+            )
+          }
+        />
 
-          <Route path="/auth/login" element={<LoginPage onLogin={handleLogin} />} />
-          <Route path="/auth/register" element={<RegisterPage />} />
-          <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/auth/otp" element={<OtpVerificationPage />} />
-          <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+        {/* Authentication routes */}
+        <Route path="/auth/login" element={<LoginPage onLogin={handleLogin} />} />
+        <Route path="/auth/register" element={<RegisterPage />} />
+        <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/auth/otp" element={<OtpVerificationPage />} />
+        <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
+        {/* Catch-all redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   );
 }
