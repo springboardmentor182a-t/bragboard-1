@@ -1,12 +1,6 @@
 import React from "react";
 
-const Leaderboard = () => {
-  const leaders = [
-    { rank: 1, name: "John Smith", shoutouts: 15 },
-    { rank: 2, name: "Mike Chen", shoutouts: 12 },
-    { rank: 3, name: "Alex Rivera", shoutouts: 10 },
-  ];
-
+const AnalyticsLeaderboard = ({ contributors = [] }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
@@ -14,29 +8,31 @@ const Leaderboard = () => {
       </h3>
 
       <div className="space-y-3">
-        {leaders.map((leader) => (
+        {contributors.map((leader, index) => (
           <div
-            key={leader.rank}
+            key={index}
             className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
           >
             <div className="flex items-center space-x-3">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  leader.rank === 1
+                  index === 0
                     ? "bg-yellow-500"
-                    : leader.rank === 2
+                    : index === 1
                     ? "bg-gray-400"
                     : "bg-orange-500"
                 }`}
               >
-                <span className="text-white font-bold text-sm">
-                  {leader.rank}
-                </span>
+                <span className="text-white font-bold">{index + 1}</span>
               </div>
-              <span className="font-medium text-gray-800">{leader.name}</span>
+
+              <span className="font-medium text-gray-800">
+                {leader.name}
+              </span>
             </div>
+
             <span className="text-sm text-gray-600">
-              {leader.shoutouts} shoutouts
+              {leader.count} shoutouts
             </span>
           </div>
         ))}
@@ -45,4 +41,4 @@ const Leaderboard = () => {
   );
 };
 
-export default Leaderboard;
+export default AnalyticsLeaderboard;
