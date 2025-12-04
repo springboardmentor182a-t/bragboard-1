@@ -3,6 +3,7 @@ function AnalyticsCards({ loading }) {
     if (loading) {
       // Animated Tailwind placeholders
       return (
+        <div className="text-black">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1,2,3].map(i => (
             <div key={i} className="animate-pulse bg-white p-4 rounded shadow">
@@ -11,10 +12,12 @@ function AnalyticsCards({ loading }) {
             </div>
           ))}
         </div>
+        </div>
       );
     }
     // Replace with real stats
     return (
+      <div className="text-black">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-4 rounded shadow">
           <div className="text-gray-500">Total Shout-Outs</div>
@@ -28,6 +31,7 @@ function AnalyticsCards({ loading }) {
           <div className="text-gray-500">Active Users</div>
           <div className="text-2xl font-bold">{EMPLOYEES.length}</div>
         </div>
+      </div>
       </div>
     );
   }
