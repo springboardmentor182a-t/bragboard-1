@@ -51,7 +51,7 @@ export default function OTPVerify() {
   otp,   // or 'code': otp if backend expects "code"
 }).toString();
 
-const { status, data } = await postJson(`/auth/verify-otp/?${qs}`, {});
+const { status, data } = await postJson(`/verify-otp/?${qs}`, {});
 
 
     if (status === 200) {

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean
-from database import Base
+from src.database.core import Base
 
 class User(Base):
     __tablename__ = 'users'
@@ -9,3 +9,4 @@ class User(Base):
     password = Column(String, nullable=False)
     is_verified = Column(Boolean, default=False)
     otp = Column(String, nullable=True)
+    role = Column(String, default="employee")  # "admin" or "employee"

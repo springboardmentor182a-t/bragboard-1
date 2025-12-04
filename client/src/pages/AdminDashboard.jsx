@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import DashboardLayout from '../components/Admin/DashboardLayout';
+import DashboardLayout from "../layout/DashboardLayout";
 import AnalyticsCards from '../components/Admin/AnalyticsCards';
 import ShoutOuts from '../components/Admin/ShoutOuts';
 import Departments from '../components/Admin/Departments';
@@ -11,7 +11,7 @@ function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [loading] = useState(false);
 
-  let SectionComponent;
+  let SectionComponent; 
   switch (activeSection) {
     case 'dashboard':
       SectionComponent = <DashboardOverview />;

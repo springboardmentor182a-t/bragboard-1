@@ -30,15 +30,13 @@ ChartJS.register(
   Legend
 );
 
-function AnalyticsCards() {
-  const loading = false;
-
+function AnalyticsCards({ loading }) {
   // KPI values
   const totalShoutouts = SHOUTOUTS.length;
   const activeUsers = EMPLOYEES.length;
   const topTag = computeTopTag(SHOUTOUTS);
 
-  // ---------- TOP EMPLOYEES (no dummy arrays) ----------
+  // ---------- TOP EMPLOYEES ----------
   const employeeStats = EMPLOYEES.map((emp) => {
     const myShoutouts = SHOUTOUTS.filter(
       (s) => s.from === emp.id || s.to === emp.id
@@ -87,7 +85,7 @@ function AnalyticsCards() {
     },
   };
 
-  // ---------- WEEKLY ENGAGEMENT (from createdAt) ----------
+  // ---------- WEEKLY ENGAGEMENT ----------
   const weeklyBuckets = {
     "Week 1": [],
     "Week 2": [],
@@ -161,7 +159,7 @@ function AnalyticsCards() {
     },
   };
 
-  // ---------- DEPARTMENT ENGAGEMENT (for pie + table) ----------
+  // ---------- DEPARTMENT ENGAGEMENT ----------
   const deptEngagement = DEPARTMENTS.map((dept) => {
     const deptEmployees = EMPLOYEES.filter(
       (emp) => emp.department === dept
@@ -196,9 +194,11 @@ function AnalyticsCards() {
     plugins: { legend: { position: "bottom" } },
   };
 
+  // ---------- LOADING STATE ----------
   if (loading) {
+    // Animated Tailwind placeholders
     return (
-      <div className="p-6">
+      <div className="p-6 text-black">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
             <div
@@ -214,6 +214,7 @@ function AnalyticsCards() {
     );
   }
 
+  // ---------- MAIN RENDER ----------
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -311,7 +312,9 @@ function AnalyticsCards() {
               <tr>
                 <th className="px-4 py-2 text-left font-medium">Department</th>
                 <th className="px-4 py-2 text-left font-medium">Shout-outs</th>
-                <th className="px-4 py-2 text-left font-medium">Active users</th>
+                <th className="px-4 py-2 text-left font-medium">
+                  Active users
+                </th>
                 <th className="px-4 py-2 text-left font-medium">Top tag</th>
               </tr>
             </thead>

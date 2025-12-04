@@ -2,6 +2,7 @@ import { DEPARTMENTS, EMPLOYEES, SHOUTOUTS } from "../../data/constants";
 function DashboardOverview() {
   return (
     <div>
+      <div className="text-black">
        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="bg-green-100 p-6 rounded shadow flex items-center gap-4">
           <span className="text-xl font-semibold">Departments: {DEPARTMENTS.length}</span>
@@ -17,6 +18,7 @@ function DashboardOverview() {
         <button className="bg-purple-600 text-white px-4 py-2 rounded shadow hover:bg-purple-700">Add Department</button>
         <button className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Add Employee</button>
         <button className="bg-yellow-500 text-white px-4 py-2 rounded shadow hover:bg-yellow-600">New ShoutOut</button>
+      </div>
       </div>
     </div>
   );

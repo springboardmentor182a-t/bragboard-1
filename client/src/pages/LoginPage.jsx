@@ -1,19 +1,31 @@
 // src/pages/LoginPage.jsx
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("employee");
+  const navigate = useNavigate();
+
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    // Placeholder: just calls onLogin, no real auth
-    if (onLogin) {
-      onLogin({ username, role });
-    }
-  };
+  e.preventDefault();
+
+  if (onLogin) {
+    onLogin({ username, role });
+  }
+
+  
+  if (role === "admin") {
+    navigate("/admin");        // or "/admin-dashboard"
+  } else {
+    navigate("/employee");     // or "/employee-dashboard"
+  }
+};
+
 
   return (
     <div className="flex min-h-screen bg-gray-100 items-center justify-center">

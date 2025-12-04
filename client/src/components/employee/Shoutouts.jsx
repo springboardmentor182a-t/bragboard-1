@@ -35,7 +35,7 @@ function Shoutouts() {
   }
 
   return (
-    <div style={{ padding: "32px 32px 32px 0", display: "flex", gap: "20px" }}>
+    <div style={{ padding: "32px 32px 32px 0", display: "flex", gap: "20px" , color: "#333333"}}>
       <div style={{ flex: 2 }}>
         <h2>Employee Shoutouts</h2>
         <form onSubmit={handleSubmit}>
