@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BragBoard - Employee Recognition Leaderboard</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Loading screen styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            z-index: 9999;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            display: none;
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen (shown until React loads) -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="spinner"></div>
+        <h1 style="margin-bottom: 10px; font-size: 24px;">BragBoard</h1>
+        <p style="margin-bottom: 20px; opacity: 0.8;">Loading Employee Recognition System...</p>
+        <div class="progress-bar" style="width: 300px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px;">
+            <div class="progress" style="width: 70%; height: 100%; background: white; border-radius: 2px; animation: progress 2s ease-in-out infinite;"></div>
+        </div>
+        
+        <!-- Error message (hidden by default) -->
+        <div id="error-message" class="error-message">
+            <strong>JavaScript Error Detected!</strong><br>
+            Please enable JavaScript or check browser console.
+        </div>
+    </div>
+    
+    <!-- Root element for React -->
+    <div id="root"></div>
+    
+    <!-- Error handler script -->
+    <script>
+        // Hide loading screen when React mounts
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.style.opacity = '0';
+                    loadingScreen.style.transition = 'opacity 0.5s';
+                    setTimeout(function() {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                }
+            }, 1000);
+        });
+        
+        // Show error if JavaScript is disabled
+        if (!window.Promise || !window.fetch) {
+            document.getElementById('error-message').style.display = 'block';
+        }
+        
+        // Catch any loading errors
+        window.addEventListener('error', function(e) {
+            console.error('Page error:', e.error);
+            var errorDiv = document.getElementById('error-message');
+            errorDiv.innerHTML = '<strong>Application Error</strong><br>Check console for details.';
+            errorDiv.style.display = 'block';
+        });
+    </script>
+    
+    <!-- For browsers that don't support ES6 -->
+    <script>
+        // Polyfill for older browsers
+        if (!window.Promise) {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"><\/script>');
+        }
+        if (!window.fetch) {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.6.2/dist/fetch.umd.min.js"><\/script>');
+        }
+    </script>
+</body>
+</html>
