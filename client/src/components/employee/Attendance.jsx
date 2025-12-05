@@ -167,6 +167,7 @@ function Attendance() {
       <style>{`
         .attendance-container {
           padding: 20px 30px;
+          color: #333; 
         }
 
         .page-title {

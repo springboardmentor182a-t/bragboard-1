@@ -38,7 +38,7 @@ function Tasks() {
   }
 
   return (
-    <div style={{ paddingRight: 20 }}>
+    <div style={{ paddingRight: 20, color: "#333333" }}>
       <h2 style={{ marginBottom: "18px" }}>🗂️ Tasks & Projects</h2>
 
       {/* Add New Task Form */}

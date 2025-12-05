@@ -25,7 +25,7 @@ export default function ForgotPassword() {
 
   setLoading(true);
   try {
-    const { status, data } = await postJson("/auth/forgot-password/", {
+    const { status, data } = await postJson("/forgot-password/", {
       email,
     });
 

@@ -24,22 +24,34 @@ export default function Login() {
   setLoading(true);
   try {
     
-    const { status, data } = await postJson("/auth/login/", {
+    const { status, data } = await postJson("/login/", {
       email,        // same fields you used in Swagger
       password,
     });
 
     if (status === 200) {
-      console.log("Login success:", data);
+  console.log("Login success:", data);
 
-      // store access token (simple version)
-      if (data?.access_token) {
-        localStorage.setItem("access_token", data.access_token);
-      }
+  // store token
+  if (data?.access_token) {
+    localStorage.setItem("access_token", data.access_token);
+  }
 
-      // redirect to some page (later your dashboard)
-      navigate("/", { replace: true });
-    } else if (status === 403 && data?.detail?.toLowerCase().includes("not verified")) {
+  // store role (optional but useful)
+  if (data?.role) {
+    localStorage.setItem("role", data.role);
+  }
+
+  // redirect based on role
+  if (data.role === "admin") {
+    navigate("/Admin", { replace: true });      // your admin dashboard route
+  } else {
+    navigate("/employee", { replace: true });   // your employee dashboard route
+  }
+
+  return;
+}
+ else if (status === 403 && data?.detail?.toLowerCase().includes("not verified")) {
       setErr("Account not verified. Please verify your email.");
       // optionally navigate("/verify-otp", { state: { email } });
     } else if (status === 401) {
