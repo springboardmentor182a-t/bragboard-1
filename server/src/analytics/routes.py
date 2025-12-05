@@ -3,8 +3,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from database import get_db
-from entities.analytics import Employee, Shoutout, Department  # change to your paths
+from src.database.core import get_db
+from src.entities.analytics import Employee, Shoutout, Department  # change to your paths
 
 router = APIRouter(
     prefix="/admin/dashboard",

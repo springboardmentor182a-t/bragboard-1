@@ -49,7 +49,7 @@ export default function Signup() {
     setLoading(true);
     try {
       
-      const { status, data } = await postJson("/auth/register/", {
+      const { status, data } = await postJson("/register/", {
         email: form.email,
         password: form.password,
         name: form.username,

@@ -7,6 +7,7 @@ export default function Input({ label, name, type="text", value, onChange, place
   const inputType = isPassword ? (visible ? "text" : "password") : type;
 
   return (
+    <div className="text-black">
     <div className="field">
       {label && <label className="label" htmlFor={name}>{label}{required ? " *" : ""}</label>}
       <div className="input-with-icon">
@@ -28,6 +29,7 @@ export default function Input({ label, name, type="text", value, onChange, place
       </div>
       {hint && !error && <div className="hint">{hint}</div>}
       {error && <div className="error" role="alert">{error}</div>}
+    </div>
     </div>
   );
 }

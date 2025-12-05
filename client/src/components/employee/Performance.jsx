@@ -38,7 +38,7 @@ function Performance() {
   }
 
   return (
-    <div>
+    <div style={{color:"#333"}}>
       <h3>Performance & Analytics</h3>
       {/* KPI Data Cards */}
       <div style={{ display: "flex", gap: "22px", marginBottom: "24px", marginTop: "10px" }}>

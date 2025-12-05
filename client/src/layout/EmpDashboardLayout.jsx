@@ -3,6 +3,7 @@ import EmpHeader from "./EmpHeader";
 
 function EmployeeDashboardLayout({ children, activeSection, setActiveSection }) {
   return (
+    <div className="text-black">
     <div className="flex min-h-screen">
 
       <EmpSidebar 
@@ -20,7 +21,7 @@ function EmployeeDashboardLayout({ children, activeSection, setActiveSection }) 
           {children}
         </main>
       </div>
-
+    </div>
     </div>
   );
 }

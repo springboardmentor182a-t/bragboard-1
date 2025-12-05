@@ -21,7 +21,7 @@ function Profile() {
   }
 
   return (
-    <div>
+    <div style={{color: "#333"}}>
       <h3>Personal Profile & Documents</h3>
       <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
         <img

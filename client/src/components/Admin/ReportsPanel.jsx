@@ -3,6 +3,7 @@ import { SHOUTOUTS, getEmployeeName } from "../../data/constants"; // adjust pat
 
 function ShoutOuts() {
   return (
+    <div className="text-black">
     <div className="bg-white p-4 rounded shadow mb-6">
       <div className="font-bold mb-2">Recent ShoutOuts</div>
       <ul>
@@ -14,6 +15,7 @@ function ShoutOuts() {
           </li>
         ))}
       </ul>
+    </div>
     </div>
   );
 }
