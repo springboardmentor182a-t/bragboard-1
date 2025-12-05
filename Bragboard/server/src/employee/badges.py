@@ -1,52 +1,64 @@
-def get_badges(sent, received, tagged, reactions_earned=0, comments_written=0, tenure_days=0, role="employee"):
+def get_badges(employee_list):
     """
-    Badge system based on contribution, impact, engagement and seniority.
+    Badge system based on leaderboard (sorted by shouts sent), not fixed numbers.
     """
 
-    badges = []
+    # Step 1: Sort employees by 'sent' (most shouts first)
+    employee_list.sort(key=lambda x: x["sent"], reverse=True)
 
-    if sent >= 20:
-        badges.append("Top Sender")
-    elif sent >= 10:
-        badges.append("Active Sender")
-    elif sent >= 5:
-        badges.append("Rising Contributor")
+    # Step 2: Assign badges based on sorted order and impact
+    for position, emp in enumerate(employee_list):
+        badges = []
 
-    if received >= 40:
-        badges.append("Most Valued Star")
-    elif received >= 25:
-        badges.append("Highly Recognized")
-    elif received >= 10:
-        badges.append("Appreciated Team Member")
+        # 👑 Top shout givers get special badges (relative position based)
+        if position == 0:
+            badges.append("Top Sender")
+            badges.append("Leaderboard Champion 👑")
+        elif position == 1:
+            badges.append("High Impact Sender")
+        elif position == 2:
+            badges.append("Elite Sender")
+        elif position <= 5:
+            badges.append("Top Contributor")
+        elif position <= 10:
+            badges.append("Active Contributor")
+        else:
+            badges.append("Contributor")
 
-    if tagged >= 30:
-        badges.append("Tag Magnet")
-    elif tagged >= 15:
-        badges.append("Team Favorite")
+        # ⭐ Impact badges based on comparison
+        if emp["received"] >= max(10, emp["sent"] * 0.4):  # well-recognized relative to effort
+            badges.append("Most Valued Star")
+        elif emp["received"] >= emp["sent"] * 0.2:
+            badges.append("Appreciated Member")
 
-    if reactions_earned >= 150:
-        badges.append("Crowd Puller")
-    elif reactions_earned >= 50:
-        badges.append("Reaction Collector")
+        # 🎯 Team interaction badges relative to top members
+        if emp["tagged"] >= max(5, employee_list[0]["tagged"] * 0.5):
+            badges.append("Tag Magnet")
+        elif emp["tagged"] >= emp["sent"] * 0.3:
+            badges.append("Team Favorite")
 
-    if comments_written >= 100:
-        badges.append("Voice of Appreciation")
-    elif comments_written >= 20:
-        badges.append("Active Communicator")
+        # 🔥 Engagement badges
+        if emp["reactions_earned"] >= max(30, employee_list[0]["reactions_earned"] * 0.4):
+            badges.append("Reaction Collector")
+        if emp["comments_written"] >= max(10, employee_list[0]["comments_written"] * 0.3):
+            badges.append("Active Communicator")
 
-    if tenure_days >= 365:
-        badges.append("Loyal Legend")
-    elif tenure_days >= 180:
-        badges.append("Committed Member")
+        # 🧡 Seniority badges
+        if emp["tenure_days"] >= employee_list[0]["tenure_days"]:
+            badges.append("Loyal Legend")
 
-    if role in ["admin", "manager"]:
-        badges.append("Team Leader")
-        if sent >= 30:
-            badges.append("Inspiring Leader")
-        if received >= 25:
-            badges.append("Respected Leader")
+        # 🧑‍💼 Leadership badges
+        if emp["role"] in ["admin", "manager"]:
+            badges.append("Team Leader")
+            if position == 0:
+                badges.append("Inspiring Leader 🌟")
+            if emp["received"] >= employee_list[0]["received"] * 0.7:
+                badges.append("Respected Leader")
 
-    if role == "manager" and tenure_days > 400:
-        badges.append("Leadership Spotlight")
+        # Manager spotlight based on seniority relative to team
+        if emp["role"] == "manager" and emp["tenure_days"] > employee_list[0]["tenure_days"] * 0.8:
+            badges.append("Leadership Spotlight")
 
-    return badges
+        emp["badges"] = badges
+
+    return employee_list

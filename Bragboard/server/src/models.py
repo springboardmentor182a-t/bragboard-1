@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Enum, ForeignKey
 from sqlalchemy.sql import func
 from src.database import Base
-
 class Users(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)

@@ -4,11 +4,9 @@ from src.database import get_db
 from src.models import Users, ShoutOuts, Comments, Reactions, ShoutOutRecipients
 from sqlalchemy import func
 from datetime import datetime, timedelta
-
 class AnalyticsService:
     def __init__(self, db: Session = Depends(get_db)):
         self.db = db
-
     def overview(self):
         return {
             "total_employees": self.db.query(Users).count(),
@@ -16,7 +14,6 @@ class AnalyticsService:
             "total_comments": self.db.query(Comments).count(),
             "total_reactions": self.db.query(Reactions).count(),
         }
-
     def top_senders(self, limit):
         data = (
             self.db.query(ShoutOuts.sender_id, func.count().label("count"))
