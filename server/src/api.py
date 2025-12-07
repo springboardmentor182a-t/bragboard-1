@@ -2,12 +2,12 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from database import engine, get_db
 from entities.comments import Base as CommentBase
-from entities.shoutouts import Base as ShoutoutBase
+from entities.admin_shoutouts import Base as ShoutoutBase
 from comments.routes import router as comments_router
 from analytics.routes import router as analytics_router
 from shoutouts import routes as admin_shoutouts
 from fastapi.middleware.cors import CORSMiddleware
-from entities.shoutouts import Shoutout
+from entities.admin_shoutouts import Shoutout
 
 app = FastAPI()
 
