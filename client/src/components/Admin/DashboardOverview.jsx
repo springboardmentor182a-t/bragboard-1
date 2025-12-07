@@ -6,7 +6,7 @@ import {
   getEmployeeName,
   LEADERBOARD,
 } from "../../data/constants";
-import ShoutoutsPage from "./ShoutOuts.jsx";
+import ShoutoutsPage from "../Common/ShoutOuts";
 function DashboardOverview() {
   const recent = [...SHOUTOUTS]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -128,3 +128,4 @@ function DashboardOverview() {
 }
 
 export default DashboardOverview;
+
