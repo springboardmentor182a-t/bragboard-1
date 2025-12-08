@@ -1,135 +1,140 @@
-﻿from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+﻿# server/src/auth_controller.py
+
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from fastapi.security import OAuth2PasswordBearer
-
-from src.core import get_db
-from src.entities_user import User
-from src.schemas_user import UserCreate, UserOut, ChangePasswordRequest
-from src.auth_service import (
-    hash_password, verify_password,
-    create_access_token, create_refresh_token,
-    decode_access_token
-)
-from src.otp_service import create_and_store_otp, verify_otp
-
+import random
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+# In-memory storage (for testing)
+users_db = {}      # email -> {name, email, password, role}
+otp_store = {}     # email -> otp
 
-# ------------------------------------------------
-# REGISTER
-# ------------------------------------------------
-@router.post("/register", response_model=UserOut)
-def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(User.email == user_in.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+# --------------------
+# Schemas
+# --------------------
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: str  # admin / employee
 
-    hashed = hash_password(user_in.password)
-    user = User(
-        name=user_in.name,
-        email=user_in.email,
-        hashed_password=hashed,
-        department=user_in.department
-    )
-
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
-
-
-# ------------------------------------------------
-# LOGIN
-# ------------------------------------------------
 class LoginRequest(BaseModel):
     email: str
     password: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
 
-class TokenOut(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str = "bearer"
+class VerifyOTPRequest(BaseModel):
+    email: str
+    otp: str
 
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp: str
+    new_password: str
 
-@router.post("/login", response_model=TokenOut)
-def login(req: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == req.email).first()
+# --------------------
+# Helper functions
+# --------------------
+def hash_password(password: str) -> str:
+    return password + "_hashed"  # dummy hash
 
-    if not user or not verify_password(req.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Invalid credentials")
+def verify_password(password: str, hashed: str) -> bool:
+    return hash_password(password) == hashed
 
-    token_data = {"sub": user.email, "user_id": user.id, "role": user.role}
+def create_access_token(data: dict) -> str:
+    return "dummy_token_" + data.get("email", "")
 
-    access = create_access_token(token_data)
-    refresh = create_refresh_token(token_data)
+def send_otp_email(email: str, otp: str):
+    print(f"Sending OTP {otp} to {email}")  # for testing
 
-    return {"access_token": access, "refresh_token": refresh}
-
-
-# ------------------------------------------------
-# AUTHENTICATED USER DETAILS (/me)
-# ------------------------------------------------
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-
-@router.get("/me")
-def get_me(token: str = Depends(oauth2_scheme)):
-    payload = decode_access_token(token)
-
-    if not payload:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-    return {
-        "email": payload.get("sub"),
-        "user_id": payload.get("user_id"),
-        "role": payload.get("role")
+# --------------------
+# Routes
+# --------------------
+@router.post("/register")
+async def register(req: RegisterRequest):
+    if req.email in users_db:
+        raise HTTPException(status_code=400, detail="User already exists")
+    users_db[req.email] = {
+        "name": req.name,
+        "email": req.email,
+        "password": hash_password(req.password),
+        "role": req.role
     }
+    return {"message": "Registered successfully"}
 
 
-# ------------------------------------------------
-# OTP
-# ------------------------------------------------
 @router.post("/send-otp")
-def send_otp(email: str, db: Session = Depends(get_db)):
-    code = create_and_store_otp(email, db)
-    return {"message": "OTP sent successfully", "otp": code}
+async def send_otp(req: ForgotPasswordRequest):
+    if req.email not in users_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    otp = str(random.randint(100000, 999999))
+    otp_store[req.email] = otp
+    send_otp_email(req.email, otp)
+    return {"message": "OTP sent"}
 
 
+@router.post("/forgot-password")
+async def forgot_password(req: ForgotPasswordRequest):
+    if req.email not in users_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    otp = str(random.randint(100000, 999999))
+    otp_store[req.email] = otp
+    send_otp_email(req.email, otp)
+    return {"message": "OTP sent"}
+
+
+# ----------------------------
+# ✔ STEP 2: VERIFY OTP ONLY
+# ----------------------------
 @router.post("/verify-otp")
-def verify_otp_route(email: str, otp: str, db: Session = Depends(get_db)):
-    is_valid = verify_otp(email, otp, db)
+async def verify_otp(req: VerifyOTPRequest):
+    email = req.email
+    otp = req.otp
 
-    if not is_valid:
-        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
+    if email not in otp_store:
+        raise HTTPException(status_code=400, detail="No OTP sent for this email")
+
+    if otp_store[email] != otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
 
     return {"message": "OTP verified successfully"}
 
 
-# ------------------------------------------------
-# CHANGE PASSWORD
-# ------------------------------------------------
-@router.post("/change-password")
-def change_password(
-    request: ChangePasswordRequest,
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
-):
-    payload = decode_access_token(token)
+# ----------------------------
+# ✔ STEP 3: RESET PASSWORD
+# ----------------------------
+@router.post("/reset-password")
+async def reset_password(req: ResetPasswordRequest):
+    email = req.email
 
-    if not payload:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    if email not in users_db:
+        raise HTTPException(status_code=404, detail="User not found")
 
-    user = db.query(User).filter(User.id == payload.get("user_id")).first()
+    # verify otp
+    if email not in otp_store:
+        raise HTTPException(status_code=400, detail="OTP not sent or expired")
 
-    if not verify_password(request.old_password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Old password is incorrect")
+    if otp_store[email] != req.otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
 
-    user.hashed_password = hash_password(request.new_password)
-    db.commit()
+    # update password
+    users_db[email]["password"] = hash_password(req.new_password)
 
-    return {"message": "Password changed successfully"}
+    # delete OTP after success
+    del otp_store[email]
 
+    return {"message": "Password reset successfully"}
+
+
+@router.post("/login")
+async def login(req: LoginRequest):
+    if req.email not in users_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    user = users_db[req.email]
+    if not verify_password(req.password, user["password"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    token = create_access_token({"email": user["email"], "role": user["role"]})
+    return {"access_token": token, "role": user["role"], "name": user["name"]}

@@ -9,15 +9,12 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "axios": "^1.13.2",
-<<<<<<< HEAD
     "clsx": "^2.1.1",
     "lucide-react": "^0.554.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
-=======
->>>>>>> c0945bd0d88387e4bc38494dc148917ff55a4207
     "react-router-dom": "^6.30.2",
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",

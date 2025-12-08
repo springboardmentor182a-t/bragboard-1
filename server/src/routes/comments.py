@@ -134,5 +134,4 @@ async def delete_comment(
 
 # ---------------------- EXPORT ROUTERS ----------------------
 
-# This "router" is what api.py will import
 router = [shoutout_comments_router, comments_router]
