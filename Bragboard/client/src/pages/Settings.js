@@ -1,117 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from 'react';
+import { useAuth } from '../Context/AuthContext';
 
 const Settings = () => {
-  const { user, toggleTheme, userSettings, updateSettings } = useAuth(); 
-  
-  // Use settings from context instead of local state
-  const [settings, setSettings] = useState(userSettings);
+  const { user } = useAuth(); // Removed setUser since it's not used
+  const [settings, setSettings] = useState({
+    notifications: {
+      emailNotifications: true,
+      pushNotifications: false,
+      shoutoutMentions: true,
+      reactionAlerts: true,
+      weeklyDigest: false
+    },
+    privacy: {
+      profileVisibility: 'public', // public, team, private
+      showReactions: true,
+      allowTagging: true
+    },
+    preferences: {
+      theme: 'light', // light, dark, system
+      language: 'english',
+      timezone: 'UTC-5'
+    }
+  });
+
   const [activeTab, setActiveTab] = useState('profile');
-  const [isSaved, setIsSaved] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
 
-  // Update local settings when context settings change
-  useEffect(() => {
-    setSettings(userSettings);
-  }, [userSettings]);
-
-  // Check if settings have changed
-  useEffect(() => {
-    const hasUnsavedChanges = JSON.stringify(settings) !== JSON.stringify(userSettings);
-    setHasChanges(hasUnsavedChanges);
-  }, [settings, userSettings]);
-
-  // Handle notification toggles
   const handleNotificationChange = (key) => {
-    const newSettings = {
+    setSettings({
       ...settings,
       notifications: {
         ...settings.notifications,
         [key]: !settings.notifications[key]
       }
-    };
-    setSettings(newSettings);
-    setIsSaved(false);
+    });
   };
 
-  // Handle privacy changes
   const handlePrivacyChange = (key, value) => {
-    const newSettings = {
+    setSettings({
       ...settings,
       privacy: {
         ...settings.privacy,
         [key]: value
       }
-    };
-    setSettings(newSettings);
-    setIsSaved(false);
+    });
   };
 
-  // Handle preference changes - theme changes apply immediately
   const handlePreferenceChange = (key, value) => {
-    const newSettings = {
+    setSettings({
       ...settings,
       preferences: {
         ...settings.preferences,
         [key]: value
       }
-    };
-    
-    setSettings(newSettings);
-    setIsSaved(false);
-
-    // Immediately apply theme changes and save
-    if (key === 'theme') {
-      if (typeof toggleTheme === 'function') {
-        toggleTheme(value);
-      }
-      // Auto-save theme changes immediately
-      updateSettings(newSettings);
-      setIsSaved(true);
-      setTimeout(() => setIsSaved(false), 2000);
-    }
-  };
-
-  // Handle profile changes
-  const handleProfileChange = (field, value) => {
-    const newSettings = {
-      ...settings,
-      profile: {
-        ...(settings.profile || {}),
-        [field]: value
-      }
-    };
-    setSettings(newSettings);
-    setIsSaved(false);
+    });
   };
 
   const handleSaveSettings = () => {
-    // Save to context (which will save to localStorage)
-    updateSettings(settings);
-    
-    // Show success message
-    setIsSaved(true);
-    setHasChanges(false);
-    
-    // Hide success message after 3 seconds
-    setTimeout(() => setIsSaved(false), 3000);
+    // In a real app, you would save these to your backend
+    alert('Settings saved successfully!');
   };
 
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Settings</h1>
-
-      {isSaved && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          ✅ Settings saved successfully! Your preferences have been updated.
-        </div>
-      )}
-
-      {hasChanges && (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-          ⚠️ You have unsaved changes. Don't forget to save your settings.
-        </div>
-      )}
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {/* Settings Tabs */}
@@ -148,7 +99,6 @@ const Settings = () => {
                   <input
                     type="text"
                     defaultValue={user.name}
-                    onChange={(e) => handleProfileChange('name', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -160,7 +110,6 @@ const Settings = () => {
                   <input
                     type="email"
                     defaultValue="jane.doe@company.com"
-                    onChange={(e) => handleProfileChange('email', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -171,7 +120,6 @@ const Settings = () => {
                   </label>
                   <select
                     defaultValue={user.department}
-                    onChange={(e) => handleProfileChange('department', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option>Software Engineering</option>
@@ -189,7 +137,6 @@ const Settings = () => {
                   <input
                     type="text"
                     defaultValue="Senior Software Engineer"
-                    onChange={(e) => handleProfileChange('jobTitle', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -203,7 +150,6 @@ const Settings = () => {
                   rows="4"
                   placeholder="Tell your colleagues about yourself..."
                   defaultValue="Passionate about building great software and helping teammates succeed!"
-                  onChange={(e) => handleProfileChange('bio', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -217,7 +163,7 @@ const Settings = () => {
               
               <div className="space-y-4">
                 {Object.entries(settings.notifications).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <div key={key} className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-800 capitalize">
                         {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
@@ -232,7 +178,7 @@ const Settings = () => {
                     </div>
                     <button
                       onClick={() => handleNotificationChange(key)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full ${
                         value ? 'bg-blue-500' : 'bg-gray-300'
                       }`}
                     >
@@ -254,7 +200,7 @@ const Settings = () => {
               <h2 className="text-lg font-semibold text-gray-800">Privacy Settings</h2>
               
               <div className="space-y-4">
-                <div className="p-4 border border-gray-200 rounded-lg">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Profile Visibility
                   </label>
@@ -269,14 +215,14 @@ const Settings = () => {
                   </select>
                 </div>
 
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-gray-800">Show Reactions on Profile</p>
                     <p className="text-sm text-gray-600">Display reactions you receive on your profile</p>
                   </div>
                   <button
                     onClick={() => handlePrivacyChange('showReactions', !settings.privacy.showReactions)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full ${
                       settings.privacy.showReactions ? 'bg-blue-500' : 'bg-gray-300'
                     }`}
                   >
@@ -288,14 +234,14 @@ const Settings = () => {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-gray-800">Allow Tagging</p>
                     <p className="text-sm text-gray-600">Allow others to tag you in shoutouts</p>
                   </div>
                   <button
                     onClick={() => handlePrivacyChange('allowTagging', !settings.privacy.allowTagging)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full ${
                       settings.privacy.allowTagging ? 'bg-blue-500' : 'bg-gray-300'
                     }`}
                   >
@@ -316,7 +262,7 @@ const Settings = () => {
               <h2 className="text-lg font-semibold text-gray-800">App Preferences</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-4 border border-gray-200 rounded-lg">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Theme
                   </label>
@@ -331,7 +277,7 @@ const Settings = () => {
                   </select>
                 </div>
 
-                <div className="p-4 border border-gray-200 rounded-lg">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Language
                   </label>
@@ -347,7 +293,7 @@ const Settings = () => {
                   </select>
                 </div>
 
-                <div className="p-4 border border-gray-200 rounded-lg">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Timezone
                   </label>
@@ -366,27 +312,14 @@ const Settings = () => {
             </div>
           )}
 
-          {/* Action Buttons */}
+          {/* Save Button */}
           <div className="mt-8 pt-6 border-t border-gray-200">
-            <div>
-              <button
-                onClick={handleSaveSettings}
-                disabled={!hasChanges}
-                className={`font-semibold py-2 px-6 rounded-lg transition-colors ${
-                  hasChanges 
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white' 
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                Save Changes
-              </button>
-              <p className="text-sm text-gray-500 mt-2">
-                {hasChanges 
-                  ? "You have unsaved changes. Click save to keep your preferences."
-                  : "All changes are saved. Your preferences are up to date."
-                }
-              </p>
-            </div>
+            <button
+              onClick={handleSaveSettings}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+            >
+              Save Changes
+            </button>
           </div>
         </div>
       </div>

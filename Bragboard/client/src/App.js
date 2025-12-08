@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { AuthProvider } from './context/AuthContext';
-import DashboardLayout from './components/Layout/DashboardLayout';
+import { AuthProvider } from './Context/AuthContext';
+import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import ShoutOuts from './pages/ShoutOuts';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import ExportReport from './pages/ExportReport';
+
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -19,6 +21,8 @@ function App() {
         return <Reports />;
       case 'settings':
         return <Settings />;
+      case 'export':               
+        return <ExportReport />;
       default:
         return <Dashboard />;
     }

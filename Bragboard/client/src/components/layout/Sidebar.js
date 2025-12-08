@@ -5,6 +5,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { id: 'dashboard', label: 'DASHBOARD' },
     { id: 'shoutouts', label: 'SHOUT-OUTS' },
     { id: 'reports', label: 'REPORTS' },
+    { id: 'export', label: 'EXPORT REPORT' },
     { id: 'settings', label: 'SETTINGS' },
   ];
 
