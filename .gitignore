@@ -22,3 +22,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+git rm --cached src/assets/react.svg `
+    src/components/Navbar.jsx `
+    src/components/PerformanceCharts.jsx `
+    src/components/Placeholder.jsx `
+    src/components/Sidebar.jsx `
+    src/context/AuthContext.jsx `
+    src/index.css `
+    src/layouts/DashboardLayout.jsx `
+    src/main.jsx `
+    src/pages/AdminDashboard.jsx `
+    src/pages/Announcements.jsx `
+    src/pages/EmployeeDashboard.jsx `
+    src/pages/NotAuthorized.jsx `
+    src/pages/Performance.jsx `
+    src/pages/Profile.jsx `
+    src/pages/Reports.jsx `
+    src/pages/Settings.jsx `
+    src/pages/Tasks.jsx
