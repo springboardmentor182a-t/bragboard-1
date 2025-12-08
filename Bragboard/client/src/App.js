@@ -9,17 +9,19 @@ import ExportReport from './pages/ExportReport';
 
 
 function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard':
+      case "dashboard":
         return <Dashboard />;
-      case 'shoutouts':
+      case "shoutouts":
         return <ShoutOuts />;
-      case 'reports':
+      case "reports":
         return <Reports />;
-      case 'settings':
+      case "analytics": // ← ADD THIS
+        return <Analytics />;
+      case "settings":
         return <Settings />;
       case 'export':               
         return <ExportReport />;

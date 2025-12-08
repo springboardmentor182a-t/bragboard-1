@@ -68,29 +68,33 @@ const Settings = () => {
         {/* Settings Tabs */}
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-6">
-            {['profile', 'notifications', 'privacy', 'preferences'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${
-                  activeTab === tab
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+            {["profile", "notifications", "privacy", "preferences"].map(
+              (tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${
+                    activeTab === tab
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  {tab}
+                </button>
+              )
+            )}
           </nav>
         </div>
 
         {/* Settings Content */}
         <div className="p-6">
           {/* Profile Settings */}
-          {activeTab === 'profile' && (
+          {activeTab === "profile" && (
             <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-800">Profile Settings</h2>
-              
+              <h2 className="text-lg font-semibold text-gray-800">
+                Profile Settings
+              </h2>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -102,7 +106,7 @@ const Settings = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email
@@ -157,23 +161,30 @@ const Settings = () => {
           )}
 
           {/* Notification Settings */}
-          {activeTab === 'notifications' && (
+          {activeTab === "notifications" && (
             <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-800">Notification Preferences</h2>
-              
+              <h2 className="text-lg font-semibold text-gray-800">
+                Notification Preferences
+              </h2>
+
               <div className="space-y-4">
                 {Object.entries(settings.notifications).map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-800 capitalize">
-                        {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
+                        {key.replace(/([A-Z])/g, " $1").toLowerCase()}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {key === 'emailNotifications' && 'Receive notifications via email'}
-                        {key === 'pushNotifications' && 'Receive push notifications in browser'}
-                        {key === 'shoutoutMentions' && 'Get notified when mentioned in shoutouts'}
-                        {key === 'reactionAlerts' && 'Get notified when someone reacts to your posts'}
-                        {key === 'weeklyDigest' && 'Receive weekly summary of activities'}
+                        {key === "emailNotifications" &&
+                          "Receive notifications via email"}
+                        {key === "pushNotifications" &&
+                          "Receive push notifications in browser"}
+                        {key === "shoutoutMentions" &&
+                          "Get notified when mentioned in shoutouts"}
+                        {key === "reactionAlerts" &&
+                          "Get notified when someone reacts to your posts"}
+                        {key === "weeklyDigest" &&
+                          "Receive weekly summary of activities"}
                       </p>
                     </div>
                     <button
@@ -184,7 +195,7 @@ const Settings = () => {
                     >
                       <span
                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                          value ? 'translate-x-6' : 'translate-x-1'
+                          value ? "translate-x-6" : "translate-x-1"
                         }`}
                       />
                     </button>
@@ -195,10 +206,12 @@ const Settings = () => {
           )}
 
           {/* Privacy Settings */}
-          {activeTab === 'privacy' && (
+          {activeTab === "privacy" && (
             <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-800">Privacy Settings</h2>
-              
+              <h2 className="text-lg font-semibold text-gray-800">
+                Privacy Settings
+              </h2>
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -206,7 +219,9 @@ const Settings = () => {
                   </label>
                   <select
                     value={settings.privacy.profileVisibility}
-                    onChange={(e) => handlePrivacyChange('profileVisibility', e.target.value)}
+                    onChange={(e) =>
+                      handlePrivacyChange("profileVisibility", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="public">Public (Everyone in company)</option>
@@ -217,8 +232,12 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-800">Show Reactions on Profile</p>
-                    <p className="text-sm text-gray-600">Display reactions you receive on your profile</p>
+                    <p className="font-medium text-gray-800">
+                      Show Reactions on Profile
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Display reactions you receive on your profile
+                    </p>
                   </div>
                   <button
                     onClick={() => handlePrivacyChange('showReactions', !settings.privacy.showReactions)}
@@ -228,7 +247,9 @@ const Settings = () => {
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                        settings.privacy.showReactions ? 'translate-x-6' : 'translate-x-1'
+                        settings.privacy.showReactions
+                          ? "translate-x-6"
+                          : "translate-x-1"
                       }`}
                     />
                   </button>
@@ -237,7 +258,9 @@ const Settings = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-gray-800">Allow Tagging</p>
-                    <p className="text-sm text-gray-600">Allow others to tag you in shoutouts</p>
+                    <p className="text-sm text-gray-600">
+                      Allow others to tag you in shoutouts
+                    </p>
                   </div>
                   <button
                     onClick={() => handlePrivacyChange('allowTagging', !settings.privacy.allowTagging)}
@@ -247,7 +270,9 @@ const Settings = () => {
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                        settings.privacy.allowTagging ? 'translate-x-6' : 'translate-x-1'
+                        settings.privacy.allowTagging
+                          ? "translate-x-6"
+                          : "translate-x-1"
                       }`}
                     />
                   </button>
@@ -257,10 +282,12 @@ const Settings = () => {
           )}
 
           {/* Preference Settings */}
-          {activeTab === 'preferences' && (
+          {activeTab === "preferences" && (
             <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-800">App Preferences</h2>
-              
+              <h2 className="text-lg font-semibold text-gray-800">
+                App Preferences
+              </h2>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -268,7 +295,9 @@ const Settings = () => {
                   </label>
                   <select
                     value={settings.preferences.theme}
-                    onChange={(e) => handlePreferenceChange('theme', e.target.value)}
+                    onChange={(e) =>
+                      handlePreferenceChange("theme", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="light">Light</option>
@@ -283,7 +312,9 @@ const Settings = () => {
                   </label>
                   <select
                     value={settings.preferences.language}
-                    onChange={(e) => handlePreferenceChange('language', e.target.value)}
+                    onChange={(e) =>
+                      handlePreferenceChange("language", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="english">English</option>
@@ -299,7 +330,9 @@ const Settings = () => {
                   </label>
                   <select
                     value={settings.preferences.timezone}
-                    onChange={(e) => handlePreferenceChange('timezone', e.target.value)}
+                    onChange={(e) =>
+                      handlePreferenceChange("timezone", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="UTC-5">EST (UTC-5)</option>

@@ -27,6 +27,27 @@
 .App-link {
   color: #61dafb;
 }
+.chart-box {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
+  height: 330px;     
+  max-height: 330px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 24px;
+}
+
+
 
 @keyframes App-logo-spin {
   from {
@@ -36,3 +57,4 @@
     transform: rotate(360deg);
   }
 }
+

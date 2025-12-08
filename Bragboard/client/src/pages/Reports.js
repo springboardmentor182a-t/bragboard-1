@@ -16,14 +16,14 @@ const Reports = () => {
         { name: "Mike Chen", count: 12 },
         { name: "Alex Rivera", count: 10 },
         { name: "Sarah Lee", count: 8 },
-        { name: "You", count: 12 }
+        { name: "You", count: 12 },
       ],
       departmentStats: [
         { department: "Engineering", shoutouts: 45 },
         { department: "Marketing", shoutouts: 28 },
         { department: "Sales", shoutouts: 32 },
-        { department: "Design", shoutouts: 19 }
-      ]
+        { department: "Design", shoutouts: 19 },
+      ],
     },
     month: {
       shoutoutsSent: 42,
@@ -34,7 +34,7 @@ const Reports = () => {
         { name: "Mike Chen", count: 45 },
         { name: "You", count: 42 },
         { name: "Sarah Lee", count: 38 },
-        { name: "Alex Rivera", count: 35 }
+        { name: "Alex Rivera", count: 35 },
       ],
       departmentStats: [
         { department: "Engineering", shoutouts: 165 },
@@ -102,10 +102,15 @@ const Reports = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Top Contributors */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Top Contributors</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Top Contributors
+          </h2>
           <div className="space-y-3">
             {currentData.topContributors.map((contributor, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
                 <div className="flex items-center space-x-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                     index === 0 ? 'bg-yellow-500' : 
@@ -120,7 +125,9 @@ const Reports = () => {
                     {contributor.name}
                   </span>
                 </div>
-                <span className="text-sm text-gray-600">{contributor.count} shoutouts</span>
+                <span className="text-sm text-gray-600">
+                  {contributor.count} shoutouts
+                </span>
               </div>
             ))}
           </div>
@@ -128,13 +135,19 @@ const Reports = () => {
 
         {/* Department Stats */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Department Performance</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Department Performance
+          </h2>
           <div className="space-y-4">
             {currentData.departmentStats.map((dept, index) => (
               <div key={index}>
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">{dept.department}</span>
-                  <span className="text-sm text-gray-600">{dept.shoutouts} shoutouts</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {dept.department}
+                  </span>
+                  <span className="text-sm text-gray-600">
+                    {dept.shoutouts} shoutouts
+                  </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
