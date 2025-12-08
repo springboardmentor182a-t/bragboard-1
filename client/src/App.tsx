@@ -1,58 +1,60 @@
-// src/App.tsx
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { LoginPage } from './pages/auth/LoginPage.tsx';
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage.tsx';
-import OtpVerificationPage from './pages/auth/OtpVerificationPage.tsx';
-import ResetPasswordPage from './pages/auth/ResetPasswordPage.tsx';
-import RegisterPage from './pages/auth/RegisterPage.js';
-import { Dashboard } from './pages/dashboard/Dasboard.tsx';
+// client/src/App.tsx
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
+import { AuthProvider, useAuth } from "./AuthContext";
 
-type UserRole = 'admin' | 'employee';
+import LoginPage from "./pages/auth/LoginPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import OTPVerificationPage from "./pages/auth/OtpVerificationPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";   // <-- ADD THIS
+import AdminReportsPage from "./pages/reports/AdminReportsPage";
+import ReportShoutoutPage from "./pages/reports/ReportShoutoutPage";
 
-interface UserData {
-  name: string;
-  email: string;
-}
+const RequireAuth: React.FC<{ role: "admin" | "employee"; children: React.ReactNode }> = ({ role, children }) => {
+  const { isAuthenticated, userRole } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/auth/login" />;
+  if (userRole !== role) return <Navigate to="/" />;
+  return <>{children}</>;
+};
 
-function App() {
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
-  const [userData, setUserData] = useState<UserData | null>(null);
-
-  const handleLogin = (role: UserRole, data: UserData) => {
-    setUserRole(role);
-    setUserData(data);
-  };
-
-  const handleLogout = () => {
-    setUserRole(null);
-    setUserData(null);
-  };
-
+const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen">
+    <AuthProvider>
+      <Router>
+        <Toaster position="top-right" richColors />
+
         <Routes>
+          <Route path="/auth/login" element={<LoginPage />} />
+          <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/auth/verify-otp" element={<OTPVerificationPage />} />
+          <Route path="/auth/reset-password" element={<ResetPasswordPage />} />  {/* <-- REQUIRED */}
+
+          {/* Employee */}
           <Route
-            path="/"
-            element={userRole && userData ? (
-              <Dashboard userRole={userRole} userData={userData} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/auth/login" replace />
-            )}
+            path="/report-shoutout"
+            element={
+              <RequireAuth role="employee">
+                <ReportShoutoutPage />
+              </RequireAuth>
+            }
           />
 
-          <Route path="/auth/login" element={<LoginPage onLogin={handleLogin} />} />
-          <Route path="/auth/register" element={<RegisterPage />} />
-          <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/auth/otp" element={<OtpVerificationPage />} />
-          <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+          {/* Admin */}
+          <Route
+            path="/admin/reports"
+            element={
+              <RequireAuth role="admin">
+                <AdminReportsPage />
+              </RequireAuth>
+            }
+          />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/auth/login" />} />
         </Routes>
-      </div>
-    </BrowserRouter>
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;

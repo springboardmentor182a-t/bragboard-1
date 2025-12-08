@@ -1,48 +1,80 @@
-import { useState } from "react";
-import { Button } from "../../components/ui/button.tsx";
-import { Input } from "../../components/ui/input.tsx";
-import { Label } from "../../components/ui/label.tsx";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Button } from "../../components/ui/button";
 import { toast } from "sonner";
+import { api } from "../../api";
 
-export default function OtpVerificationPage() {
+const OTPVerificationPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { email } = location.state || {};
+
   const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleVerify = (e: React.FormEvent) => {
-    e.preventDefault();
+  if (!email) {
+    return <div className="text-center mt-10">Invalid access</div>;
+  }
 
-    if (otp.length !== 6) {
-      toast.error("OTP must be 6 digits");
+  const handleVerifyOTP = async () => {
+    if (!otp.trim()) {
+      toast.error("Please enter OTP");
       return;
     }
 
-    toast.success("OTP Verified!");
-    window.location.href = "/auth/reset-password";
+    setLoading(true);
+    try {
+      await api.post("/auth/verify-otp", {
+        email: email,
+        otp: otp,      
+      });
+
+      toast.success("OTP verified!");
+
+      navigate("/auth/reset-password", {
+        state: { email, otp },  
+      });
+
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || "Invalid OTP");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-purple-700 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-bold mb-4 text-center text-purple-700">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-purple-800 to-purple-600 p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8">
+        
+        {/**/}
+        <h2 className="text-2xl font-bold text-center text-purple-700 mb-6">
           Verify OTP
         </h2>
 
-        <form onSubmit={handleVerify} className="space-y-4">
+        <div className="space-y-4">
           <div>
             <Label>Enter OTP</Label>
             <Input
-              type="text"
-              maxLength={6}
-              placeholder="123456"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
+              placeholder="123456"
             />
           </div>
 
-          <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-            Verify OTP
+          <Button
+            type="button"
+            disabled={loading}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl"
+            onClick={handleVerifyOTP}
+          >
+            {loading ? "Verifying..." : "Verify OTP"}
           </Button>
-        </form>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default OTPVerificationPage;

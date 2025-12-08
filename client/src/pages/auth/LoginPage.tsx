@@ -1,252 +1,127 @@
-import { useState } from "react";
-import { MessageSquare, Eye, EyeOff } from "lucide-react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from '../../components/ui/button.tsx';
-import { Input } from '../../components/ui/input.tsx';
-import { Label } from '../../components/ui/label.tsx';
-
+import { api } from "../../api";
+import { useAuth } from "../../AuthContext";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
 import { toast } from "sonner";
 
-interface LoginPageProps {
-  onLogin: (userRole: "admin" | "employee", userData: { name: string; email: string }) => void;
-}
+const ADMIN_CODE = "BRAG2024";
 
-export function LoginPage({ onLogin }: LoginPageProps) {
+const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [isRegisterMode, setIsRegisterMode] = useState(false);
-  const [userRole] = useState<"admin" | "employee">("employee");
-  const [fullName, setFullName] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<"admin" | "employee">("employee");
   const [adminCode, setAdminCode] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const DEMO_ADMIN_EMAIL = "admin@bragboard.com";
-  const DEMO_ADMIN_PASSWORD = "admin123";
-  const DEMO_EMPLOYEE_EMAIL = "employee@bragboard.com";
-  const DEMO_EMPLOYEE_PASSWORD = "employee123";
-  const ADMIN_VERIFICATION_CODE = "BRAG2024";
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (isRegisterMode) {
-      if (!fullName || !email || !password || !confirmPassword || !adminCode) {
-        toast.error("Please fill in all fields");
-        return;
-      }
-      if (adminCode !== ADMIN_VERIFICATION_CODE) {
-        toast.error("Invalid admin verification code");
-        return;
-      }
-      if (password !== confirmPassword) {
-        toast.error("Passwords do not match");
-        return;
-      }
-      if (password.length < 6) {
-        toast.error("Password must be at least 6 characters");
-        return;
-      }
-
-      setIsLoading(true);
-      setTimeout(() => {
-        toast.success("Admin account created successfully!");
-        onLogin(userRole, { name: fullName, email: email });
-        setIsLoading(false);
-        navigate('/');
-      }, 1000);
-    } else {
-      if (!email || !password) {
-        toast.error("Please fill in all fields");
-        return;
-      }
-
-      setIsLoading(true);
-
-      setTimeout(() => {
-        let role: "admin" | "employee" = "employee";
-        let userName = "Employee User";
-
-        if (email === DEMO_ADMIN_EMAIL && password === DEMO_ADMIN_PASSWORD) {
-          role = "admin";
-          userName = "Admin User";
-          toast.success("Welcome back, Admin!");
-        } else if (email === DEMO_EMPLOYEE_EMAIL && password === DEMO_EMPLOYEE_PASSWORD) {
-          role = "employee";
-          userName = "Employee User";
-          toast.success("Welcome back!");
-        } else {
-          userName = email
-            .split("@")[0]
-            .split(".")
-            .map((n) => n.charAt(0).toUpperCase() + n.slice(1))
-            .join(" ");
-          toast.success("Login successful!");
-        }
-
-        onLogin(role, { name: userName, email });
-        setIsLoading(false);
-        navigate('/');
-      }, 800);
-    }
-  };
+  const [loading, setLoading] = useState(false);
 
   const toggleMode = () => {
     setIsRegisterMode(!isRegisterMode);
-    setFullName("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setAdminCode("");
-    setShowPassword(false);
-    setShowConfirmPassword(false);
+    setName(""); setEmail(""); setPassword(""); setConfirmPassword(""); setAdminCode("");
+  };
+
+  const handleRegister = async () => {
+    if (!name || !email || !password || !confirmPassword) {
+      toast.error("Fill all fields");
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    if (role === "admin" && adminCode !== ADMIN_CODE) {
+      toast.error("Invalid admin code");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.post("/auth/register", { name, email, password, role });
+      toast.success("Registered! Login to continue.");
+      setIsRegisterMode(false);
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      if (Array.isArray(detail)) {
+        detail.forEach((d: any) => toast.error(d.msg || "Registration failed"));
+      } else if (typeof detail === "string") {
+        toast.error(detail);
+      } else {
+        toast.error("Registration failed");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogin = async () => {
+    if (!email || !password) { toast.error("Fill all fields"); return; }
+    setLoading(true);
+    try {
+      const res = await api.post("/auth/login", { email, password });
+      login(res.data.role, { name: res.data.name, email: email });
+      toast.success("Login successful!");
+      if (res.data.role === "admin") navigate("/admin/reports");
+      else navigate("/report-shoutout");
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      if (Array.isArray(detail)) {
+        detail.forEach((d: any) => toast.error(d.msg || "Login failed"));
+      } else if (typeof detail === "string") {
+        toast.error(detail);
+      } else {
+        toast.error("Login failed");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-purple-900 via-purple-800 to-purple-600 p-4">
-      <div className="w-full max-w-md flex flex-col items-center justify-center">
-
-        {/* MAIN CARD */}
-        <div className="w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
-
-          {/* HEADER */}
-          <div className="bg-gradient-to-b from-white via-gray-50 to-gray-100 px-8 py-10 text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-900 rounded-3xl flex items-center justify-center shadow-lg">
-                <MessageSquare className="w-10 h-10 text-white" />
-              </div>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">BragBoard</h1>
-            <p className="text-gray-600 text-sm mt-2">Admin Dashboard</p>
-          </div>
-
-          {/* TABS */}
-          <div className="flex border-b border-gray-200 px-8 pt-6">
-            <button
-              onClick={() => setIsRegisterMode(false)}
-              className={`pb-4 px-4 font-semibold text-sm ${
-                !isRegisterMode ? "text-purple-600 border-b-2 border-purple-600" : "text-gray-500"
-              }`}
-            >
-              Sign In
-            </button>
-
-            <button
-              onClick={() => setIsRegisterMode(true)}
-              className={`pb-4 px-4 font-semibold text-sm ${
-                isRegisterMode ? "text-purple-600 border-b-2 border-purple-600" : "text-gray-500"
-              }`}
-            >
-              Register
-            </button>
-          </div>
-
-          {/* FORM */}
-          <div className="px-8 py-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-
-              {isRegisterMode && (
-                <div>
-                  <Label className="block mb-2 text-sm font-semibold">Full Name</Label>
-                  <Input
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="John Doe"
-                  />
-                </div>
-              )}
-
-              <div>
-                <Label className="block mb-2 text-sm font-semibold">Email</Label>
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@bragboard.com"
-                />
-              </div>
-
-              <div>
-                <Label className="block mb-2 text-sm font-semibold">Password</Label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="pr-12"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2"
-                  >
-                    {showPassword ? <EyeOff /> : <Eye />}
-                  </button>
-                </div>
-              </div>
-
-              {isRegisterMode && (
-                <>
-                  <div>
-                    <Label className="block mb-2 text-sm font-semibold">Confirm Password</Label>
-                    <div className="relative">
-                      <Input
-                        type={showConfirmPassword ? "text" : "password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirm password"
-                        className="pr-12"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2"
-                      >
-                        {showConfirmPassword ? <EyeOff /> : <Eye />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="block mb-2 text-sm font-semibold">Admin Code</Label>
-                    <Input
-                      value={adminCode}
-                      onChange={(e) => setAdminCode(e.target.value)}
-                      placeholder="BRAG2024"
-                    />
-                  </div>
-                </>
-              )}
-
-              <Button type="submit" disabled={isLoading} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl">
-                {isLoading ? (isRegisterMode ? 'Creating...' : 'Signing in...') : (isRegisterMode ? "Create Account" : "Sign In")}
-              </Button>
-            </form>
-
-            <div className="text-center mt-5">
-              <p>
-                {isRegisterMode ? "Already have an account?" : "Don't have an account?"}{" "}
-                <button onClick={toggleMode} className="text-purple-700 font-bold">
-                  {isRegisterMode ? "Sign In" : "Register"}
-                </button>
-              </p>
-              
-              {!isRegisterMode && (
-                <p className="mt-3">
-                  <button onClick={() => navigate('/auth/forgot-password')} className="text-purple-700 hover:text-purple-900 font-bold text-sm">
-                    Forgot Password?
-                  </button>
-                </p>
-              )}
-            </div>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-purple-800 to-purple-600 p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8">
+        <h1 className="text-3xl font-bold text-center text-purple-700 mb-4">BragBoard</h1>
+        <div className="flex justify-center mb-6">
+          <button onClick={() => setIsRegisterMode(false)} className={`${!isRegisterMode ? "border-b-2 border-purple-600 text-purple-600" : "text-gray-500"} px-4 pb-2 font-semibold`}>Sign In</button>
+          <button onClick={() => setIsRegisterMode(true)} className={`${isRegisterMode ? "border-b-2 border-purple-600 text-purple-600" : "text-gray-500"} px-4 pb-2 font-semibold`}>Register</button>
         </div>
 
-        {/* Demo credentials removed as requested */}
+        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); isRegisterMode ? handleRegister() : handleLogin(); }}>
+          {isRegisterMode && <div><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>}
+          <div><Label>Email</Label><Input value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+          <div><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+
+          {isRegisterMode && <>
+            <div><Label>Confirm Password</Label><Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} /></div>
+            <div><Label>Role</Label>
+              <select value={role} onChange={(e) => setRole(e.target.value as "admin"|"employee")} className="w-full p-2 border rounded">
+                <option value="employee">Employee</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            {role==="admin" && <div><Label>Admin Code</Label><Input value={adminCode} onChange={(e)=>setAdminCode(e.target.value)} /></div>}
+          </>}
+
+          {!isRegisterMode && <div className="flex justify-end"><button type="button" className="text-purple-700 text-sm font-bold" onClick={() => navigate("/auth/forgot-password")}>Forgot Password?</button></div>}
+
+          <Button type="submit" disabled={loading} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl">
+            {loading ? "Processing..." : isRegisterMode ? "Register" : "Sign In"}
+          </Button>
+        </form>
+
+        <p className="text-center mt-4">
+          {isRegisterMode ? "Already have an account?" : "Don't have an account?"}{" "}
+          <button onClick={toggleMode} className="text-purple-700 font-bold">{isRegisterMode ? "Sign In" : "Register"}</button>
+        </p>
       </div>
     </div>
   );
-}
+};
+
+export default LoginPage;
