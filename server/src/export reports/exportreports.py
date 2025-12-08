@@ -3,7 +3,6 @@ from fastapi.responses import StreamingResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from database import Base, engine, SessionLocal
-from models import User, Shoutout
 from utils import hash_password, verify_password, export_shoutouts_csv, export_shoutouts_pdf
 from auth import get_current_admin, SECRET_KEY, ALGORITHM
 from jose import jwt
@@ -65,3 +64,4 @@ def export_reports(format: str = "csv", db: Session = Depends(get_db), admin: st
                                  headers={"Content-Disposition": "attachment; filename=shoutouts.pdf"})
     else:
         return {"error": "Invalid format. Use 'csv' or 'pdf'."}
+
