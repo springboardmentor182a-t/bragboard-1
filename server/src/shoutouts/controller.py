@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from src.entities.shoutout import (
+from database.core import get_db
+from entities.shoutout import (
     ShoutoutCreate,
     ShoutoutResponse,
-    ShoutoutUpdate
+    ShoutoutUpdate,
 )
-from src.database.core import get_db
-from src.shoutouts.service import (
+
+from shoutouts.service import (
     create_shoutout,
     get_shoutout,
     get_all_shoutouts,
+    get_all_shoutouts_paginated,
     update_shoutout,
-    delete_shoutout
+    delete_shoutout,
 )
 
 router = APIRouter(prefix="/shoutouts", tags=["Shoutouts"])
@@ -50,3 +52,32 @@ def delete(shoutout_id: int, db: Session = Depends(get_db)):
     if not s:
         raise HTTPException(status_code=404, detail="Shoutout not found")
     return s
+
+
+admin_router = APIRouter(prefix="/admin/shoutouts", tags=["Admin Shoutouts"])
+
+
+@admin_router.get("/", response_model=list[ShoutoutResponse])
+def admin_list_shoutouts(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=50),
+    db: Session = Depends(get_db),
+):
+    items, _total = get_all_shoutouts_paginated(db, page=page, page_size=page_size)
+    return items
+
+
+@admin_router.get("/{shoutout_id}", response_model=ShoutoutResponse)
+def admin_get_shoutout(shoutout_id: int, db: Session = Depends(get_db)):
+    s = get_shoutout(db, shoutout_id)
+    if not s:
+        raise HTTPException(status_code=404, detail="Shoutout not found")
+    return s
+
+
+@admin_router.delete("/{shoutout_id}", status_code=204)
+def admin_delete_shoutout(shoutout_id: int, db: Session = Depends(get_db)):
+    s = delete_shoutout(db, shoutout_id)
+    if not s:
+        raise HTTPException(status_code=404, detail="Shoutout not found")
+    return None
