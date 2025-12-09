@@ -1,20 +1,19 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session, Session
-from sqlalchemy.ext.declarative import declarative_base
-DATABASE_URL = "sqlite:///./bragboard.db"
-engine = create_engine(
-    DATABASE_URL,
-    echo=True,
-    connect_args={"check_same_thread": False},
-)
-session_factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
-SessionLocal = scoped_session(session_factory)
+from sqlalchemy.orm import sessionmaker, declarative_base
+
+# TODO: Change this to your actual DB credentials
+DATABASE_URL = "postgresql://postgres:Dileep0103%40@localhost/bragboard"
+
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base = declarative_base()
-# ✅ ADD THIS
-def get_db() -> Session:
+
+
+def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-
