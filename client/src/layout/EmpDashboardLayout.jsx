@@ -1,27 +1,31 @@
-import EmpSidebar from "./EmpSidebar";
-import EmpHeader from "./EmpHeader";
+// EmpDashboardLayout.jsx
+import EmpSidebar from "./EmpSiderbar";
+import Navbar from "./Navbar";
 
-function EmployeeDashboardLayout({ children, activeSection, setActiveSection }) {
+function EmployeeDashboardLayout({
+  activeSection,
+  setActiveSection,
+  onLogout,
+  children,
+}) {
   return (
-    <div className="text-black">
-    <div className="flex min-h-screen">
-
-      <EmpSidebar 
-        activeSection={activeSection} 
-        setActiveSection={setActiveSection} 
+    <div className="h-screen flex">
+      {/* LEFT SIDEBAR */}
+      <EmpSidebar
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
       />
 
-      <div className="flex-1 bg-gray-50 ml-[220px]">
+      {/* RIGHT SIDE */}
+      <div className="flex-1 flex flex-col">
+        {/* TOP NAVBAR */}
+        <Navbar setActiveSection={setActiveSection} onLogout={onLogout} />
 
-        {/* FIXED HEADER */}
-        <EmpHeader />
-
-        {/* ADD MARGIN-TOP SO CONTENT DOESN'T GO UNDER HEADER */}
-        <main className="p-8 mt-[74px]">
+        {/* MAIN CONTENT – now theme aware */}
+        <main className="mt-[70px] ml-[220px] p-6 main-bg">
           {children}
         </main>
       </div>
-    </div>
     </div>
   );
 }
