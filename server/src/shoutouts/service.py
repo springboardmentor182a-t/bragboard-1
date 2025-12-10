@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from src.shoutouts.models import Shoutout
-from src.entities.shoutout import ShoutoutCreate, ShoutoutUpdate
+from shoutouts.models import Shoutout
+from entities.shoutout import ShoutoutCreate, ShoutoutUpdate
 
 
 def create_shoutout(db: Session, data: ShoutoutCreate):
@@ -17,6 +17,14 @@ def get_shoutout(db: Session, shoutout_id: int):
 
 def get_all_shoutouts(db: Session):
     return db.query(Shoutout).all()
+
+
+def get_all_shoutouts_paginated(db: Session, page: int, page_size: int):
+    offset = (page - 1) * page_size
+    base_query = db.query(Shoutout)
+    total = base_query.count()
+    items = base_query.offset(offset).limit(page_size).all()
+    return items, total
 
 
 def update_shoutout(db: Session, shoutout_id: int, data: ShoutoutUpdate):
