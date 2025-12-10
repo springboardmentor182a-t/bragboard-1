@@ -3,8 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.database.core import Base, engine
 from src.shoutouts.controller import router as shoutouts_router
-from src.analytics.routes import router as analytics_router  # ⬅️ import your analytics router
-from src.auth.auth_routes import router as auth_router  # ⬅️ import your auth router
+from src.analytics.routes import router as analytics_router  
+from src.auth.auth_routes import router as auth_router  
+from src.reports.controllers import router as reports_router
 
 app = FastAPI()
 
@@ -28,3 +29,4 @@ app.add_middleware(
 app.include_router(shoutouts_router)      # shoutouts APIs
 app.include_router(analytics_router)      # analytics APIs
 app.include_router(auth_router)  # auth APIs
+app.include_router(reports_router)
