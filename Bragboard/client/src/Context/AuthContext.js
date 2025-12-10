@@ -37,9 +37,10 @@ const defaultSettings = (theme) => ({
 });
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('authUser');
-    return saved ? JSON.parse(saved) : defaultUser;
+  const [user, setUser] = useState({
+    name: "Jane Doe",
+    department: "Software Engineering",
+    role: "employee"
   });
 
   const [theme, setTheme] = useState(() => {
@@ -47,8 +48,40 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [userSettings, setUserSettings] = useState(() => {
-    const saved = localStorage.getItem('userSettings');
-    return saved ? JSON.parse(saved) : defaultSettings(theme);
+    const savedSettings = localStorage.getItem('userSettings');
+    return savedSettings ? JSON.parse(savedSettings) : {
+      notifications: {
+        allNotifications: true,
+        doNotDisturb: false,
+        autoDND: false,
+        focusMode: false,
+        shippingTool: true,
+        outlook: true,
+        slack: true,
+        emailNotifications: true,
+        pushNotifications: true,
+        shoutoutMentions: true,
+        reactionAlerts: true,
+        weeklyDigest: false
+      },
+      privacy: {
+        profileVisibility: 'public',
+        showReactions: true,
+        allowTagging: true
+      },
+      preferences: {
+        theme: theme,
+        language: 'english',
+        timezone: 'UTC-5'
+      },
+      profile: {
+        name: "Jane Doe",
+        email: "jane.doe@company.com",
+        department: "Software Engineering",
+        jobTitle: "Senior Software Engineer",
+        bio: "Passionate about building great software and helping teammates succeed!"
+      }
+    };
   });
 
   // Persist user
@@ -59,8 +92,7 @@ export const AuthProvider = ({ children }) => {
   // Persist theme and apply to document
   useEffect(() => {
     localStorage.setItem('theme', theme);
-    // safer: toggle class instead of overwriting className if you have other classes
-    document.documentElement.dataset.theme = theme; // alternative approach
+    document.documentElement.className = theme;
   }, [theme]);
 
   // Persist settings
@@ -70,12 +102,13 @@ export const AuthProvider = ({ children }) => {
 
   const toggleTheme = (newTheme) => {
     setTheme(newTheme);
-    setUserSettings((prev) => ({
+    // Update theme in settings as well
+    setUserSettings(prev => ({
       ...prev,
       preferences: {
         ...prev.preferences,
-        theme: newTheme,
-      },
+        theme: newTheme
+      }
     }));
   };
 
@@ -90,8 +123,11 @@ export const AuthProvider = ({ children }) => {
     theme,
     toggleTheme,
     userSettings,
-    setUserSettings: updateSettings,
+    updateSettings
   };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
