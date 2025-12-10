@@ -7,7 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import routers
 # ---------------------------
 from src.auth_controller import router as auth_router
-from src.reports_controller import router as reports_router  # <- ensure this exists!
+from src.reports_controller import router as reports_router
+from src.admin_analytics_controller import router as admin_analytics_router  # <-- Added
 
 # ---------------------------
 # Create FastAPI app
@@ -19,7 +20,7 @@ app = FastAPI(title="BragBoard API")
 # ---------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # replace with frontend URL in production
+    allow_origins=["*"],  # Change in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,7 +30,8 @@ app.add_middleware(
 # Include routers
 # ---------------------------
 app.include_router(auth_router)
-app.include_router(reports_router)  # always include reports router
+app.include_router(reports_router)
+app.include_router(admin_analytics_router)  # <-- Added
 
 # ---------------------------
 # Root endpoint
