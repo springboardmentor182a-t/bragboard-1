@@ -5,7 +5,6 @@ function Settings() {
   const [theme, setTheme] = useState("light");
   const [dashboardDensity, setDashboardDensity] = useState("normal");
   const [notifications, setNotifications] = useState("all");
-  const [language, setLanguage] = useState("en");
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -59,18 +58,7 @@ function Settings() {
           </select>
         </div>
 
-        {/* Language */}
-        <div className="settings-card">
-          <h4>🌐 Language</h4>
-          <select
-            value={language}
-            onChange={e => setLanguage(e.target.value)}
-          >
-            <option value="en">English</option>
-            <option value="fr">French</option>
-            <option value="de">German</option>
-          </select>
-        </div>
+      
       </div>
 
       <button className="save-btn" onClick={handleSave}>Save Settings</button>

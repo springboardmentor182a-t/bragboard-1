@@ -21,3 +21,5 @@ venv/
 # Builds
 dist/
 build/
+server/*.db
+*.db

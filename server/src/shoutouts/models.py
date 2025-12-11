@@ -1,7 +1,11 @@
+<<<<<<< HEAD
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship
+=======
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
+>>>>>>> origin/main-group-A
 from datetime import datetime
-from src.database.core import Base
+from database.core import Base
 
 class Shoutout(Base):
     __tablename__ = "shoutouts"
@@ -12,5 +16,10 @@ class Shoutout(Base):
     sender_id = Column(Integer, nullable=False)
     receiver_id = Column(Integer, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+<<<<<<< HEAD
     reports = relationship("Report", back_populates="shoutout")
 
+=======
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+    is_deleted = Column(Boolean, default=False)
+>>>>>>> origin/main-group-A
