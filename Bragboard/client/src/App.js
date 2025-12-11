@@ -1,36 +1,44 @@
-import React, { useState } from 'react';
-import { AuthProvider } from './context/AuthContext';
-import DashboardLayout from './components/Layout/DashboardLayout';
-import Dashboard from './pages/Dashboard';
-import ShoutOuts from './pages/ShoutOuts';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
+﻿import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+// --- Authentication pages (correct paths)
+import Login from "./features/authentication/pages/Login";
+import Register from "./features/authentication/pages/Register";
+import ForgotPassword from "./features/authentication/pages/ForgotPassword";
+import VerifyOTP from "./features/authentication/pages/VerifyOTP";
+import ChangePassword from "./features/authentication/pages/ChangePassword";
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'shoutouts':
-        return <ShoutOuts />;
-      case 'reports':
-        return <Reports />;
-      case 'settings':
-        return <Settings />;
-      default:
-        return <Dashboard />;
-    }
-  };
+// Example protected dashboard import (adjust path if different)
+import Dashboard from "./features/dashboard/Dashboard";
 
+// Example PrivateRoute (if you have one)
+import PrivateRoute from "./components/PrivateRoute";
+
+export default function App() {
   return (
-    <AuthProvider>
-      <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-        {renderContent()}
-      </DashboardLayout>
-    </AuthProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+        {/* Public auth routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
+        <Route path="/change-password" element={<ChangePassword />} />
+
+        {/* Protected routes example */}
+        <Route
+          path="/dashboard/*"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        {/* Fallback */}
+        <Route path="*" element={<div style={{ padding: 24 }}>Page not found</div>} />
+      </Routes>
+    </Router>
   );
 }
-
-export default App;
