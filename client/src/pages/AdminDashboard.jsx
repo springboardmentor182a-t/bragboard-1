@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import DashboardLayout from "../layout/DashboardLayout";
 import AnalyticsCards from '../components/Admin/AnalyticsCards';
-import ShoutOuts from '../components/Admin/ShoutOuts';
+import ShoutOutsPage from '../components/Common/ShoutOuts';
 import Departments from '../components/Admin/Departments';
 import Employees from '../components/Admin/Employees';
 import Leaderboard from '../components/Admin/Leaderboard';
@@ -42,3 +42,4 @@ function AdminDashboard() {
   );
 }
 export default AdminDashboard;
+
