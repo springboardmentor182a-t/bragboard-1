@@ -1,4 +1,4 @@
-# server/src/admin_analytics_controller.py
+# server/src/admin/admin_analytics_controller.py
 from fastapi import APIRouter
 from sqlalchemy import func
 from src.database import SessionLocal

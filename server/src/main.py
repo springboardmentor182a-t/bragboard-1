@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # ---------------------------
 from src.auth_controller import router as auth_router
 from src.reports_controller import router as reports_router
-from src.admin_analytics_controller import router as admin_analytics_router  # <-- Added
+from src.admin.admin_analytics_controller import router as admin_analytics_router
 
 # ---------------------------
 # Create FastAPI app
