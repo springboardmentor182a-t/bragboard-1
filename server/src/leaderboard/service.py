@@ -1,165 +1,150 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Dict
-import random
+from sqlalchemy.orm import Session
+from src.models.user import User
+from src.models.shoutout import Shoutout
+
 
 class LeaderboardService:
-    def __init__(self):
-        # Demo data - real employee names and departments
-        self.demo_users = [
-            {"id": 1, "name": "Alex Johnson", "department": "Engineering", "avatar_color": "#3B82F6"},
-            {"id": 2, "name": "Sarah Miller", "department": "Marketing", "avatar_color": "#10B981"},
-            {"id": 3, "name": "David Chen", "department": "Engineering", "avatar_color": "#8B5CF6"},
-            {"id": 4, "name": "Emma Wilson", "department": "Sales", "avatar_color": "#F59E0B"},
-            {"id": 5, "name": "Michael Brown", "department": "HR", "avatar_color": "#EF4444"},
-            {"id": 6, "name": "Priya Sharma", "department": "Engineering", "avatar_color": "#EC4899"},
-            {"id": 7, "name": "James Taylor", "department": "Marketing", "avatar_color": "#6366F1"},
-            {"id": 8, "name": "Lisa Wang", "department": "Finance", "avatar_color": "#14B8A6"},
-            {"id": 9, "name": "Robert Garcia", "department": "Sales", "avatar_color": "#F97316"},
-            {"id": 10, "name": "Maria Gonzalez", "department": "HR", "avatar_color": "#8B5CF6"},
-        ]
-        
-        # Generate demo shoutouts data
-        self.demo_shoutouts = self._generate_demo_shoutouts()
-        
-    def _generate_demo_shoutouts(self):
-        """Generate realistic demo shoutouts data"""
-        shoutouts = []
-        reasons = [
-            "for helping me debug that tricky API issue",
-            "for the amazing presentation to clients",
-            "for going above and beyond on the project deadline",
-            "for your creative marketing campaign idea",
-            "for mentoring new team members",
-            "for exceptional customer support",
-            "for innovative solution to our workflow problem",
-            "for being an awesome team player",
-            "for handling the crisis situation calmly",
-            "for your consistent high-quality work"
-        ]
-        
-        for i in range(50):  # Generate 50 demo shoutouts
-            sender = random.choice(self.demo_users)
-            recipient = random.choice([u for u in self.demo_users if u["id"] != sender["id"]])
-            
-            shoutouts.append({
-                "id": i + 1,
-                "sender_id": sender["id"],
-                "sender_name": sender["name"],
-                "recipient_id": recipient["id"],
-                "recipient_name": recipient["name"],
-                "message": f"Great work {recipient['name'].split()[0]}! {random.choice(reasons)}",
-                "timestamp": datetime.now() - timedelta(days=random.randint(0, 30)),
-                "reactions": {
-                    "like": random.randint(0, 15),
-                    "clap": random.randint(0, 10),
-                    "star": random.randint(0, 5)
-                }
-            })
-        
-        return shoutouts
-    
-    def get_leaderboard(self, range_type: str = "weekly") -> List[Dict]:
-        """Get leaderboard based on time range"""
-        scores = {}
-        
-        # Calculate scores for each user
-        for user in self.demo_users:
-            user_shoutouts = [s for s in self.demo_shoutouts if s["recipient_id"] == user["id"]]
-            sent_shoutouts = [s for s in self.demo_shoutouts if s["sender_id"] == user["id"]]
-            
-            total_reactions = sum(
-                sum(s["reactions"].values()) 
-                for s in user_shoutouts
-            )
-            
-            # Scoring formula
+    """
+    CLEAN version:
+    - No demo users
+    - No random generation
+    - No fake reactions
+    - Uses REAL database values
+    """
+
+    def get_leaderboard(self, db: Session, range_type: str = "weekly") -> List[Dict]:
+        """
+        Returns REAL leaderboard using DB records.
+        """
+
+        # 1. Get all users
+        users = db.query(User).all()
+
+        results = []
+
+        for user in users:
+            # Shoutouts received
+            received = db.query(Shoutout).filter(Shoutout.recipient_id == user.id).all()
+
+            # Shoutouts sent
+            sent = db.query(Shoutout).filter(Shoutout.sender_id == user.id).all()
+
+            # Total reactions (if you add a reactions table later)
+            total_reactions = sum(s.reactions_count for s in received) if hasattr(Shoutout, "reactions_count") else 0
+
+            # Scoring
             score = (
-                len(user_shoutouts) * 10 +  # Points for received shoutouts
-                len(sent_shoutouts) * 5 +   # Points for sending shoutouts
-                total_reactions * 2         # Points for reactions
+                len(received) * 10 +
+                len(sent) * 5 +
+                total_reactions * 2
             )
-            
-            scores[user["id"]] = {
-                "user_id": user["id"],
-                "name": user["name"],
-                "department": user["department"],
+
+            results.append({
+                "user_id": user.id,
+                "name": user.name,
+                "department": user.department,
+                "avatar_color": user.avatar_color,
                 "score": score,
-                "shoutouts_received": len(user_shoutouts),
-                "shoutouts_sent": len(sent_shoutouts),
-                "total_reactions": total_reactions,
-                "avatar_color": user["avatar_color"]
-            }
+                "shoutouts_received": len(received),
+                "shoutouts_sent": len(sent),
+                "total_reactions": total_reactions
+            })
+
+        # Sort by score
+        results = sorted(results, key=lambda x: x["score"], reverse=True)
+
         
-        # Sort by score and add rank
-        sorted_scores = sorted(scores.values(), key=lambda x: x["score"], reverse=True)
-        
-        for i, entry in enumerate(sorted_scores, 1):
-            entry["rank"] = i
-        
-        return sorted_scores[:10]  # Return top 10
-    
-    def get_department_stats(self) -> List[Dict]:
-        """Get statistics by department"""
+        for i, r in enumerate(results, start=1):
+            r["rank"] = i
+
+        return results[:10]
+
+  
+
+    def get_department_stats(self, db: Session) -> List[Dict]:
+        """
+        Returns REAL department stats from DB.
+        """
+
+        users = db.query(User).all()
+        shoutouts = db.query(Shoutout).all()
+
         departments = {}
-        
-        for user in self.demo_users:
-            dept = user["department"]
-            if dept not in departments:
-                departments[dept] = {
+
+       
+        for user in users:
+            if user.department not in departments:
+                departments[user.department] = {
                     "users": [],
                     "total_shoutouts": 0,
                     "total_reactions": 0
                 }
-            departments[dept]["users"].append(user["name"])
-        
-        # Calculate department stats
-        for shoutout in self.demo_shoutouts:
-            recipient_dept = next(
-                u["department"] for u in self.demo_users 
-                if u["id"] == shoutout["recipient_id"]
-            )
-            departments[recipient_dept]["total_shoutouts"] += 1
-            departments[recipient_dept]["total_reactions"] += sum(shoutout["reactions"].values())
-        
-        # Prepare response
+
+            departments[user.department]["users"].append(user)
+
+       
+        for s in shoutouts:
+            rec_user = next((u for u in users if u.id == s.recipient_id), None)
+            if rec_user:
+                dept = rec_user.department
+                departments[dept]["total_shoutouts"] += 1
+
+                if hasattr(s, "reactions_count"):
+                    departments[dept]["total_reactions"] += s.reactions_count
+
+       
         stats = []
         for dept, data in departments.items():
             stats.append({
                 "department": dept,
                 "total_shoutouts": data["total_shoutouts"],
                 "active_users": len(data["users"]),
-                "avg_engagement": round(data["total_reactions"] / max(data["total_shoutouts"], 1), 1),
-                "most_active_user": random.choice(data["users"]) if data["users"] else "None"
+                "avg_engagement": round(
+                    (data["total_reactions"] / data["total_shoutouts"])
+                    if data["total_shoutouts"] > 0 else 0,
+                    1
+                ),
+                "most_active_user": None   # You can add logic later
             })
-        
+
         return stats
+
     
-    def get_recent_highlights(self) -> List[Dict]:
-        """Get recent recognition highlights"""
-        recent_shoutouts = sorted(
-            self.demo_shoutouts, 
-            key=lambda x: x["timestamp"], 
-            reverse=True
-        )[:5]
-        
+
+    def get_recent_highlights(self, db: Session) -> List[Dict]:
+        """
+        Returns REAL shoutouts sorted by latest first.
+        """
+
+        shoutouts = (
+            db.query(Shoutout)
+            .order_by(Shoutout.created_at.desc())
+            .limit(5)
+            .all()
+        )
+
         highlights = []
-        for shoutout in recent_shoutouts:
+        for s in shoutouts:
             highlights.append({
-                "id": shoutout["id"],
-                "from": shoutout["sender_name"],
-                "to": shoutout["recipient_name"],
-                "message": shoutout["message"],
-                "time_ago": self._get_time_ago(shoutout["timestamp"]),
-                "reactions": shoutout["reactions"]
+                "id": s.id,
+                "from": s.sender.name if s.sender else "Unknown",
+                "to": s.recipient.name if s.recipient else "Unknown",
+                "message": s.message,
+                "time_ago": self._get_time_ago(s.created_at),
+                "reactions": getattr(s, "reactions", {})
             })
-        
+
         return highlights
-    
+
+   
+
     def _get_time_ago(self, timestamp: datetime) -> str:
-        """Convert timestamp to 'time ago' string"""
+        """Converts timestamp to human-friendly time ago text."""
         now = datetime.now()
         diff = now - timestamp
-        
+
         if diff.days > 0:
             return f"{diff.days} day{'s' if diff.days > 1 else ''} ago"
         elif diff.seconds > 3600:
@@ -168,7 +153,7 @@ class LeaderboardService:
         elif diff.seconds > 60:
             minutes = diff.seconds // 60
             return f"{minutes} minute{'s' if minutes > 1 else ''} ago"
-        else:
-            return "Just now"
+        return "Just now"
+
 
 leaderboard_service = LeaderboardService()
