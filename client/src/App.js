@@ -20,6 +20,7 @@ import ForgotPassword from "./components/Auth/ForgotPassword";
 import ResetPassword from "./components/Auth/ResetPassword";
 
 import AdminDashboard from "./pages/AdminDashboard";
+import ExportReports from "./pages/ExportReports";  
 import EmployeeDashboard from "./pages/EmpDashboard";
 import Shoutouts from "./components/employee/Shoutouts";
 
@@ -72,6 +73,10 @@ function AppShell() {
 
         {/* App pages */}
         <Route path="/admin" element={<AdminDashboard />} />
+          <Route
+          path="/admin/export-reports"
+          element={<DashboardLayout><ExportReports /></DashboardLayout>}
+        />
         <Route path="/employee" element={<EmployeeDashboard />} />
         <Route path="/shoutouts" element={<Shoutouts />} />
 

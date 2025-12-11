@@ -6,6 +6,7 @@ function Sidebar({ activeSection, setActiveSection }) {
     { id: 'departments', label: 'Departments' },
     { id: 'employees', label: 'Employees' },
     { id: 'leaderboard', label: 'Leaderboard' }
+    { id: 'exportreports', label: 'Export Reports' }
   ];
 
   return (
@@ -26,3 +27,4 @@ function Sidebar({ activeSection, setActiveSection }) {
   );
 }
 export default Sidebar;
+
