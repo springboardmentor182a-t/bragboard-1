@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, Text, ForeignKey, DateTime, String
+from sqlalchemy import Column, Integer, Text, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
+from src.reports.enums import ReportStatus
 from datetime import datetime
 
 from src.database.core import Base  # whatever your Base is
@@ -16,7 +17,7 @@ class Report(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # extra fields (if allowed)
-    status = Column(String, default="open")  # "open" | "resolved"
+    status = Column(Enum(ReportStatus), default=ReportStatus.OPEN)
     resolved_at = Column(DateTime, nullable=True)
     resolved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
 
