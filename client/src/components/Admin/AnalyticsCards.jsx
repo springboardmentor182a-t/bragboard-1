@@ -161,9 +161,7 @@ function AnalyticsCards({ loading }) {
 
   // ---------- DEPARTMENT ENGAGEMENT ----------
   const deptEngagement = DEPARTMENTS.map((dept) => {
-    const deptEmployees = EMPLOYEES.filter(
-      (emp) => emp.department === dept
-    );
+    const deptEmployees = EMPLOYEES.filter((emp) => emp.department === dept);
     const deptShoutouts = SHOUTOUTS.filter((s) =>
       deptEmployees.some((emp) => emp.id === s.from || emp.id === s.to)
     );

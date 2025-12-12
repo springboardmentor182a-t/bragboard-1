@@ -9,7 +9,7 @@ function EmployeeDashboardLayout({
   children,
 }) {
   return (
-    <div className="h-screen flex">
+    <div className="h-screen flex text-black">
       {/* LEFT SIDEBAR */}
       <EmpSidebar
         activeSection={activeSection}
@@ -21,7 +21,7 @@ function EmployeeDashboardLayout({
         {/* TOP NAVBAR */}
         <Navbar setActiveSection={setActiveSection} onLogout={onLogout} />
 
-        {/* MAIN CONTENT – now theme aware */}
+        {/* MAIN CONTENT */}
         <main className="mt-[70px] ml-[220px] p-6 main-bg">
           {children}
         </main>
