@@ -3,8 +3,8 @@ from sqlalchemy.orm import relationship
 from src.reports.enums import ReportStatus
 from datetime import datetime
 
-from src.database.core import Base  # whatever your Base is
-from src.shoutouts.models import Shoutout  # adjust name
+from src.database.core import Base  
+from src.shoutouts.models import Shoutout  
 from src.auth.models import User
 
 class Report(Base):
@@ -16,7 +16,7 @@ class Report(Base):
     reason = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # extra fields (if allowed)
+    
     status = Column(Enum(ReportStatus), default=ReportStatus.OPEN)
     resolved_at = Column(DateTime, nullable=True)
     resolved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
