@@ -2,7 +2,7 @@ import React from 'react';
 
 const Navbar = () => {
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 px-6 py-3">
+    <nav className="fixed top-0 left-0 right-0 bg-white shadow-sm border-b border-gray-200 px-6 py-3 z-50">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <h1 className="text-xl font-bold text-gray-800">BRAG BOARD</h1>
