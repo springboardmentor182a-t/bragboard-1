@@ -2,6 +2,8 @@ import { useState } from 'react';
 import DashboardLayout from "../layout/DashboardLayout";
 
 import ShoutOuts from '../components/Admin/ShoutOuts';
+import AnalyticsCards from '../components/Admin/AnalyticsCards';
+import ShoutOutsPage from '../components/Common/ShoutOuts';
 import Departments from '../components/Admin/Departments';
 import Employees from '../components/Admin/Employees';
 import Leaderboard from '../components/Admin/Leaderboard';
@@ -57,3 +59,4 @@ if (role !== "admin") {
   );
 }
 export default AdminDashboard;
+
