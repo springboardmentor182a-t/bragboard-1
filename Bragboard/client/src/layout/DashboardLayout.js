@@ -8,8 +8,8 @@ const DashboardLayout = ({ children, activeTab, setActiveTab }) => {
       <Navbar />
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      {/* Main content - increased margin to match wider sidebar */}
-      <main className="ml-64 pt-12"> {/* Increased from ml-48 to ml-64 */}
+      {/* Main content with proper spacing */}
+      <main className="ml-64 pt-16">
         <div className="p-6">
           {children}
         </div>
