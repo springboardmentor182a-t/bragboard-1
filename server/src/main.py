@@ -6,7 +6,7 @@ from src.shoutouts.controller import router as shoutouts_router
 from src.analytics.routes import router as analytics_router
 from src.auth.auth_routes import router as auth_router
 from src.reports.controllers import router as reports_router
-
+from src.admin.routes import router as admin_router
 app = FastAPI()
 
 # ⭐ CREATE DATABASE TABLES
@@ -31,3 +31,4 @@ app.include_router(shoutouts_router)   # Shoutouts APIs
 app.include_router(analytics_router)   # Analytics APIs
 app.include_router(auth_router)        # Authentication APIs
 app.include_router(reports_router)     # Reports APIs
+app.include_router(admin_router)        # Admin APIs

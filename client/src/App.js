@@ -22,6 +22,9 @@ import ResetPassword from "./components/Auth/ResetPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmpDashboard";
 import Shoutouts from "./components/employee/Shoutouts";
+import ApprovalRequests from "./components/Admin/ApprovalRequests";
+import ApprovalStatus from "./pages/ApprovalStatus";
+
 
 import "./index.css";
 
@@ -30,21 +33,21 @@ function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // 👇 this function is what you put in onLogin={...}
+  
   const handleLogin = ({ username, role }) => {
-    // store whatever you want about the user
+    
     setUser({ username, role });
 
-    // redirect based on role
+    
     if (role === "admin") {
       navigate("/admin", { replace: true });
     } else {
-      // default: employee
+      
       navigate("/employee", { replace: true });
     }
   };
 
-  // show BrandBadge only on auth-related pages
+  
   const isAuthPage =
     location.pathname === "/login" ||
     location.pathname === "/register" ||
@@ -74,6 +77,9 @@ function AppShell() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/employee" element={<EmployeeDashboard />} />
         <Route path="/shoutouts" element={<Shoutouts />} />
+        <Route path="/admin/approvals" element={<ApprovalRequests />} />
+        <Route path="/ApprovalStatus" element={<ApprovalStatus />} />
+
 
         {/* fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />

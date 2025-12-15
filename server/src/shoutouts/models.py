@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from database.core import Base
+from src.database.core import Base
 
 class Shoutout(Base):
     __tablename__ = "shoutouts"

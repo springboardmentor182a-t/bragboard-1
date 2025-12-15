@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from src.entities import user
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 
@@ -42,7 +43,17 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     hashed_pwd = hash_password(user.password)
     otp = generate_otp()
 
-    new_user = User(email=user.email, password=hashed_pwd, otp=otp)
+    new_user = User(
+    email=user.email,
+    password=hashed_pwd,
+    otp=otp,
+    is_verified=False,
+    role="employee",
+    is_approved=False,
+    status="pending"
+    )
+
+
     db.add(new_user)
     db.commit()
 
@@ -82,6 +93,9 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 
     if not user.is_verified:
         raise HTTPException(403, "Email not verified")
+    if not user.is_approved:
+        raise HTTPException(403, "Account pending admin approval")
+
 
     # Create JWT with role included
     access_token = create_access_token(

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from shoutouts.models import Shoutout
-from entities.shoutout import ShoutoutCreate, ShoutoutUpdate
+from src.shoutouts.models import Shoutout
+from src.entities.shoutout import ShoutoutCreate, ShoutoutUpdate
 
 
 def create_shoutout(db: Session, data: ShoutoutCreate):
