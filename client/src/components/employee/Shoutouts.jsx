@@ -73,6 +73,12 @@ export default function Shoutouts() {
     );
   };
 
+   const toggleCategory = (cat) => {
+    setCategories((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (recipients.length === 0) return alert("Select at least one recipient");
@@ -84,6 +90,7 @@ export default function Shoutouts() {
       await loadShoutouts();
     } catch (err) {
       console.error("Failed to post shoutout:", err);
+      alert("Failed to post shoutout. See console for details.");
     }
   };
 
@@ -398,3 +405,4 @@ const reactTo = (id, type) => {
     </div>
   );
 }
+
