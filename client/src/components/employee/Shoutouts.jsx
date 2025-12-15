@@ -7,9 +7,10 @@ import {
 } from "../../data/constants";
 
 const CURRENT_USER_ID = 1; // mock logged-in employee (Alice Johnson)
-
+const CATEGORIES = ["Teamwork", "Leadership", "Creativity", "Support", "Extra Mile"];
 
 export default function Shoutouts() {
+  const [list, setList] = useState([]);
   const [allShoutouts, setAllShoutouts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("mine"); // "mine" | "all"
@@ -17,7 +18,7 @@ export default function Shoutouts() {
   // form state
   const [recipients, setRecipients] = useState([]);
   const [message, setMessage] = useState("");
-
+  const [categories, setCategories] = useState([]);
   // comments UI state
   const [commentsByShoutout, setCommentsByShoutout] = useState({});
   const [newComment, setNewComment] = useState({});
@@ -405,4 +406,5 @@ const reactTo = (id, type) => {
     </div>
   );
 }
+
 
