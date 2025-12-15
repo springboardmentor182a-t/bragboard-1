@@ -5,6 +5,7 @@ import ShoutOuts from '../components/Admin/ShoutOuts';
 import Departments from '../components/Admin/Departments';
 import Employees from '../components/Admin/Employees';
 import Leaderboard from '../components/Admin/Leaderboard';
+import DashboardOverview from '../components/Admin/DashboardOverview';
 import { Navigate } from "react-router-dom"; 
 
 import ApprovalRequests from "../components/Admin/ApprovalRequests";
@@ -28,6 +29,12 @@ if (role !== "admin") {
       break;
     case 'departments':
       SectionComponent = <Departments />;
+      break;
+      case 'dashboard':
+      SectionComponent = <DashboardOverview />;
+      break;
+    case 'analytics':
+      SectionComponent = <AnalyticsCards loading={loading} />;
       break;
     case 'employees':
       SectionComponent = <Employees />;
