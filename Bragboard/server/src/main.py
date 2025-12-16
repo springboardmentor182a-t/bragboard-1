@@ -1,3 +1,4 @@
+from fastapi import FastAPI
 from src.database import engine, Base, SessionLocal
 from src.analytics.analytics_controller import router as analytics_router
 from src.employee.employee_controller import router as employee_router
