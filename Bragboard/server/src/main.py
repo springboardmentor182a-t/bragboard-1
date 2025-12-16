@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from src.database import engine, Base, SessionLocal
 from src.analytics.analytics_controller import router as analytics_router
 from src.employee.employee_controller import router as employee_router
+from src.auth import router as auth_router
 from routers.report_routers import router as report_router
 from src.auth import router as auth_routefrom fastapi import FastAPI
 from server.src.database import Base, engine
