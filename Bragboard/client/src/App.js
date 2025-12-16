@@ -8,22 +8,22 @@ import Settings from "./pages/Settings";
 import Analytics from "./pages/Analytics";
 import ExportReport from "./pages/ExportReport";
 
-function App() {
-  const [activeTab, setActiveTab] = useState("dashboard");
+const App = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   const renderContent = () => {
     switch (activeTab) {
-      case "dashboard":
+      case 'dashboard':
         return <Dashboard />;
-      case "shoutouts":
+      case 'shoutouts':
         return <ShoutOuts />;
-      case "reports":
-        return <Reports />;
-      case 'export':               
-        return <ExportReport />;
-      case "analytics": // ← ADD THIS
+      case 'analytics':
         return <Analytics />;
-      case "settings":
+      case 'reports':
+        return <Reports />;
+      case 'export':
+        return <ExportReport />;
+      case 'settings':
         return <Settings />;
       default:
         return <Dashboard />;
@@ -32,11 +32,13 @@ function App() {
 
   return (
     <AuthProvider>
-      <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-        {renderContent()}
-      </DashboardLayout>
+      <div className="min-h-screen bg-gray-50">
+        <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+          {renderContent()}
+        </DashboardLayout>
+      </div>
     </AuthProvider>
   );
-}
+};
 
 export default App;
