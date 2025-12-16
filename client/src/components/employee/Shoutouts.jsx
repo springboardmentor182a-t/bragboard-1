@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getJson, postJson } from "../../api";
+import { getJson, postJson } from "../../lib/api";
 
 const EMPLOYEES = ["Rani", "Raj", "Shan", "Akshay", "Vaishnavi"];
 const CATEGORIES = ["Teamwork", "Leadership", "Creativity", "Support", "Extra Mile"];

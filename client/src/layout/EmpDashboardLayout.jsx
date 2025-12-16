@@ -1,6 +1,8 @@
 // EmpDashboardLayout.jsx
 import EmpSidebar from "./EmpSiderbar";
 import Navbar from "./Navbar";
+import EmpSidebar from "./EmpSidebar";
+import Navbar from "./Navbar";
 
 function EmployeeDashboardLayout({
   activeSection,
@@ -19,7 +21,8 @@ function EmployeeDashboardLayout({
       {/* RIGHT SIDE */}
       <div className="flex-1 flex flex-col">
         {/* TOP NAVBAR */}
-        <Navbar setActiveSection={setActiveSection} onLogout={onLogout} />
+         <Navbar setActiveSection={setActiveSection} onLogout={onLogout} />
+       
 
         {/* MAIN CONTENT – now theme aware */}
         <main className="mt-[70px] ml-[220px] p-6 main-bg">

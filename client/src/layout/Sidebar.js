@@ -5,6 +5,7 @@ function Sidebar({ activeSection, setActiveSection }) {
     { id: 'shoutouts', label: 'ShoutOuts' },
     { id: 'departments', label: 'Departments' },
     { id: 'employees', label: 'Employees' },
+    { id: 'approvals', label: 'User Approvals' },
     { id: 'leaderboard', label: 'Leaderboard' }
     { id: 'exportreports', label: 'Export Reports' }
   ];

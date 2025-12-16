@@ -29,9 +29,11 @@ def main():
         admin_user = User(
             email=email,
             password=get_password_hash(password),
-            is_verified=True,   # admin is verified
+            is_verified=True,
+            is_approved=True,   # admin is verified
             otp=None,           # no OTP
             role="admin",       # set role to admin
+            status="approved"
         )
 
         db.add(admin_user)
