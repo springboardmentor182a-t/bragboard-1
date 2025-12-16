@@ -72,7 +72,6 @@ function Leaderboard() {
       <style>{`
         .leaderboard-container {
           padding: 40px 28px 40px 0;
-          color: #333; 
         }
 
         .title {

@@ -45,7 +45,7 @@ export default function Shoutouts() {
     e.preventDefault();
     if (recipients.length === 0) return alert("Select at least one recipient");
     try {
-      // send combined name string to backend (keeps compatibility with existing backend shape)
+      // for now send one combined name string to backend
       const name = recipients.join(", ");
       await postJson("/shoutouts", { name, message });
       setRecipients([]);
@@ -54,7 +54,6 @@ export default function Shoutouts() {
       await loadShoutouts();
     } catch (err) {
       console.error("Failed to post shoutout:", err);
-      alert("Failed to post shoutout. See console for details.");
     }
   };
 
@@ -80,7 +79,9 @@ export default function Shoutouts() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Recipients multi-select */}
               <div>
-                <label className="block text-sm font-medium mb-1">Select Recipient(s)</label>
+                <label className="block text-sm font-medium mb-1">
+                  Select Recipient(s)
+                </label>
                 <div className="flex flex-wrap gap-2">
                   {EMPLOYEES.map((emp) => {
                     const active = recipients.includes(emp);
@@ -105,7 +106,9 @@ export default function Shoutouts() {
 
               {/* Message */}
               <div>
-                <label className="block text-sm font-medium mb-1">Message</label>
+                <label className="block text-sm font-medium mb-1">
+                  Message
+                </label>
                 <textarea
                   className="w-full border rounded-2xl p-3 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
@@ -118,7 +121,9 @@ export default function Shoutouts() {
 
               {/* Categories multi-select */}
               <div>
-                <label className="block text-sm font-medium mb-1">Category</label>
+                <label className="block text-sm font-medium mb-1">
+                  Category
+                </label>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((cat) => {
                     const active = categories.includes(cat);
@@ -154,12 +159,17 @@ export default function Shoutouts() {
           <div className="bg-white rounded-3xl shadow-lg p-6 border border-slate-100">
             <h3 className="text-lg font-semibold mb-3">My Shoutouts</h3>
             {loading && <p className="text-sm text-slate-500">Loading...</p>}
-            {!loading && list.length === 0 && <p className="text-sm text-slate-500">No shoutouts yet.</p>}
+            {!loading && list.length === 0 && (
+              <p className="text-sm text-slate-500">No shoutouts yet.</p>
+            )}
             <div className="space-y-4">
               {list.map((s) => {
                 const r = s.reactions || { like: 0, love: 0, laugh: 0 };
                 return (
-                  <div key={s.id} className="border border-slate-100 rounded-2xl p-4 flex flex-col gap-2">
+                  <div
+                    key={s.id}
+                    className="border border-slate-100 rounded-2xl p-4 flex flex-col gap-2"
+                  >
                     <div className="text-sm text-slate-500">
                       Recipient(s): <span className="font-medium">{s.name}</span>
                     </div>
@@ -196,9 +206,13 @@ export default function Shoutouts() {
           <div className="bg-white rounded-3xl shadow-lg p-6 border border-slate-100 h-full">
             <div className="flex items-center justify-between mb  -3">
               <h3 className="text-lg font-semibold">Received Shoutouts</h3>
-              <span className="text-xs text-slate-500 cursor-pointer">All</span>
+              <span className="text-xs text-slate-500 cursor-pointer">
+                All
+              </span>
             </div>
-            {received.length === 0 && <p className="text-sm text-slate-500">No shoutouts received yet.</p>}
+            {received.length === 0 && (
+              <p className="text-sm text-slate-500">No shoutouts received yet.</p>
+            )}
             <div className="mt-3 space-y-4">
               {received.map((s) => (
                 <div key={s.id} className="flex items-start gap-3">
