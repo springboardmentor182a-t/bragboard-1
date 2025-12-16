@@ -33,9 +33,9 @@ function Notifications() {
   }
 
   return (
-    <div style={{ padding: "20px 30px", color: "#333" }}>
+    <div>
       <h3>Notifications & Alerts</h3>
-      <div style={{ marginBottom: "20px"}}>
+      <div style={{ marginBottom: "20px" }}>
         {/* Filter controls */}
         <strong>Filter: </strong>
         {TYPES.map(type => (

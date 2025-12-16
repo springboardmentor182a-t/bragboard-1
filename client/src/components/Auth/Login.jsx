@@ -30,12 +30,12 @@ export default function Login() {
     });
 
     if (status === 200) {
-  console.log("Login success:", data);
+    console.log("Login success:", data);
 
   // store token
-  if (data?.access_token) {
+    if (data?.access_token) {
     localStorage.setItem("access_token", data.access_token);
-  }
+    }
 
   // store role (optional but useful)
   if (data?.role) {
@@ -54,7 +54,15 @@ export default function Login() {
  else if (status === 403 && data?.detail?.toLowerCase().includes("not verified")) {
       setErr("Account not verified. Please verify your email.");
       // optionally navigate("/verify-otp", { state: { email } });
-    } else if (status === 401) {
+    } 
+    else if (
+  status === 403 &&
+  data?.detail?.toLowerCase().includes("pending admin approval")
+) {
+  // redirect to approval status page
+  navigate("/ApprovalStatus", { replace: true });
+}
+else if (status === 401) {
       setErr("Invalid email or password.");
     }  else {
   // FastAPI 422: detail is usually an array of error objects

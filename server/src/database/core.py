@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = "sqlite:///./shoutouts.db"   # Use PostgreSQL later in internship 😄
+DATABASE_URL = "sqlite:///./shoutouts.db"   
 DATABASE_URL = "sqlite:///./auth.db"
 
 engine = create_engine(
@@ -10,7 +10,7 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()
+Base = declarative_base() 
 
 
 # Dependency for FastAPI routes

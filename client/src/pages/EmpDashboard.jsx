@@ -1,38 +1,43 @@
+// EmpDashboard.jsx
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
 import EmployeeDashboardLayout from "../layout/EmpDashboardLayout";
 
-import Tasks from "../components/employee/Tasks";
 import Shoutouts from "../components/employee/Shoutouts";
-import Attendance from "../components/employee/Attendance";
 import Leaderboard from "../components/employee/Leaderboard";
 import Notifications from "../components/employee/Notifications";
-import Profile from "../components/employee/Profile";
 import Performance from "../components/employee/Performance";
 import Settings from "../components/employee/Settings";
 
-function EmpDashboard() {
+function EmpDashboard({ onLogout, userName }) {
+  
   const [activeSection, setActiveSection] = useState("tasks");
+
+  
+  const role = localStorage.getItem("role");
+  const approvalStatus = localStorage.getItem("ApprovalStatus");
+
+  //  Block unapproved employee
+  if (approvalStatus === "pending") {
+    return <Navigate to="/ApprovalStatus" replace />;
+  }
+
+  //  Block non-employee
+  if (role !== "employee") {
+    return <Navigate to="/login" replace />;
+  }
 
   let SectionComponent;
 
   switch (activeSection) {
-    case "tasks":
-      SectionComponent = <Tasks />;
-      break;
     case "shoutouts":
       SectionComponent = <Shoutouts />;
-      break;
-    case "attendance":
-      SectionComponent = <Attendance />;
       break;
     case "leaderboard":
       SectionComponent = <Leaderboard />;
       break;
     case "notifications":
       SectionComponent = <Notifications />;
-      break;
-    case "profile":
-      SectionComponent = <Profile />;
       break;
     case "performance":
       SectionComponent = <Performance />;
@@ -45,9 +50,11 @@ function EmpDashboard() {
   }
 
   return (
-    <EmployeeDashboardLayout 
+    <EmployeeDashboardLayout
       activeSection={activeSection}
       setActiveSection={setActiveSection}
+      onLogout={onLogout}
+      userName={userName}
     >
       {SectionComponent}
     </EmployeeDashboardLayout>
@@ -55,4 +62,3 @@ function EmpDashboard() {
 }
 
 export default EmpDashboard;
-
