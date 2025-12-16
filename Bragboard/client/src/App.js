@@ -1,25 +1,38 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import AdminReports from "./pages/AdminReports";
+import React, { useState } from "react";
+import { AuthProvider } from "./context/AuthContext";
+import DashboardLayout from "./components/Layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Shoutouts from "./pages/Shoutouts";
-import Settings from "./pages/Settings";
 import Reports from "./pages/Admin/Reports";
+import Settings from "./pages/Settings";
 
-export default function App() {
+const App = () => {
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return <Dashboard />;
+      case "shoutouts":
+        return <Shoutouts />;
+      case "analytics":
+        return <Reports />;
+      case "settings":
+        return <Settings />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/admin/reports" replace />} />
-
-        <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/shoutouts" element={<Shoutouts />} />
-        <Route path="/admin/reports" element={<AdminReports />} />
-        <Route path="/admin/reports/details" element={<Reports />} />
-
-        {/* fallback */}
-        <Route path="*" element={<div className="p-8">Page not found</div>} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <div className="min-h-screen bg-gray-50">
+        <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+          {renderContent()}
+        </DashboardLayout>
+      </div>
+    </AuthProvider>
   );
-}
+};
+
+export default App;
