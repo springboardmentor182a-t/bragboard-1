@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from database.core import get_db
-from entities.shoutout import (
+from src.database.core import get_db
+from src.entities.shoutout import (
     ShoutoutCreate,
     ShoutoutResponse,
     ShoutoutUpdate,
 )
 
-from shoutouts.service import (
+from src.shoutouts.service import (
     create_shoutout,
     get_shoutout,
     get_all_shoutouts,

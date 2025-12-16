@@ -5,6 +5,7 @@ import {
   SHOUTOUTS as STATIC_SHOUTOUTS,
   getEmployeeName,
 } from "../../data/constants";
+import { getJson, postJson } from "../../lib/api";
 
 const CURRENT_USER_ID = 1; // mock logged-in employee (Alice Johnson)
 const CATEGORIES = ["Teamwork", "Leadership", "Creativity", "Support", "Extra Mile"];
@@ -84,6 +85,7 @@ export default function Shoutouts() {
     e.preventDefault();
     if (recipients.length === 0) return alert("Select at least one recipient");
     try {
+      // for now send one combined name string to backend
       const name = recipients.join(", ");
       await postJson("/shoutouts", { name, message });
       setRecipients([]);
@@ -91,7 +93,6 @@ export default function Shoutouts() {
       await loadShoutouts();
     } catch (err) {
       console.error("Failed to post shoutout:", err);
-      alert("Failed to post shoutout. See console for details.");
     }
   };
 
@@ -199,7 +200,9 @@ const reactTo = (id, type) => {
 
                {/* Categories multi-select */}
               <div>
-                <label className="block text-sm font-medium mb-1">Category</label>
+                <label className="block text-sm font-medium mb-1">
+                  Category
+                </label>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((cat) => {
                     const active = categories.includes(cat);
@@ -388,6 +391,28 @@ const reactTo = (id, type) => {
               <div className="flex-1">
                 <div className="font-medium text-sm">
                   {s.sender_name || s.name}
+        {/* Right pane: received shoutouts */}
+        <div className="space-y-4">
+          <div className="bg-white rounded-3xl shadow-lg p-6 border border-slate-100 h-full">
+            <div className="flex items-center justify-between mb  -3">
+              <h3 className="text-lg font-semibold">Received Shoutouts</h3>
+              <span className="text-xs text-slate-500 cursor-pointer">
+                All
+              </span>
+            </div>
+            {received.length === 0 && (
+              <p className="text-sm text-slate-500">No shoutouts received yet.</p>
+            )}
+            <div className="mt-3 space-y-4">
+              {received.map((s) => (
+                <div key={s.id} className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">
+                    {s.name?.[0]?.toUpperCase() || "?"}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">{s.name}</div>
+                    <div className="text-xs text-slate-600">{s.message}</div>
+                  </div>
                 </div>
                 <div className="text-xs text-slate-600">{s.message}</div>
               </div>

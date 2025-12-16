@@ -1,16 +1,31 @@
 // EmpDashboard.jsx
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
 import EmployeeDashboardLayout from "../layout/EmpDashboardLayout";
 
-
-import Shoutouts from "../employee/Shoutouts";
-import Leaderboard from "../employee/Leaderboard";
-import Notifications from "../employee/Notifications";
-import Performance from "../employee/Performance";
-import Settings from "../employee/Settings";
+import Shoutouts from "../components/employee/Shoutouts";
+import Leaderboard from "../components/employee/Leaderboard";
+import Notifications from "../components/employee/Notifications";
+import Performance from "../components/employee/Performance";
+import Settings from "../components/employee/Settings";
 
 function EmpDashboard({ onLogout, userName }) {
+  
   const [activeSection, setActiveSection] = useState("tasks");
+
+  
+  const role = localStorage.getItem("role");
+  const approvalStatus = localStorage.getItem("ApprovalStatus");
+
+  //  Block unapproved employee
+  if (approvalStatus === "pending") {
+    return <Navigate to="/ApprovalStatus" replace />;
+  }
+
+  //  Block non-employee
+  if (role !== "employee") {
+    return <Navigate to="/login" replace />;
+  }
 
   let SectionComponent;
 
@@ -24,7 +39,6 @@ function EmpDashboard({ onLogout, userName }) {
     case "notifications":
       SectionComponent = <Notifications />;
       break;
-
     case "performance":
       SectionComponent = <Performance />;
       break;
