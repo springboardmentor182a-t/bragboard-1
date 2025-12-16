@@ -197,6 +197,31 @@ const reactTo = (id, type) => {
                 />
               </div>
 
+               {/* Categories multi-select */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Category</label>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.map((cat) => {
+                    const active = categories.includes(cat);
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => toggleCategory(cat)}
+                        className={
+                          "px-3 py-1 rounded-full text-xs border " +
+                          (active
+                            ? "bg-purple-600 text-white border-purple-600"
+                            : "bg-slate-100 text-slate-700 border-transparent")
+                        }
+                      >
+                        {cat}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              
               <button
                 type="submit"
                 className="w-full mt-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 rounded-2xl font-semibold shadow-md hover:shadow-lg"
@@ -406,5 +431,6 @@ const reactTo = (id, type) => {
     </div>
   );
 }
+
 
 
