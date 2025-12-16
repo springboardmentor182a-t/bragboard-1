@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database import get_db
-from schemas.report_schema import ReportCreate, ResolveReport, ReportOut
-from services.report_service import ReportService
-from auth import employee_required, admin_required
-from utils.jwt_handler import TokenData
+from src.database import get_db
+from src.schemas.report_schema import ReportCreate, ResolveReport, ReportOut
+from src.services.report_service import ReportService
+from src.auth import employee_required, admin_required
+from src.utils.jwt_handler import TokenData
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
 

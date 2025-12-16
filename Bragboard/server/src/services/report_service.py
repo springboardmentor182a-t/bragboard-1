@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from models.report import Report
+from src.models.report import Report
 
 
 class ReportService:
