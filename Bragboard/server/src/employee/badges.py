@@ -60,5 +60,4 @@ def get_badges(employee_list):
             badges.append("Leadership Spotlight")
 
         emp["badges"] = badges
-
-    return employee_list
+    return employee_list
