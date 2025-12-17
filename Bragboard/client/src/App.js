@@ -1,35 +1,31 @@
-import React, { useState } from 'react';
-import { AuthProvider } from './context/AuthContext';
-import DashboardLayout from './components/Layout/DashboardLayout';
-import Dashboard from './pages/Dashboard';
-import ShoutOuts from './pages/ShoutOuts';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
+  import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+import Login from "./features/authentication/pages/Login";
+import Signup from "./features/authentication/pages/Register";
+import ForgotPassword from "./features/authentication/pages/ForgotPassword";
+import VerifyOTP from "./features/authentication/pages/VerifyOTP";
+import ChangePassword from "./features/authentication/pages/ChangePassword";
+import DashboardLayout from "./layout/DashboardLayout";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'shoutouts':
-        return <ShoutOuts />;
-      case 'reports':
-        return <Reports />;
-      case 'settings':
-        return <Settings />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
   return (
-    <AuthProvider>
-      <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-        {renderContent()}
-      </DashboardLayout>
-    </AuthProvider>
+    <Router>
+      <Routes>
+
+        {/* 👇 default route "/" → Login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
+        <Route path="/change-password" element={<ChangePassword />} />
+
+        <Route path="/dashboard/*" element={<PrivateRoute><DashboardLayout /></PrivateRoute>} />
+      </Routes>
+    </Router>
   );
 }
 

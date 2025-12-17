@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext"; 
+import { useAuth } from "../Context/AuthContext";
 
 const Reports = () => {
   const { user } = useAuth();
@@ -76,11 +76,10 @@ const Reports = () => {
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`px-4 py-2 rounded-lg font-medium ${
-                timeRange === range
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium ${timeRange === range
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
             >
               {range === "week" && "This Week"}
               {range === "month" && "This Month"}
@@ -115,22 +114,20 @@ const Reports = () => {
               <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      index === 0
-                        ? "bg-yellow-500"
-                        : index === 1
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${index === 0
+                      ? "bg-yellow-500"
+                      : index === 1
                         ? "bg-gray-400"
                         : index === 2
-                        ? "bg-orange-500"
-                        : "bg-blue-500"
-                    }`}
+                          ? "bg-orange-500"
+                          : "bg-blue-500"
+                      }`}
                   >
                     <span className="text-white font-bold text-sm">{index + 1}</span>
                   </div>
                   <span
-                    className={`font-medium ${
-                      contributor.name === "You" ? "text-blue-600" : "text-gray-800"
-                    }`}
+                    className={`font-medium ${contributor.name === "You" ? "text-blue-600" : "text-gray-800"
+                      }`}
                   >
                     {contributor.name}
                   </span>
@@ -155,11 +152,10 @@ const Reports = () => {
                   <div
                     className="bg-blue-500 h-2 rounded-full"
                     style={{
-                      width: `${
-                        (dept.shoutouts /
-                          Math.max(...currentData.departmentStats.map((d) => d.shoutouts))) *
+                      width: `${(dept.shoutouts /
+                        Math.max(...currentData.departmentStats.map((d) => d.shoutouts))) *
                         100
-                      }%`
+                        }%`
                     }}
                   ></div>
                 </div>
