@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { AuthProvider } from './context/AuthContext';
-import DashboardLayout from './components/Layout/DashboardLayout';
-import Dashboard from './pages/Dashboard';
-import ShoutOuts from './pages/ShoutOuts';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
+import React, { useState } from "react";
+import { AuthProvider } from "./Context/AuthContext";
+import DashboardLayout from "./components/Layout/DashboardLayout";
+import Dashboard from "./pages/Dashboard";
+import ShoutOuts from "./pages/ShoutOuts";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
+import Analytics from "./pages/Analytics";
+import ExportReport from "./pages/ExportReport";
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -15,8 +17,12 @@ const App = () => {
         return <Dashboard />;
       case 'shoutouts':
         return <ShoutOuts />;
-      case 'analytics':  // Changed from 'reports' to 'analytics'
+      case 'analytics':
+        return <Analytics />;
+      case 'reports':
         return <Reports />;
+      case 'export':
+        return <ExportReport />;
       case 'settings':
         return <Settings />;
       default:
@@ -26,7 +32,6 @@ const App = () => {
 
   return (
     <AuthProvider>
-      {/* Add a fixed container for the entire app */}
       <div className="min-h-screen bg-gray-50">
         <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
           {renderContent()}

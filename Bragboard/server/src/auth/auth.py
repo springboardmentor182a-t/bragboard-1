@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status
 
-from utils.jwt_handler import get_current_user, TokenData
+from src.utils.jwt_handler import get_current_user, TokenData
 
 
 def employee_required(

@@ -2,8 +2,10 @@ from fastapi import FastAPI
 from src.database import engine, Base, SessionLocal
 from src.analytics.analytics_controller import router as analytics_router
 from src.employee.employee_controller import router as employee_router
-from routers.report_routers import router as report_router
-from src.auth import router as auth_router
+from src.routers.report_routers import router as report_router
+from src.auth.routes import router as auth_router
+from src.routers.export_routers import router as export_router
+
 # Create tables
 Base.metadata.create_all(bind=engine)
 app = FastAPI(
@@ -18,6 +20,7 @@ app.include_router(analytics_router, prefix="/admin",
 app.include_router(employee_router, prefix="/employee",
                    tags=["Employee Analytics"])
 app.include_router(report_router)
+app.include_router(export_router) 
 app.include_router(auth_router, prefix="/auth")
 
 

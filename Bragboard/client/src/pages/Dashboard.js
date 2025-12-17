@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import StatsCards from '../components/Dashboard/StatsCards';
 import Leaderboard from '../components/Dashboard/Leaderboard';
 import DepartmentStats from '../components/Dashboard/DepartmentStats';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../Context/AuthContext";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -156,13 +156,13 @@ const Dashboard = () => {
     setShoutouts(prev => prev.map(shoutout =>
       shoutout.id === shoutoutId
         ? {
-            ...shoutout,
-            comments: shoutout.comments.map(comment =>
-              comment.id === commentId
-                ? { ...comment, message: newMessage, timestamp: "Edited just now" }
-                : comment
-            )
-          }
+          ...shoutout,
+          comments: shoutout.comments.map(comment =>
+            comment.id === commentId
+              ? { ...comment, message: newMessage, timestamp: "Edited just now" }
+              : comment
+          )
+        }
         : shoutout
     ));
     setEditingComment(null);
@@ -259,31 +259,28 @@ const Dashboard = () => {
             <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
               <button
                 onClick={() => setViewFilter('all')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  viewFilter === 'all'
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewFilter === 'all'
                     ? 'bg-white text-gray-800 shadow-sm'
                     : 'text-gray-600 hover:text-gray-800'
-                }`}
+                  }`}
               >
                 All ({shoutouts.filter(s => s.sender === user.name || s.recipient === user.name).length})
               </button>
               <button
                 onClick={() => setViewFilter('toMe')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  viewFilter === 'toMe'
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewFilter === 'toMe'
                     ? 'bg-white text-gray-800 shadow-sm'
                     : 'text-gray-600 hover:text-gray-800'
-                }`}
+                  }`}
               >
                 To Me ({shoutouts.filter(s => s.recipient === user.name).length})
               </button>
               <button
                 onClick={() => setViewFilter('fromMe')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  viewFilter === 'fromMe'
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewFilter === 'fromMe'
                     ? 'bg-white text-gray-800 shadow-sm'
                     : 'text-gray-600 hover:text-gray-800'
-                }`}
+                  }`}
               >
                 From Me ({shoutouts.filter(s => s.sender === user.name).length})
               </button>
@@ -313,11 +310,10 @@ const Dashboard = () => {
                       <button
                         key={reactionType}
                         onClick={() => handleReaction(shoutout.id, reactionType)}
-                        className={`flex items-center space-x-2 px-3 py-1 rounded-full transition-colors ${
-                          hasReacted
+                        className={`flex items-center space-x-2 px-3 py-1 rounded-full transition-colors ${hasReacted
                             ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                             : 'hover:bg-gray-100 text-gray-600'
-                        }`}
+                          }`}
                       >
                         <span className="text-lg">{getReactionEmoji(reactionType)}</span>
                         <span className="font-medium">{shoutout.reactions[reactionType]}</span>
@@ -403,11 +399,10 @@ const Dashboard = () => {
                     <button
                       onClick={() => handleAddComment(shoutout.id)}
                       disabled={!commentInputs[shoutout.id]?.trim()}
-                      className={`font-medium py-2 px-4 rounded-lg transition-colors ${
-                        commentInputs[shoutout.id]?.trim()
+                      className={`font-medium py-2 px-4 rounded-lg transition-colors ${commentInputs[shoutout.id]?.trim()
                           ? 'bg-blue-500 hover:bg-blue-600 text-white'
                           : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                      }`}
+                        }`}
                     >
                       Post
                     </button>
