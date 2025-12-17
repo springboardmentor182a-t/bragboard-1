@@ -10,6 +10,11 @@ from server.src.modules.comments.comment_model import Comment
 from server.src.modules.comments.comment_controller import router as comment_router
 
 # Create all tables automatically
+from src.routers.report_routers import router as report_router
+from src.auth.routes import router as auth_router
+from src.routers.export_routers import router as export_router
+
+# Create tables
 Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Reporting Shoutouts API",
@@ -23,6 +28,7 @@ app.include_router(analytics_router, prefix="/admin",
 app.include_router(employee_router, prefix="/employee",
                    tags=["Employee Analytics"])
 app.include_router(report_router)
+app.include_router(export_router) 
 app.include_router(auth_router, prefix="/auth")
 
 app = FastAPI(title="BragBoard API", version="1.0")
