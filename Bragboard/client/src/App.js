@@ -8,7 +8,8 @@ import ForgotPassword from "./features/authentication/pages/ForgotPassword";
 import VerifyOTP from "./features/authentication/pages/VerifyOTP";
 import ChangePassword from "./features/authentication/pages/ChangePassword";
 
-import DashboardLayout from "./layout/DashboardLayout";
+import DashboardLayout from "./components/Layout/DashboardLayout";
+
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
