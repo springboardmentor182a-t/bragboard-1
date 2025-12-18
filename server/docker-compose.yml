@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    container_name: server-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # If your app reads DATABASE_URL from env, keep this; otherwise set as needed
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./:/app:cached
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    image: postgres:15
+    container_name: server-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+      - POSTGRES_DB=${POSTGRES_DB:-bragboard}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data: {}
+
+# Notes:
+# - This file expects a .env file in the same folder with at least:
+#     POSTGRES_PASSWORD=changeme
+#     POSTGRES_DB=bragboard
+#   and any other env vars your API uses (SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD, SECRET_KEY, etc.)
+# - The `depends_on` uses a simple list (strings). That fixes the "must be a string" error.
+# - If your service name is different in your original repo, rename `api`/`db` to match (and keep the same names in depends_on).
+# - To validate: `docker compose -f docker-compose.fixed.yml config`
+# - To run: `docker compose -f docker-compose.fixed.yml up --build
