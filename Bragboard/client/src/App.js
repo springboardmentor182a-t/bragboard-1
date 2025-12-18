@@ -1,44 +1,103 @@
-import React, { useState } from "react";
-import { AuthProvider } from "./Context/AuthContext";
-import DashboardLayout from "./components/Layout/DashboardLayout";
-import Dashboard from "./pages/Dashboard";
-import ShoutOuts from "./pages/ShoutOuts";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-import Analytics from "./pages/Analytics";
-import ExportReport from "./pages/ExportReport";
+import React, { useEffect, useState } from 'react';
+import './App.css';
 
-const App = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+function App() {
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [newComment, setNewComment] = useState('');
+  const [usingMock, setUsingMock] = useState(false);
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'shoutouts':
-        return <ShoutOuts />;
-      case 'analytics':
-        return <Analytics />;
-      case 'reports':
-        return <Reports />;
-      case 'export':
-        return <ExportReport />;
-      case 'settings':
-        return <Settings />;
-      default:
-        return <Dashboard />;
+  const fetchComments = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/comments/1');
+      if (!response.ok) {
+        throw new Error('API server not running');
+      }
+      const data = await response.json();
+      setComments(data);
+      setUsingMock(false);
+    } catch (error) {
+      // Fallback to mock data for demo
+      setComments([
+        { id: 1, shoutout_id: 1, user_id: 1, content: "This is a mock comment - API not running" }
+      ]);
+      setUsingMock(true);
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchComments();
+  }, []);
+
+  const handleAddComment = (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    if (usingMock) {
+      // Mock add for demo
+      const newCommentObj = {
+        id: comments.length + 1,
+        shoutout_id: 1,
+        user_id: 1,
+        content: newComment
+      };
+      setComments([...comments, newCommentObj]);
+      setNewComment('');
+      return;
+    }
+
+    // Real API call
+    fetch('http://localhost:8000/comments/1', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ content: newComment })
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to add comment');
+        }
+        return response.json();
+      })
+      .then(() => {
+        setNewComment('');
+        fetchComments();
+      })
+      .catch(error => {
+        setError(error.message);
+      });
+  };
+
+  if (loading) return <div>Loading comments...</div>;
+
   return (
-    <AuthProvider>
-      <div className="min-h-screen bg-gray-50">
-        <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-          {renderContent()}
-        </DashboardLayout>
-      </div>
-    </AuthProvider>
+    <div className="App">
+      <h1>Comments for Shoutout 1</h1>
+      {usingMock && <p style={{color: 'orange'}}>⚠️ Using mock data - API server not running</p>}
+      {error && <p style={{color: 'red'}}>Error: {error}</p>}
+      <ul>
+        {comments.map(comment => (
+          <li key={comment.id}>
+            <strong>User {comment.user_id}:</strong> {comment.content}
+          </li>
+        ))}
+      </ul>
+      <form onSubmit={handleAddComment}>
+        <input
+          type="text"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          placeholder="Add a comment"
+          required
+        />
+        <button type="submit">Add Comment</button>
+      </form>
+    </div>
   );
-};
+}
 
 export default App;
