@@ -21,7 +21,7 @@ const StatsCards = () => {
       {stats.map((stat, index) => (
         <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="text-center">
-            <p className="text-3xl font-bold text-gray-800 mb-2">{stat.value}</p>
+            <p className={`text-3xl font-bold mb-2 ${stat.label === 'Comments Made' ? 'text-blue-600' : 'text-gray-800'}`}>{stat.value}</p>
             <p className="text-gray-600 font-medium text-sm">{stat.label}</p>
           </div>
         </div>

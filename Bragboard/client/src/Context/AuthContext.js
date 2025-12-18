@@ -26,8 +26,15 @@ export const AuthProvider = ({ children }) => {
     const savedSettings = localStorage.getItem('userSettings');
     return savedSettings ? JSON.parse(savedSettings) : {
       notifications: {
+        allNotifications: true,
+        doNotDisturb: false,
+        autoDND: false,
+        focusMode: false,
+        shippingTool: true,
+        outlook: true,
+        slack: true,
         emailNotifications: true,
-        pushNotifications: false,
+        pushNotifications: true,
         shoutoutMentions: true,
         reactionAlerts: true,
         weeklyDigest: false
@@ -41,6 +48,13 @@ export const AuthProvider = ({ children }) => {
         theme: theme,
         language: 'english',
         timezone: 'UTC-5'
+      },
+      profile: {
+        name: "Jane Doe",
+        email: "jane.doe@company.com",
+        department: "Software Engineering",
+        jobTitle: "Senior Software Engineer",
+        bio: "Passionate about building great software and helping teammates succeed!"
       }
     };
   });

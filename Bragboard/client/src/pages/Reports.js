@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { useAuth } from "../Context/AuthContext";
+import React, { useState } from 'react';
+import { useAuth } from '../Context/AuthContext';
 
 const Reports = () => {
   const { user } = useAuth();
-  const [timeRange, setTimeRange] = useState("week");
+  const [timeRange, setTimeRange] = useState('week');
 
   const reportData = {
     week: {
@@ -41,25 +41,6 @@ const Reports = () => {
         { department: "Marketing", shoutouts: 98 },
         { department: "Design", shoutouts: 76 }
       ]
-    },
-    year: {
-      shoutoutsSent: 480,
-      reactionsReceived: 1520,
-      commentsMade: 420,
-      topContributors: [
-        { name: "John Smith", count: 680 },
-        { name: "Mike Chen", count: 520 },
-        { name: "You", count: 480 },
-        { name: "Sarah Lee", count: 450 },
-        { name: "Alex Rivera", count: 420 }
-      ],
-      departmentStats: [
-        { department: "Engineering", shoutouts: 1980 },
-        { department: "Sales", shoutouts: 1680 },
-        { department: "Marketing", shoutouts: 1250 },
-        { department: "Design", shoutouts: 980 },
-        { department: "HR", shoutouts: 650 }
-      ]
     }
   };
 
@@ -70,9 +51,8 @@ const Reports = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Analytics & Reports</h1>
 
-        {/* Time Range Buttons */}
         <div className="flex space-x-2">
-          {["week", "month", "year"].map((range) => (
+          {["week", "month"].map(range => (
             <button
               key={range}
               onClick={() => setTimeRange(range)}
@@ -81,89 +61,69 @@ const Reports = () => {
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
             >
-              {range === "week" && "This Week"}
-              {range === "month" && "This Month"}
-              {range === "year" && "This Year"}
+              {range === "week" ? "This Week" : "This Month"}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Personal Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {[
-          { value: currentData.shoutoutsSent, label: "Shout-outs Sent", color: "text-blue-600" },
-          { value: currentData.reactionsReceived, label: "Reactions Received", color: "text-green-600" },
-          { value: currentData.commentsMade, label: "Comments Made", color: "text-purple-600" }
-        ].map((item, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-center">
-              <p className={`text-3xl font-bold ${item.color}`}>{item.value}</p>
-              <p className="text-gray-600">{item.label}</p>
-            </div>
+          { label: "Shout-outs Sent", value: currentData.shoutoutsSent },
+          { label: "Reactions Received", value: currentData.reactionsReceived },
+          { label: "Comments Made", value: currentData.commentsMade }
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-6 rounded-lg shadow border text-center">
+            <p className="text-3xl font-bold text-blue-600">{stat.value}</p>
+            <p className="text-gray-600">{stat.label}</p>
           </div>
         ))}
       </div>
 
-      {/* Top Contributors */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Top Contributors</h2>
-          <div className="space-y-3">
-            {currentData.topContributors.map((contributor, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${index === 0
-                      ? "bg-yellow-500"
-                      : index === 1
-                        ? "bg-gray-400"
-                        : index === 2
-                          ? "bg-orange-500"
-                          : "bg-blue-500"
-                      }`}
-                  >
-                    <span className="text-white font-bold text-sm">{index + 1}</span>
-                  </div>
-                  <span
-                    className={`font-medium ${contributor.name === "You" ? "text-blue-600" : "text-gray-800"
-                      }`}
-                  >
-                    {contributor.name}
-                  </span>
-                </div>
-                <span className="text-sm text-gray-600">{contributor.count} shoutouts</span>
-              </div>
-            ))}
-          </div>
+        <div className="bg-white p-6 rounded-lg shadow border">
+          <h2 className="font-semibold mb-4">Top Contributors</h2>
+          {currentData.topContributors.map((c, i) => (
+            <div key={i} className="flex justify-between bg-gray-50 p-3 rounded mb-2">
+              <span className={c.name === "You" ? "text-blue-600 font-medium" : ""}>
+                {i + 1}. {c.name}
+              </span>
+              <span>{c.count}</span>
+            </div>
+          ))}
         </div>
 
-        {/* Department Stats */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Department Performance</h2>
-          <div className="space-y-4">
-            {currentData.departmentStats.map((dept, index) => (
-              <div key={index}>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">{dept.department}</span>
-                  <span className="text-sm text-gray-600">{dept.shoutouts} shoutouts</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{
-                      width: `${(dept.shoutouts /
-                        Math.max(...currentData.departmentStats.map((d) => d.shoutouts))) *
-                        100
-                        }%`
-                    }}
-                  ></div>
-                </div>
+        <div className="bg-white p-6 rounded-lg shadow border">
+          <h2 className="font-semibold mb-4">Department Performance</h2>
+          {currentData.departmentStats.map((d, i) => (
+            <div key={i} className="mb-3">
+              <div className="flex justify-between text-sm">
+                <span>{d.department}</span>
+                <span>{d.shoutouts}</span>
               </div>
-            ))}
-          </div>
+              <div className="bg-gray-200 h-2 rounded">
+                <div
+                  className="bg-blue-500 h-2 rounded"
+                  style={{
+                    width: `${(d.shoutouts /
+                      Math.max(...currentData.departmentStats.map(x => x.shoutouts))) * 100}%`
+                  }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
+
+      {user.role === 'admin' && (
+        <div className="mt-8 bg-white p-6 rounded-lg shadow border">
+          <h2 className="font-semibold mb-4">Export Reports</h2>
+          <div className="flex space-x-4">
+            <button className="bg-green-500 text-white px-6 py-2 rounded">Export CSV</button>
+            <button className="bg-red-500 text-white px-6 py-2 rounded">Export PDF</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
