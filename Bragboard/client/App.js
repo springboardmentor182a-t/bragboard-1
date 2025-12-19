@@ -1,25 +1,47 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import AdminReports from "./pages/AdminReports";
+import React, { useState } from "react";
+import { AuthProvider } from "./Context/AuthContext";
+import DashboardLayout from "./components/Layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
-import Shoutouts from "./pages/Shoutouts";
+import ShoutOuts from "./pages/ShoutOuts";
+import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Analytics from "./pages/Analytics";
 import Reports from "./pages/Admin/Reports";
+import ExportReport from "./pages/ExportReport";
 
-export default function App() {
+const App = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'shoutouts':
+        return <ShoutOuts />;
+      case 'analytics':
+        return <Analytics />;
+      case 'reports':
+        return <Reports />;
+      case 'export':
+        return <ExportReport />;
+      case 'settings':
+        return <Settings />;
+      case 'AdminReports':
+        return <Settings />;
+      default:
+        return <Route path="/admin/reports" element={<AdminReports />} />;
+    }
+  };
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/admin/reports" replace />} />
-
-        <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/shoutouts" element={<Shoutouts />} />
-        <Route path="/admin/reports" element={<AdminReports />} />
-        <Route path="/admin/reports/details" element={<Reports />} />
-
-        {/* fallback */}
-        <Route path="*" element={<div className="p-8">Page not found</div>} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <div className="min-h-screen bg-gray-50">
+        <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+          {renderContent()}
+        </DashboardLayout>
+      </div>
+    </AuthProvider>
   );
-}
+};
+
+export default App;
