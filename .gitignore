@@ -1,0 +1,12 @@
+# Environment files
+.env
+env-backup-bragboard.env
+
+# Virtual environment
+.venv/
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
