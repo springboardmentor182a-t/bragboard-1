@@ -18,5 +18,9 @@ class User(Base):
 
     # ⭐ Leaderboard fields
     attempts = Column(Integer, default=0)
+
+    # ⭐ ADD THIS FIELD (required for points update)
+    points = Column(Integer, default=0)
+
     level = Column(String, default="Bronze")
     last_active = Column(DateTime(timezone=True), server_default=func.now())

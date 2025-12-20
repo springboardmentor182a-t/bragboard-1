@@ -35,15 +35,20 @@ def create_shoutout(
     sender.last_active = now
     receiver.last_active = now
 
-    # ✅ INCREMENT ATTEMPTS (THIS WAS MISSING)
+    # ✅ Increment attempts (sender action)
     sender.attempts += 1
 
+    # ✅ 🔥 Increment points (receiver reward)
+    receiver.points = (receiver.points or 0) + 1
+
     db.commit()
+
     db.refresh(shout)
+    db.refresh(receiver)
 
     return {
         "message": "Shoutout created!",
-        "shoutout": shout
+        "receiver_points": receiver.points
     }
 
 

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from src.entities.entities_leaderboard import LeaderboardEntry
-from src.schemas.schemas_leaderboard import LeaderboardCreate
+from src.schemas_leaderboard import LeaderboardCreate
 from datetime import datetime
 
 def get_all_players(db: Session):
