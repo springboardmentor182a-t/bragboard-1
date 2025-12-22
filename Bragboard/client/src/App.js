@@ -1,44 +1,47 @@
-import React, { useState } from "react";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./Context/AuthContext";
+
+import Login from "./features/authentication/pages/Login";
+import Signup from "./features/authentication/pages/Register";
+import ForgotPassword from "./features/authentication/pages/ForgotPassword";
+import VerifyOTP from "./features/authentication/pages/VerifyOTP";
+import ChangePassword from "./features/authentication/pages/ChangePassword";
+
 import DashboardLayout from "./components/Layout/DashboardLayout";
-import Dashboard from "./pages/Dashboard";
-import ShoutOuts from "./pages/ShoutOuts";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-import Analytics from "./pages/Analytics";
-import ExportReport from "./pages/ExportReport";
 
-const App = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+import PrivateRoute from "./components/PrivateRoute";
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'shoutouts':
-        return <ShoutOuts />;
-      case 'analytics':
-        return <Analytics />;
-      case 'reports':
-        return <Reports />;
-      case 'export':
-        return <ExportReport />;
-      case 'settings':
-        return <Settings />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
+function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gray-50">
-        <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-          {renderContent()}
-        </DashboardLayout>
-      </div>
+      <Router>
+        <Routes>
+
+          {/* Default route */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
+          {/* Auth routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/change-password" element={<ChangePassword />} />
+
+          {/* Protected dashboard */}
+          <Route
+            path="/dashboard/*"
+            element={
+              <PrivateRoute>
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          />
+
+        </Routes>
+      </Router>
     </AuthProvider>
   );
-};
+}
 
 export default App;
