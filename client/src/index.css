@@ -54,3 +54,77 @@ a { color: var(--accent-end); text-decoration: none; }
 
 /* 6) Ensure root layout works — helpful for absolute/decorative circles */
 .app-layout { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+
+.page {
+  min-height: 100vh;
+  padding: 30px 60px;
+}
+
+/* Header */
+.page h1 {
+  margin-bottom: 20px;
+  text-align: center; /* OPTIONAL: center heading */
+}
+
+/* Form section */
+.form {
+  background: #ffffff;
+  padding: 20px;
+  margin-bottom: 30px;
+
+  /* 🔽 ADDED */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Input & textarea centered */
+.form input,
+.form textarea {
+  width: 90%;            /* 🔽 reduced width */
+  padding: 10px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+/* Center submit button */
+button {
+  padding: 10px 30px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+
+  /* 🔽 ADDED */
+  margin-top: 10px;
+}
+
+/* Report list */
+.report-list {
+  display: grid;
+  gap: 15px;
+}
+
+.report-item {
+  background: #ffffff;
+  padding: 15px;
+  border-left: 6px solid #007bff;
+}
+
+.status {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: white;
+  border-radius: 4px;
+}
+
+.status.pending {
+  background-color: orange;
+}
+
+.status.resolved {
+  background-color: green;
+}
+
