@@ -1,37 +1,33 @@
 import { useEffect, useState } from "react";
-
-let Report = {
-  id: number,
-  shoutoutText: string,
-  reporterName: string,
-  reason: string,
-  status: "open" | "resolved",
-}
+import { api } from "../../api";
+import { useAuth } from "../../hooks/useAuth";
+import { toast } from "sonner";
 
 export function ResolvingReportsScreen() {
+  const { user } = useAuth();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Simulated fetch — later you can connect to API
-  useEffect(() => {
-    setTimeout(() => {
-      setReports([
-        {
-          id: 1,
-          shoutoutText: "Great teamwork on the new project!",
-          reason: "Duplicate shoutout",
-          status: "open",
-        },
-        {
-          id: 2,
-          shoutoutText: "Amazing leadership in Q2!",
-          reason: "Inappropriate wording",
-          status: "resolved",
-        },
-      ]);
+  const fetchReports = async () => {
+    if (!user?.id) {
       setLoading(false);
-    }, 1000);
-  }, []);
+      return;
+    }
+
+    try {
+      const res = await api.get(`/reports/my-reports?employee_id=${user.id}`);
+      setReports(res.data);
+    } catch (error) {
+      toast.error("Failed to fetch reports");
+      console.error("Error fetching reports:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReports();
+  }, [user]);
 
 
 
@@ -63,30 +59,41 @@ export function ResolvingReportsScreen() {
             </tr>
           </thead>
           <tbody>
-            {reports.map((report) => (
-              <tr
-                key={report.id}
-                className="border-t hover:bg-gray-50"
-              >
-                <td className="p-3 whitespace-nowrap">{report.id}</td>
-                <td className="p-3 max-w-xs">
-                  <div className="truncate" title={report.shoutoutText}>{report.shoutoutText}</div>
-                </td>
-                <td className="p-3 whitespace-nowrap">{report.reporterName}</td>
-                <td className="p-3 whitespace-nowrap">{report.reason}</td>
-                <td className="p-3">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                      report.status === "open"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-green-100 text-green-700"
-                    }`}
-                  >
-                    {report.status}
-                  </span>
+            {reports.length === 0 && !loading ? (
+              <tr>
+                <td colSpan={4} className="p-6 text-center text-gray-500">
+                  No reports submitted yet.
                 </td>
               </tr>
-            ))}
+            ) : (
+              reports.map((report) => (
+                <tr
+                  key={report.id}
+                  className="border-t hover:bg-gray-50"
+                >
+                  <td className="p-3 whitespace-nowrap">{report.id}</td>
+                  <td className="p-3 max-w-xs">
+                    <div className="truncate" title={`Shoutout #${report.shoutout_id}`}>
+                      Shoutout #{report.shoutout_id}
+                    </div>
+                  </td>
+                  <td className="p-3 whitespace-nowrap">{report.reason}</td>
+                  <td className="p-3">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                        report.status === "PENDING" || report.status === "open"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : report.status === "RESOLVED" || report.status === "resolved"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {report.status}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
