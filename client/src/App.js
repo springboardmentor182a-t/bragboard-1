@@ -22,6 +22,7 @@ import ResetPassword from "./components/Auth/ResetPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import ExportReports from "./pages/ExportReports";  
 import EmployeeDashboard from "./pages/EmpDashboard";
+import EmployeeReportShoutout from "./pages/EmployeeReportShoutout";
 import Shoutouts from "./components/employee/Shoutouts";
 import ApprovalRequests from "./components/Admin/ApprovalRequests";
 import ApprovalStatus from "./pages/ApprovalStatus";
@@ -81,6 +82,7 @@ function AppShell() {
           element={<DashboardLayout><ExportReports /></DashboardLayout>}
         />
         <Route path="/employee" element={<EmployeeDashboard />} />
+        <Route path="/employee/report-shoutout" element={<EmployeeReportShoutout />} />
         <Route path="/shoutouts" element={<Shoutouts />} />
         <Route path="/admin/approvals" element={<ApprovalRequests />} />
         <Route path="/ApprovalStatus" element={<ApprovalStatus />} />
