@@ -260,8 +260,8 @@ const Dashboard = () => {
               <button
                 onClick={() => setViewFilter('all')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewFilter === 'all'
-                    ? 'bg-white text-gray-800 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
+                  ? 'bg-white text-gray-800 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
                   }`}
               >
                 All ({shoutouts.filter(s => s.sender === user.name || s.recipient === user.name).length})
@@ -269,8 +269,8 @@ const Dashboard = () => {
               <button
                 onClick={() => setViewFilter('toMe')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewFilter === 'toMe'
-                    ? 'bg-white text-gray-800 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
+                  ? 'bg-white text-gray-800 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
                   }`}
               >
                 To Me ({shoutouts.filter(s => s.recipient === user.name).length})
@@ -278,8 +278,8 @@ const Dashboard = () => {
               <button
                 onClick={() => setViewFilter('fromMe')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewFilter === 'fromMe'
-                    ? 'bg-white text-gray-800 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
+                  ? 'bg-white text-gray-800 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
                   }`}
               >
                 From Me ({shoutouts.filter(s => s.sender === user.name).length})
@@ -311,8 +311,8 @@ const Dashboard = () => {
                         key={reactionType}
                         onClick={() => handleReaction(shoutout.id, reactionType)}
                         className={`flex items-center space-x-2 px-3 py-1 rounded-full transition-colors ${hasReacted
-                            ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                            : 'hover:bg-gray-100 text-gray-600'
+                          ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                          : 'hover:bg-gray-100 text-gray-600'
                           }`}
                       >
                         <span className="text-lg">{getReactionEmoji(reactionType)}</span>
@@ -400,8 +400,8 @@ const Dashboard = () => {
                       onClick={() => handleAddComment(shoutout.id)}
                       disabled={!commentInputs[shoutout.id]?.trim()}
                       className={`font-medium py-2 px-4 rounded-lg transition-colors ${commentInputs[shoutout.id]?.trim()
-                          ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                         }`}
                     >
                       Post
