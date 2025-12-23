@@ -37,6 +37,21 @@ import ChangePassword from "./features/authentication/pages/ChangePassword";
   };
 
 import DashboardLayout from "./components/Layout/DashboardLayout";
+ setLoading(true);
+    try {
+      await fetch(`${API_BASE}/api/shoutouts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+      setMessage('');
+      fetchShoutouts(); // Refresh list
+    } catch (error) {
+      console.error('Error creating shoutout:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 import PrivateRoute from "./components/PrivateRoute";
 import React from 'react';
