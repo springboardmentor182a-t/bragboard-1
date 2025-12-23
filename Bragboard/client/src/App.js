@@ -26,6 +26,15 @@ function App() {
     fetchShoutouts();
   }, []);
 import ChangePassword from "./features/authentication/pages/ChangePassword";
+   const fetchShoutouts = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/shoutouts`);
+      const data = await response.json();
+      setShoutouts(data);
+    } catch (error) {
+      console.error('Error fetching shoutouts:', error);
+    }
+  };
 
 import DashboardLayout from "./components/Layout/DashboardLayout";
 
