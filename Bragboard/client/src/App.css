@@ -1,5 +1,13 @@
 .App {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
   text-align: center;
+  color: #333;
 }
 .App-logo {
   height: 40vmin;
@@ -13,23 +21,81 @@
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
+
+.shoutout-form {
+  margin-bottom: 30px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+
+.shoutout-form textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.shoutout-form button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.shoutout-form button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.shoutouts {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.shoutout-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+
+.shoutout-item p {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.shoutout-item small {
+  color: #666;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.reactions {
+  display: flex;
+  gap: 10px;
+}
+
+.reactions button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.reactions button.active {
+  background-color: #007bff;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.reactions button:hover {
+  background-color: #f0f0f0;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.reactions button.active:hover {
+  background-color: #0056b3;
 }

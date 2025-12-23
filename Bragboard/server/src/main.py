@@ -9,6 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from .database import Base, engine
 from .modules.comments.comment_model import Comment
 from .modules.comments.comment_controller import router as comment_router
+from src.database import Base, engine
+from src.models import user  # Import to register User model
+from src.routers import shoutouts, reactions
+from src.shoutouts.controller import router as shoutout_router
 
 # Create all tables automatically
 Base.metadata.create_all(bind=engine)
@@ -23,6 +27,26 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app = FastAPI(title="BragBoard API")
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+# Include routers
+app.include_router(analytics_router, prefix="/admin",
+                   tags=["Admin Dashboard Analytics"])
+app.include_router(employee_router, prefix="/employee",
+                   tags=["Employee Analytics"])
+app.include_router(report_router)
+app.include_router(export_router) 
+app.include_router(shoutout_router, tags=["Shout-Outs"])
+app.include_router(auth_router, prefix="/auth")
 
 # Register Routers
 app.include_router(comment_router)
@@ -30,3 +54,7 @@ app.include_router(comment_router)
 @app.get("/")
 def root():
     return {"message": "BragBoard FastAPI Server Running"}
+    return {"message": "BragBoard API is running"}
+
+app.include_router(shoutouts.router)
+app.include_router(reactions.router)
