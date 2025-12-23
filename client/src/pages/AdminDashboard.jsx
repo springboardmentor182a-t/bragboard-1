@@ -1,20 +1,34 @@
-import { useEffect, useState } from "react";
-import { getJson } from "../api";
+import { useState, useEffect } from 'react';
+import { Navigate } from "react-router-dom";
+
 import DashboardLayout from "../layout/DashboardLayout";
-import AnalyticsCards from "../components/Admin/AnalyticsCards";
-import ShoutOuts from "../components/Admin/ShoutOuts";
-import Departments from "../components/Admin/Departments";
-import Employees from "../components/Admin/Employees";
-import Leaderboard from "../components/Admin/Leaderboard";
-import DashboardOverview from "../components/Admin/DashboardOverview";
+import { getJson } from "../api";
+
+import ShoutOuts from '../components/Admin/ShoutOuts';
+import AnalyticsCards from '../components/Admin/AnalyticsCards';
+import ShoutOutsPage from '../components/Common/ShoutOuts';
+import Departments from '../components/Admin/Departments';
+import Employees from '../components/Admin/Employees';
+import Leaderboard from '../components/Admin/Leaderboard';
+import DashboardOverview from '../components/Admin/DashboardOverview';
+import ApprovalRequests from "../components/Admin/ApprovalRequests";
 
 function AdminDashboard() {
-  const [activeSection, setActiveSection] = useState("dashboard");
+  const [activeSection, setActiveSection] = useState('dashboard');
+
+  // 🔹 Dashboard integration states (ADDED)
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
 
+  const role = localStorage.getItem("role");
+
+  if (role !== "admin") {
+    return <Navigate to="/login" replace />;
+  }
+
+  // 🔹 Dashboard API call (ADDED)
   useEffect(() => {
-    const load = async () => {
+    const loadDashboard = async () => {
       try {
         const res = await getJson("/api/dashboard/admin");
         setDashboardData(res);
@@ -24,44 +38,58 @@ function AdminDashboard() {
         setLoading(false);
       }
     };
-    load();
+
+    loadDashboard();
   }, []);
 
   let SectionComponent;
   switch (activeSection) {
-    case "dashboard":
+
+    case 'dashboard':
       SectionComponent = (
-        <DashboardOverview dashboardData={dashboardData} loading={loading} />
+        <DashboardOverview
+          dashboardData={dashboardData}
+          loading={loading}
+        />
       );
       break;
-    case "analytics":
-      SectionComponent = <AnalyticsCards loading={loading} />;
-      break;
-    case "shoutouts":
+
+    case 'shoutouts':
       SectionComponent = <ShoutOuts />;
       break;
-    case "departments":
+
+    case 'departments':
       SectionComponent = <Departments />;
       break;
-    case "employees":
+
+    case 'analytics':
+      SectionComponent = <AnalyticsCards loading={loading} />;
+      break;
+
+    case 'employees':
       SectionComponent = <Employees />;
       break;
-    case "leaderboard":
+
+    case 'leaderboard':
       SectionComponent = <Leaderboard loading={loading} />;
       break;
+
+    case 'approvals':
+      SectionComponent = <ApprovalRequests />;
+      break;
+
     default:
       SectionComponent = <div>Select a section.</div>;
   }
-
-  if (loading && !dashboardData) return <div>Loading admin dashboard...</div>;
-  if (!dashboardData) return <div>Failed to load admin dashboard.</div>;
 
   return (
     <DashboardLayout
       activeSection={activeSection}
       setActiveSection={setActiveSection}
     >
-      {SectionComponent}
+      {activeSection === 'dashboard' && loading
+        ? <div>Loading dashboard...</div>
+        : SectionComponent}
     </DashboardLayout>
   );
 }
