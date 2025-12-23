@@ -40,7 +40,11 @@ import ChangePassword from "./features/authentication/pages/ChangePassword";
       console.error('Error fetching shoutouts:', error);
     }
   };
+const createShoutout = async (e) => {
+    e.preventDefault();
+    if (!message.trim()) return;
 
+    setLoading(true);
 import DashboardLayout from "./components/Layout/DashboardLayout";
  setLoading(true);
     try {
