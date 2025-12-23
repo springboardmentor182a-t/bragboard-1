@@ -89,6 +89,12 @@ function App() {
           <Route path="/change-password" element={<ChangePassword />} />
 
           {/* Protected dashboard */}
+ ))}
+      </div>
+    </div>
+  );
+}
+export default App;
           <Route
             path="/dashboard/*"
             element={
