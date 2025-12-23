@@ -7,6 +7,15 @@ import Signup from "./features/authentication/pages/Register";
 import ForgotPassword from "./features/authentication/pages/ForgotPassword";
 import VerifyOTP from "./features/authentication/pages/VerifyOTP";
 import ChangePassword from "./features/authentication/pages/ChangePassword";import React, { useState, useEffect } from 'react';
+ const fetchShoutouts = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/shoutouts`);
+      const data = await response.json();
+      setShoutouts(data);
+    } catch (error) {
+      console.error('Error fetching shoutouts:', error);
+    }
+  };
 import './App.css';
 import ShoutoutItem from './Reactions';
 function App() {
