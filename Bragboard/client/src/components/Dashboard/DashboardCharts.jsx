@@ -2,18 +2,11 @@ import React from "react";
 
 const DashboardCharts = () => {
   return (
-    <div className="grid">
+    <div className="bg-white p-6 rounded-xl shadow">
+      <h2 className="text-lg font-semibold mb-4">Dashboard Charts</h2>
 
-      <div className="contributorsBox">
-        <h3>Activity Trend (Placeholder)</h3>
-        <p style={{ color: "#777" }}>Chart will be inserted here.</p>
+      <div className="h-48 flex items-center justify-center text-gray-400">
       </div>
-
-      <div className="deptBox">
-        <h3>Department Overview (Placeholder)</h3>
-        <p style={{ color: "#777" }}>Chart will be inserted here.</p>
-      </div>
-
     </div>
   );
 };
