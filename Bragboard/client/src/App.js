@@ -75,7 +75,12 @@ function App() {
       </form>
           {/* Default route */}
           <Route path="/" element={<Navigate to="/login" replace />} />
-
+<div className="shoutouts">
+        {shoutouts.map(shoutout => (
+          <ShoutoutItem
+            key={shoutout.id}
+            shoutout={shoutout}
+            onRefresh={fetchShoutouts}
           {/* Auth routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
