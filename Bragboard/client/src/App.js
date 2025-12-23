@@ -6,6 +6,16 @@ import Login from "./features/authentication/pages/Login";
 import Signup from "./features/authentication/pages/Register";
 import ForgotPassword from "./features/authentication/pages/ForgotPassword";
 import VerifyOTP from "./features/authentication/pages/VerifyOTP";
+import ChangePassword from "./features/authentication/pages/ChangePassword";import React, { useState, useEffect } from 'react';
+import './App.css';
+import ShoutoutItem from './Reactions';
+function App() {
+  const [shoutouts, setShoutouts] = useState([]);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    fetchShoutouts();
+  }, []);
 import ChangePassword from "./features/authentication/pages/ChangePassword";
 
 import DashboardLayout from "./components/Layout/DashboardLayout";
