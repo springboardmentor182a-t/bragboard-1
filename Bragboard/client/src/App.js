@@ -27,8 +27,6 @@ function App() {
     }
   };
 
-import PrivateRoute from "./components/PrivateRoute";import React from 'react';
-import './App.css';
   const createShoutout = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -49,12 +47,6 @@ import './App.css';
     }
   };
   return (
-        <AuthProvider>
-      <Router>
-        <Routes>
-
-          {/* Default route */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
     <div className="App">
       <h1>BragBoard</h1>
 
@@ -77,15 +69,6 @@ import './App.css';
             shoutout={shoutout}
             onRefresh={fetchShoutouts}
           />
-
-        </Routes>
-      </Router>
-
-    <div className="App">
-      <header className="App-header">
-        <h1>Welcome to Comment API</h1>
-        <p>This is a React application for managing comments.</p>
-      </header>
         ))}
       </div>
     </div>
