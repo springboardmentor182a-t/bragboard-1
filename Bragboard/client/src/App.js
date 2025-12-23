@@ -15,6 +15,33 @@ import './App.css';
 
 function App() {
   return (
+        <AuthProvider>
+      <Router>
+        <Routes>
+
+          {/* Default route */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
+          {/* Auth routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/change-password" element={<ChangePassword />} />
+
+          {/* Protected dashboard */}
+          <Route
+            path="/dashboard/*"
+            element={
+              <PrivateRoute>
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          />
+
+        </Routes>
+      </Router>
+
     <div className="App">
       <header className="App-header">
         <h1>Welcome to Comment API</h1>
