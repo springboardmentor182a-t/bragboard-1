@@ -62,7 +62,17 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-
+<form onSubmit={createShoutout} className="shoutout-form">
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Share your shoutout..."
+          rows="3"
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Posting...' : 'Post Shoutout'}
+        </button>
+      </form>
           {/* Default route */}
           <Route path="/" element={<Navigate to="/login" replace />} />
 
