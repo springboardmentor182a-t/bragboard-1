@@ -1,92 +1,69 @@
 // src/App.js
 import React, { useState } from "react";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { AuthProvider } from "./lib/authContext";
 import BrandBadge from "./components/Common/BrandBadge";
 
-// 👇 If your file is named LoginPage.jsx, change this import accordingly
-import Login from "./components/Auth/Login"; // or "./pages/LoginPage"
+import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import OTPVerify from "./components/Auth/OTPVerify";
 import ForgotPassword from "./components/Auth/ForgotPassword";
 import ResetPassword from "./components/Auth/ResetPassword";
 
 import AdminDashboard from "./pages/AdminDashboard";
-import ExportReports from "./pages/ExportReports";  
 import EmployeeDashboard from "./pages/EmpDashboard";
 import Shoutouts from "./components/employee/Shoutouts";
-import ApprovalRequests from "./components/Admin/ApprovalRequests";
 import ApprovalStatus from "./pages/ApprovalStatus";
-
 
 import "./index.css";
 
 function AppShell() {
-  const [user, setUser] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
-  
   const handleLogin = ({ username, role }) => {
-    
-    setUser({ username, role });
+    console.log("Logged in user:", { username, role });
 
-    
     if (role === "admin") {
       navigate("/admin", { replace: true });
     } else {
-      
       navigate("/employee", { replace: true });
     }
   };
 
-  
-  const isAuthPage =
-    location.pathname === "/login" ||
-    location.pathname === "/register" ||
-    location.pathname === "/forgot-password" ||
-    location.pathname === "/reset-password" ||
-    location.pathname === "/verify-otp";
+  const isAuthPage = [
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "/verify-otp",
+  ].includes(location.pathname);
 
   return (
     <>
       {isAuthPage && <BrandBadge />}
 
       <Routes>
-        {/* default: redirect root to /login */}
+        {/* Default */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
         {/* Auth Routes */}
-        <Route
-          path="/login"
-          element={<Login onLogin={handleLogin} />}
-        />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-otp" element={<OTPVerify />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* App pages */}
+        {/* Dashboards */}
         <Route path="/admin" element={<AdminDashboard />} />
-          <Route
-          path="/admin/export-reports"
-          element={<DashboardLayout><ExportReports /></DashboardLayout>}
-        />
         <Route path="/employee" element={<EmployeeDashboard />} />
+
+        {/* Other Pages */}
         <Route path="/shoutouts" element={<Shoutouts />} />
-        <Route path="/admin/approvals" element={<ApprovalRequests />} />
         <Route path="/ApprovalStatus" element={<ApprovalStatus />} />
 
-
-        {/* fallback */}
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
@@ -96,9 +73,7 @@ function AppShell() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppShell />
-      </BrowserRouter>
+      <AppShell />
     </AuthProvider>
   );
 }

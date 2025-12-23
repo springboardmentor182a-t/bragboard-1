@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import LeaderboardTable from './components/LeaderboardTable';
-import DepartmentStats from './components/DepartmentStats';
-import RecentHighlights from './components/RecentHighlights';
-import LeaderboardFilters from './components/LeaderboardFilters';
+import LeaderboardTable from '../features/leaderboard/components/LeaderboardTable';
+import DepartmentStats from '../features/leaderboard/components/DepartmentStats';
+import RecentHighlights from '../features/leaderboard/components/RecentHighlights';
+import LeaderboardFilters from '../features/leaderboard/components/LeaderboardFilters';
 import axios from 'axios';
 
 const LeaderboardPage = () => {

@@ -1,8 +1,6 @@
 // EmpDashboardLayout.jsx
 import EmpSidebar from "./EmpSiderbar";
 import Navbar from "./Navbar";
-import EmpSidebar from "./EmpSidebar";
-import Navbar from "./Navbar";
 
 function EmployeeDashboardLayout({
   activeSection,
@@ -11,7 +9,7 @@ function EmployeeDashboardLayout({
   children,
 }) {
   return (
-    <div className="h-screen flex">
+    <div className="h-screen flex bg-gray-50">
       {/* LEFT SIDEBAR */}
       <EmpSidebar
         activeSection={activeSection}
@@ -19,13 +17,13 @@ function EmployeeDashboardLayout({
       />
 
       {/* RIGHT SIDE */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ml-[256px]">
         {/* TOP NAVBAR */}
          <Navbar setActiveSection={setActiveSection} onLogout={onLogout} />
        
 
-        {/* MAIN CONTENT – now theme aware */}
-        <main className="mt-[70px] ml-[220px] p-6 main-bg">
+        {/* MAIN CONTENT */}
+        <main className="flex-1 p-6 mt-[70px] overflow-y-auto">
           {children}
         </main>
       </div>

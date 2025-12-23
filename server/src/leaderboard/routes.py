@@ -1,6 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from src.database import get_db
+
+# Support both `src`-prefixed and local imports depending on the app entrypoint
+try:
+    from src.database import get_db
+except ImportError:  # pragma: no cover - fallback for api.py entrypoint
+    from database import get_db
 
 router = APIRouter(prefix="/api/leaderboard", tags=["Leaderboard"])
 

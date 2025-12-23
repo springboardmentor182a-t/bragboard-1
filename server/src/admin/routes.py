@@ -1,18 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException
-from src import admin
-from src.entities import user
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from src.database.core import SessionLocal
-from src.auth.models import User
-from src.auth.dependencies import get_current_user
-from src.admin_logs.models import AdminLog
+from database.core import SessionLocal
+from auth.dependencies import get_current_admin
+from auth.models import User
 
 
 router = APIRouter(
     prefix="/admin",
-    tags=["Admin"]
+    tags=["admin"]
 )
 
 # ------------------------------
@@ -27,38 +24,36 @@ def get_db():
 
 
 # ------------------------------
-# Admin Access Guard
-# ------------------------------
-def require_admin(current_user: User = Depends(get_current_user)):
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=403,
-            detail="Admin access required"
-        )
-    return current_user
-
-
-# ------------------------------
 # Get Pending User Approvals
-# STEP 1.4
 # ------------------------------
 @router.get("/users/pending")
 def get_pending_users(
-    db: Session = Depends(get_db),
-    admin: User = Depends(require_admin)
+    current_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
 ):
-    users = db.query(User).filter(User.status == "pending").all()
-
-    return [
-        {
-            "id": user.id,
-            "email": user.email,
-            "role": user.role,
-            "is_verified": user.is_verified,
-            "status": user.status
+    """Get pending user approvals - Admin only"""
+    try:
+        # Get users with pending status
+        pending_users = db.query(User).filter(User.status == "pending").all()
+        
+        return {
+            "status": "success",
+            "data": [
+                {
+                    "id": u.id,
+                    "name": u.name,
+                    "email": u.email,
+                    "role": u.role,
+                    "status": u.status
+                }
+                for u in pending_users
+            ]
         }
-        for user in users
-    ]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 
 # ------------------------------
@@ -67,40 +62,33 @@ def get_pending_users(
 @router.post("/users/{user_id}/approve")
 def approve_user(
     user_id: int,
-    db: Session = Depends(get_db),
-    admin: User = Depends(require_admin)
+    current_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(User.id == user_id).first()
-
-    if not user:
+    """Approve a pending user - Admin only"""
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.status = "approved"
+        user.is_approved = True
+        user.approved_at = datetime.utcnow()
+        user.approved_by = current_user.id
+        
+        db.commit()
+        
+        return {
+            "status": "success",
+            "message": f"User {user.email} approved successfully"
+        }
+    except Exception as e:
+        db.rollback()
         raise HTTPException(
-            status_code=404,
-            detail="User not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
         )
-
-    if user.status == "approved":
-        raise HTTPException(
-            status_code=400,
-            detail="User already approved"
-        )
-
-    user.is_approved = True
-    user.status = "approved"
-    user.approved_at = datetime.utcnow()
-    user.approved_by = admin.id
-
-    log = AdminLog(
-    admin_id=admin.id,
-    action="APPROVE_USER",
-    target_id=user.id,
-    target_type="User"
-    )
-
-    db.add(log)
-    db.commit()
-
-
-    return {"msg": "User approved successfully"}
 
 
 # ------------------------------
@@ -109,35 +97,59 @@ def approve_user(
 @router.post("/users/{user_id}/reject")
 def reject_user(
     user_id: int,
-    db: Session = Depends(get_db),
-    admin: User = Depends(require_admin)
+    current_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(User.id == user_id).first()
-
-    if not user:
+    """Reject a pending user - Admin only"""
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.status = "rejected"
+        user.is_approved = False
+        
+        db.commit()
+        
+        return {
+            "status": "success",
+            "message": f"User {user.email} rejected"
+        }
+    except Exception as e:
+        db.rollback()
         raise HTTPException(
-            status_code=404,
-            detail="User not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
         )
 
-    if user.status == "rejected":
+
+# ------------------------------
+# Get All Users
+# ------------------------------
+@router.get("/users")
+def get_all_users(
+    current_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all users - Admin only"""
+    try:
+        users = db.query(User).all()
+        return {
+            "status": "success",
+            "data": [
+                {
+                    "id": u.id,
+                    "name": u.name,
+                    "email": u.email,
+                    "role": u.role,
+                    "is_approved": u.is_approved
+                }
+                for u in users
+            ]
+        }
+    except Exception as e:
         raise HTTPException(
-            status_code=400,
-            detail="User already rejected"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
         )
-
-    user.is_approved = False
-    user.status = "rejected"
-
-    log = AdminLog(
-    admin_id=admin.id,
-    action="REJECT_USER",
-    target_id=user.id,
-    target_type="User"
-    )
-
-    db.add(log)
-    db.commit()
-
-
-    return {"msg": "User rejected successfully"}

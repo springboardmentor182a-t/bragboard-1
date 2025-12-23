@@ -1,39 +1,37 @@
-from src.database.core import SessionLocal, Base, engine
-from src.auth.models import User
-from passlib.context import CryptContext
+# server/create_admin_user.py
+from database.core import SessionLocal, Base, engine
+from auth.models import User
+import bcrypt
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
-
+def hash_password(password: str) -> str:
+    password_bytes = str(password).encode("utf-8")
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    return bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode("utf-8")
 
 def main():
-    # ✅ Ensure tables are created in the fresh auth.db
+    # Ensure tables exist
     Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
     try:
-        # 🔹 Change these to whatever you want for the admin
+        # Change these if you want a different admin
         email = "admin@example.com"
         password = "Admin@123"
 
-        # Check if admin already exists
         existing = db.query(User).filter(User.email == email).first()
         if existing:
-            print("Admin already exists:", existing.email)
+            print("Admin already exists:", existing.id, existing.email)
             return
 
-        # 🔹 Match your model field names exactly
         admin_user = User(
             email=email,
-            password=get_password_hash(password),
+            password=hash_password(password),
             is_verified=True,
-            is_approved=True,   # admin is verified
-            otp=None,           # no OTP
-            role="admin",       # set role to admin
-            status="approved"
+            is_approved=True,
+            otp=None,
+            role="admin",
+            status="approved",   # or "active" depending on your app
         )
 
         db.add(admin_user)
@@ -44,7 +42,6 @@ def main():
 
     finally:
         db.close()
-
 
 if __name__ == "__main__":
     main()

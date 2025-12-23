@@ -3,7 +3,7 @@ from sqlalchemy import update
 from sqlalchemy.orm import Session
 from entities.comments import Comment
 from database import get_db
-from . import crud, schemas
+from . import schemas, crud
 from typing import List
 
 router = APIRouter(prefix="/shoutouts")

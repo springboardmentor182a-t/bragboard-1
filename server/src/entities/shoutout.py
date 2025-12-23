@@ -4,10 +4,12 @@ from typing import Optional, List
 
 
 class ShoutoutBase(BaseModel):
-    title: str
+    title: Optional[str] = None
     message: str
     sender_id: int
     receiver_id: int
+    emoji: Optional[str] = "👏"
+    tag: Optional[str] = "General"
 
 
 class ShoutoutCreate(ShoutoutBase):
@@ -23,10 +25,12 @@ class ShoutoutUpdate(BaseModel):
 
 class ShoutoutAdminResponse(BaseModel):
     id: int
-    title: str
+    title: Optional[str] = None
     message: str
     sender_id: int
     receiver_id: int
+    emoji: Optional[str] = "👏"
+    tag: Optional[str] = "General"
     created_at: datetime
     is_deleted: bool
     deleted_at: Optional[datetime] = None
@@ -35,6 +39,8 @@ class ShoutoutAdminResponse(BaseModel):
 
 class ShoutoutResponse(ShoutoutBase):
     id: int
+    emoji: Optional[str] = "👏"
+    tag: Optional[str] = "General"
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

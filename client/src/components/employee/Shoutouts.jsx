@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { getJson, postJson } from "../../api.js";
-import {
-  EMPLOYEES,
-  SHOUTOUTS as STATIC_SHOUTOUTS,
-  getEmployeeName,
-} from "../../data/constants";
 import { getJson, postJson } from "../../lib/api";
+import { EMPLOYEES, SHOUTOUTS, getEmployeeName } from "../../data/constants";
 
-const CURRENT_USER_ID = 1; // mock logged-in employee (Alice Johnson)
 const CATEGORIES = ["Teamwork", "Leadership", "Creativity", "Support", "Extra Mile"];
 
 export default function Shoutouts() {
-  const [list, setList] = useState([]);
+  // Get current user ID from localStorage
+  const CURRENT_USER_ID = parseInt(localStorage.getItem("user_id")) || 1;
+  
   const [allShoutouts, setAllShoutouts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("mine"); // "mine" | "all"
+  const [filter, setFilter] = useState("mine");
 
   // form state
   const [recipients, setRecipients] = useState([]);
   const [message, setMessage] = useState("");
   const [categories, setCategories] = useState([]);
+
   // comments UI state
   const [commentsByShoutout, setCommentsByShoutout] = useState({});
   const [newComment, setNewComment] = useState({});
+
+  // Debug: Log state changes
+  useEffect(() => {
+    console.log("Comments state updated:", commentsByShoutout);
+  }, [commentsByShoutout]);
 
   useEffect(() => {
     loadShoutouts();
@@ -31,63 +33,59 @@ export default function Shoutouts() {
   const loadShoutouts = async () => {
     try {
       setLoading(true);
-      const data = await getJson("/shoutouts");
-      const apiList = data || [];
+      const response = await getJson("/shoutouts");
+      const apiList = response.data || [];
 
       if (apiList.length > 0) {
-        // Backend already returns full objects; keep as-is
-        setAllShoutouts(apiList);
+        const normalized = apiList.map((s) => ({
+          ...s,
+          sender_name: s.sender_name || getEmployeeName(s.sender_id),
+          receiver_name: s.receiver_name || getEmployeeName(s.receiver_id),
+          message: s.message || s.reason || s.content || "",
+          reactions: s.reactions || { like: 0, love: 0, laugh: 0 },
+        }));
+        setAllShoutouts(normalized);
+        
+        for (const shoutout of normalized) {
+          loadComments(shoutout.id);
+          loadReactions(shoutout.id);
+        }
       } else {
-        // Fallback to static constants
-        const mapped = STATIC_SHOUTOUTS.map((s) => ({
+        const mapped = SHOUTOUTS.map((s) => ({
           id: s.id,
           sender_id: s.from,
           receiver_id: s.to,
           sender_name: getEmployeeName(s.from),
           receiver_name: getEmployeeName(s.to),
-          name: getEmployeeName(s.to),
           message: s.reason,
-          reactions: { like: s.reactionsCount },
+          reactions: { like: s.reactionsCount || 0, love: 0, laugh: 0 },
         }));
         setAllShoutouts(mapped);
       }
     } catch (err) {
       console.error("Failed to load shoutouts:", err);
-      const mapped = STATIC_SHOUTOUTS.map((s) => ({
-        id: s.id,
-        sender_id: s.from,
-        receiver_id: s.to,
-        sender_name: getEmployeeName(s.from),
-        receiver_name: getEmployeeName(s.to),
-        name: getEmployeeName(s.to),
-        message: s.reason,
-        reactions: { like: s.reactionsCount },
-      }));
-      setAllShoutouts(mapped);
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleRecipient = (name) => {
+  const toggleRecipient = (name) =>
     setRecipients((prev) =>
       prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
     );
-  };
 
-   const toggleCategory = (cat) => {
+  const toggleCategory = (cat) =>
     setCategories((prev) =>
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
-  };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (recipients.length === 0) return alert("Select at least one recipient");
+    if (!recipients.length) return alert("Select at least one recipient");
+
     try {
-      // for now send one combined name string to backend
       const name = recipients.join(", ");
-      await postJson("/shoutouts", { name, message });
+      const response = await postJson("/shoutouts", { name, message });
       setRecipients([]);
       setMessage("");
       await loadShoutouts();
@@ -96,67 +94,153 @@ export default function Shoutouts() {
     }
   };
 
-const reactTo = (id, type) => {
-  setAllShoutouts((prev) =>
-    prev.map((s) => {
-      if (s.id !== id) return s;
-      const current = s.reactions || {};
-      return {
-        ...s,
-        reactions: {
-          ...current,
-          [type]: (current[type] || 0) + 1,
-        },
-      };
-    })
-  );
-};
+  const reactTo = async (id, type) => {
+    try {
+      // Call API to toggle reaction
+      const response = await postJson(`/shoutouts/${id}/reaction/${type}?user_id=${CURRENT_USER_ID}`);
+      
+      console.log("Reaction response:", response);
+      
+      // Update UI with actual counts from server
+      if (response.data && response.data.counts) {
+        setAllShoutouts((prev) =>
+          prev.map((s) =>
+            s.id !== id
+              ? s
+              : {
+                  ...s,
+                  reactions: response.data.counts,
+                }
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Failed to add reaction:", err);
+    }
+  };
 
+  const loadReactions = async (shoutoutId) => {
+    try {
+      const response = await getJson(`/shoutouts/${shoutoutId}/reactions`);
+      console.log(`Reaction response for shoutout ${shoutoutId}:`, response);
+      
+      if (response.data && response.data.counts) {
+        setAllShoutouts((prev) =>
+          prev.map((s) =>
+            s.id !== shoutoutId
+              ? s
+              : {
+                  ...s,
+                  reactions: response.data.counts,
+                }
+          )
+        );
+      } else {
+        // Initialize with empty counts if no reactions yet
+        setAllShoutouts((prev) =>
+          prev.map((s) =>
+            s.id !== shoutoutId
+              ? s
+              : {
+                  ...s,
+                  reactions: { like: 0, love: 0, laugh: 0 },
+                }
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Failed to load reactions:", err);
+    }
+  };
 
-  // visible list based on filter
-  const list =
+  const loadComments = async (shoutoutId) => {
+    try {
+      const response = await getJson(`/shoutouts/${shoutoutId}/comments`);
+      const comments = response.data;
+      console.log(`Loaded comments for shoutout ${shoutoutId}:`, comments);
+      console.log(`Is array?`, Array.isArray(comments));
+      
+      // Ensure comments is always an array
+      const commentsArray = Array.isArray(comments) ? comments : [];
+      
+      setCommentsByShoutout((prev) => ({
+        ...prev,
+        [shoutoutId]: commentsArray,
+      }));
+    } catch (err) {
+      console.error("Failed to load comments:", err);
+      // Set empty array on error
+      setCommentsByShoutout((prev) => ({
+        ...prev,
+        [shoutoutId]: [],
+      }));
+    }
+  };
+
+  const handleCommentChange = (id, value) =>
+    setNewComment((prev) => ({ ...prev, [id]: value }));
+
+  const addComment = async (id) => {
+    const text = (newComment[id] || "").trim();
+    if (!text) return;
+    
+    try {
+      const response = await postJson(`/shoutouts/${id}/comments`, {
+        content: text,
+        user_id: CURRENT_USER_ID,
+      });
+      
+      console.log("Comment added response:", response);
+      console.log("Current comments for shoutout:", commentsByShoutout[id]);
+      
+      // Clear input first
+      setNewComment((prev) => ({ ...prev, [id]: "" }));
+      
+      // Reload comments from server to ensure sync
+      await loadComments(id);
+    } catch (err) {
+      console.error("Failed to add comment:", err);
+    }
+  };
+
+  const removeComment = async (shoutoutId, commentId) => {
+    try {
+      // Call API to delete comment
+      await fetch(`http://localhost:8000/shoutouts/comments/${commentId}?user_id=${CURRENT_USER_ID}`, {
+        method: "DELETE",
+      });
+      
+      // Update UI
+      setCommentsByShoutout((prev) => ({
+        ...prev,
+        [shoutoutId]: (prev[shoutoutId] || []).filter((c) => c.id !== commentId),
+      }));
+    } catch (err) {
+      console.error("Failed to remove comment:", err);
+    }
+  };
+
+  // filtered shoutouts
+  const visibleList =
     filter === "mine"
       ? allShoutouts.filter((s) => s.sender_id === CURRENT_USER_ID)
       : allShoutouts;
 
   const received = allShoutouts
-  .filter((s) => s.receiver_id === CURRENT_USER_ID) // only shoutouts TO this employee
-  .slice(-3)
-  .reverse();
-
-  // comments helpers
-  const handleCommentChange = (id, value) => {
-    setNewComment((prev) => ({ ...prev, [id]: value }));
-  };
-
-  const addComment = (id) => {
-    const text = (newComment[id] || "").trim();
-    if (!text) return;
-    setCommentsByShoutout((prev) => ({
-      ...prev,
-      [id]: [...(prev[id] || []), text],
-    }));
-    setNewComment((prev) => ({ ...prev, [id]: "" }));
-  };
-
-  const removeComment = (id, index) => {
-    setCommentsByShoutout((prev) => {
-      const arr = [...(prev[id] || [])];
-      arr.splice(index, 1);
-      return { ...prev, [id]: arr };
-    });
-  };
+    .filter((s) => s.receiver_id === CURRENT_USER_ID)
+    .slice(-3)
+    .reverse();
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-start justify-center p-6">
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left pane: create + my/all shoutouts */}
+        {/* Left pane */}
         <div className="md:col-span-2 space-y-6">
-          {/* Create new shoutout */}
+          {/* Create shoutout */}
           <div className="bg-white rounded-3xl shadow-lg p-6 border border-slate-100">
             <h2 className="text-xl font-semibold mb-4">Employee Shoutouts</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Recipients from constants EMPLOYEES */}
+              {/* Recipients */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Select Recipient(s)
@@ -198,11 +282,9 @@ const reactTo = (id, type) => {
                 />
               </div>
 
-               {/* Categories multi-select */}
+              {/* Categories */}
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Category
-                </label>
+                <label className="block text-sm font-medium mb-1">Category</label>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((cat) => {
                     const active = categories.includes(cat);
@@ -224,7 +306,7 @@ const reactTo = (id, type) => {
                   })}
                 </div>
               </div>
-              
+
               <button
                 type="submit"
                 className="w-full mt-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 rounded-2xl font-semibold shadow-md hover:shadow-lg"
@@ -233,7 +315,8 @@ const reactTo = (id, type) => {
               </button>
             </form>
           </div>
-          {/* My / All Shoutouts list */}
+
+          {/* Shoutouts list */}
           <div className="bg-white rounded-3xl shadow-lg p-6 border border-slate-100">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold">
@@ -266,196 +349,124 @@ const reactTo = (id, type) => {
                 </button>
               </div>
             </div>
+
             {loading && <p className="text-sm text-slate-500">Loading...</p>}
-            {!loading && list.length === 0 && (
+            {!loading && visibleList.length === 0 && (
               <p className="text-sm text-slate-500">No shoutouts yet.</p>
             )}
-            <div className="space-y-4">
-              {list.map((s) => {
-                const r = s.reactions || { like: 0, love: 0, laugh: 0 };
-                return (
-                  <div
-                    key={s.id}
-                    className="border border-slate-100 rounded-2xl p-4 flex flex-col gap-2"
-                  >
-                    <div className="text-sm text-slate-500">
-                      <span className="font-medium">
-                        {s.sender_name ||
-                          (s.sender_id && getEmployeeName(s.sender_id)) ||
-                          "Someone"}
-                      </span>{" "}
-                      gave a shout-out to{" "}
-                      <span className="font-medium">
-                        {s.receiver_name ||
-                          s.name ||
-                          (s.receiver_id && getEmployeeName(s.receiver_id))}
-                      </span>
-                    </div>
 
-                    <div className="text-slate-800 text-sm">{s.message}</div>
-                    {/* Reactions UI */}
-                    <div className="flex gap-3 mt-2">
+            <div className="space-y-4">
+              {visibleList.map((s) => (
+                <div
+                  key={s.id}
+                  className="border border-slate-100 rounded-2xl p-4 flex flex-col gap-2"
+                >
+                  <div className="text-sm text-slate-500">
+                    <span className="font-medium">{s.sender_name || "Someone"}</span>{" "}
+                    gave a shout-out to{" "}
+                    <span className="font-medium">{s.receiver_name || "Someone"}</span>
+                  </div>
+
+                  <div className="text-slate-800 text-sm">{s.message}</div>
+
+                  {/* Reactions */}
+                  <div className="flex gap-3 mt-2">
+                    {["like", "love", "laugh"].map((type) => (
                       <button
-                        onClick={() => reactTo(s.id, "like")}
+                        key={type}
+                        onClick={() => reactTo(s.id, type)}
                         className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-slate-100 hover:bg-blue-100"
                       >
-                        👍 {r.like || 0}
+                        {type === "like" ? "👍" : type === "love" ? "❤️" : "😂"}{" "}
+                        {s.reactions?.[type] || 0}
                       </button>
-                      <button
-                        onClick={() => reactTo(s.id, "love")}
-                        className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-slate-100 hover:bg-rose-100"
-                      >
-                        ❤️ {r.love || 0}
-                      </button>
-                      <button
-                        onClick={() => reactTo(s.id, "laugh")}
-                        className="flex items-center gap-1 text-sm px-3 py-1.5 rounded-full bg-slate-100 hover:bg-amber-100"
-                      >
-                        😂 {r.laugh || 0}
-                      </button>
-                    </div>
-                    {/* Comments UI */}
-                    <div className="mt-3 border-t border-slate-100 pt-3">
-                      <h4 className="text-sm font-semibold mb-2">Comments</h4>
+                    ))}
+                  </div>
 
-                      <div className="space-y-1 mb-2">
-                        {(commentsByShoutout[s.id] || []).map((c, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center justify-between text-xs bg-slate-50 rounded-xl px-3 py-1"
-                          >
-                            <span>{c}</span>
+                  {/* Comments */}
+                  <div className="mt-3 border-t border-slate-100 pt-3">
+                    <h4 className="text-sm font-semibold mb-2">Comments</h4>
+                    <div className="space-y-1 mb-2">
+                      {Array.isArray(commentsByShoutout[s.id]) && commentsByShoutout[s.id].map((c) => (
+                        <div
+                          key={c.id}
+                          className="flex items-center justify-between text-xs bg-slate-50 rounded-xl px-3 py-1"
+                        >
+                          <span>{c.content}</span>
+                          {c.user_id === CURRENT_USER_ID && (
                             <button
                               type="button"
                               className="text-[10px] text-red-500 hover:underline"
-                              onClick={() => removeComment(s.id, idx)}
+                              onClick={() => removeComment(s.id, c.id)}
                             >
                               remove
                             </button>
-                          </div>
-                        ))}
-                        {(!commentsByShoutout[s.id] ||
-                          commentsByShoutout[s.id].length === 0) && (
-                          <p className="text-xs text-slate-400">
-                            No comments yet.
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          className="flex-1 border rounded-xl px-3 py-1 text-xs bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                          placeholder="Add a comment..."
-                          value={newComment[s.id] || ""}
-                          onChange={(e) =>
-                            handleCommentChange(s.id, e.target.value)
-                          }
-                        />
-                        <button
-                          type="button"
-                          onClick={() => addComment(s.id)}
-                          className="px-3 py-1 rounded-xl text-xs bg-blue-600 text-white hover:bg-blue-700"
-                        >
-                          Add
-                        </button>
-                      </div>
+                          )}
+                        </div>
+                      ))}
+                      {(!Array.isArray(commentsByShoutout[s.id]) || commentsByShoutout[s.id].length === 0) && (
+                        <p className="text-xs text-slate-400">No comments yet.</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        className="flex-1 border rounded-xl px-3 py-1 text-xs bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                        placeholder="Add a comment..."
+                        value={newComment[s.id] || ""}
+                        onChange={(e) => handleCommentChange(s.id, e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => addComment(s.id)}
+                        className="px-3 py-1 rounded-xl text-xs bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        Add
+                      </button>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
         </div>
-        {/* Right pane: recent received shoutouts */}
-<div className="space-y-4">
-  <div className="bg-white rounded-3xl shadow-lg p-6 border border-slate-100 h-full">
-    <div className="flex items-center justify-between mb-3">
-      <h3 className="text-lg font-semibold">Received Shoutouts</h3>
-      <span className="text-xs text-slate-500 cursor-pointer">All</span>
-    </div>
 
-    {received.length === 0 ? (
-      <p className="text-sm text-slate-500">No shoutouts received yet.</p>
-    ) : (
-      <>
-        {/* List of received shoutouts */}
-        <div className="mt-3 space-y-4">
-          {received.map((s) => (
-            <div key={s.id} className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">
-                {s.sender_name?.[0]?.toUpperCase() ||
-                  s.name?.[0]?.toUpperCase() ||
-                  "?"}
-              </div>
-              <div className="flex-1">
-                <div className="font-medium text-sm">
-                  {s.sender_name || s.name}
         {/* Right pane: received shoutouts */}
         <div className="space-y-4">
           <div className="bg-white rounded-3xl shadow-lg p-6 border border-slate-100 h-full">
-            <div className="flex items-center justify-between mb  -3">
+            <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold">Received Shoutouts</h3>
-              <span className="text-xs text-slate-500 cursor-pointer">
-                All
-              </span>
+              <span className="text-xs text-slate-500 cursor-pointer">All</span>
             </div>
-            {received.length === 0 && (
+            {received.length === 0 ? (
               <p className="text-sm text-slate-500">No shoutouts received yet.</p>
+            ) : (
+              <div className="mt-3 space-y-4">
+                {received.map((s) => (
+                  <div key={s.id} className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">
+                      {s.sender_name?.[0]?.toUpperCase() || "?"}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">{s.sender_name}</div>
+                      <div className="text-xs text-slate-600">{s.message}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
-            <div className="mt-3 space-y-4">
-              {received.map((s) => (
-                <div key={s.id} className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">
-                    {s.name?.[0]?.toUpperCase() || "?"}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">{s.name}</div>
-                    <div className="text-xs text-slate-600">{s.message}</div>
-                  </div>
-                </div>
-                <div className="text-xs text-slate-600">{s.message}</div>
+            {/* Totals for reactions */}
+            <div className="mt-4 border-t border-slate-100 pt-3">
+              <h4 className="text-sm font-semibold mb-2">Received Reactions</h4>
+              <div className="flex gap-4 text-xs text-slate-600">
+                <span>👍 {received.reduce((sum, s) => sum + (s.reactions?.like || 0), 0)}</span>
+                <span>❤️ {received.reduce((sum, s) => sum + (s.reactions?.love || 0), 0)}</span>
+                <span>😂 {received.reduce((sum, s) => sum + (s.reactions?.laugh || 0), 0)}</span>
               </div>
             </div>
-            
-          ))}
-        </div>
-
-        {/* NEW: totals for reactions under received list */}
-        <div className="mt-4 border-t border-slate-100 pt-3">
-          <h4 className="text-sm font-semibold mb-2">Received Reactions</h4>
-          <div className="flex gap-4 text-xs text-slate-600">
-            <span>
-              👍{" "}
-              {received.reduce(
-                (sum, s) => sum + (s.reactions?.like || 0),
-                0
-              )}
-            </span>
-            <span>
-              ❤️{" "}
-              {received.reduce(
-                (sum, s) => sum + (s.reactions?.love || 0),
-                0
-              )}
-            </span>
-            <span>
-              😂{" "}
-              {received.reduce(
-                (sum, s) => sum + (s.reactions?.laugh || 0),
-                0
-              )}
-            </span>
           </div>
         </div>
-      </>
-    )}
-  </div>
-</div>
       </div>
     </div>
   );
 }
-
-
-

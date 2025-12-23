@@ -71,11 +71,7 @@ function DashboardOverview() {
         .toUpperCase();
 
       return (
-        <Link
-          key={s.id}
-          to="/shoutouts"
-          className="block rounded-xl border border-slate-100 bg-white/80 px-3 py-2.5 hover:border-indigo-200 hover:bg-indigo-50/70 transition shadow-[0_1px_3px_rgba(15,23,42,0.06)]"
-        >
+        
           <div className="flex items-center gap-3">
             {/* Avatar + emoji */}
             <div className="relative shrink-0">
@@ -109,7 +105,6 @@ function DashboardOverview() {
               </div>
             </div>
           </div>
-        </Link>
       );
     })}
 

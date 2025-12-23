@@ -24,147 +24,111 @@ function Leaderboard() {
       <h2 className="title">🏆 Leaderboard</h2>
 
       {/* Highlighted Cards */}
-      <div className="highlight-section">
-        {HIGHLIGHTED.map((h, idx) => (
-          <div key={idx} className="highlight-card">
+      <section className="highlight-section">
+        {HIGHLIGHTED.map((h) => (
+          <article key={h.name} className="highlight-card">
             <div className="icon">{h.icon}</div>
             <strong className="name">{h.name}</strong>
             <div className="dept">{h.dept}</div>
-
             <div className="received">{h.received} Shoutouts Received</div>
             <div className="sent">{h.sent} Shoutouts Sent</div>
-          </div>
+          </article>
         ))}
-      </div>
+      </section>
 
       {/* Leaderboard Table */}
       <div className="table-wrapper">
         <h4 className="table-title">Monthly Leaderboard</h4>
-
-        <table className="leaderboard-table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Name</th>
-              <th>Department</th>
-              <th>Shoutouts Received</th>
-              <th>Shoutouts Sent</th>
-              <th>Total Score</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {LEADERBOARD.map((row, idx) => (
-              <tr key={idx}>
-                <td>{row.rank}</td>
-                <td>{row.name}</td>
-                <td>{row.dept}</td>
-                <td>{row.received}</td>
-                <td>{row.sent}</td>
-                <td className="score">{row.score}</td>
+        <div className="overflow-x-auto">
+          <table className="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Shoutouts Received</th>
+                <th>Shoutouts Sent</th>
+                <th>Total Score</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {LEADERBOARD.map((row) => (
+                <tr key={row.rank}>
+                  <td>{row.rank}</td>
+                  <td>{row.name}</td>
+                  <td>{row.dept}</td>
+                  <td>{row.received}</td>
+                  <td>{row.sent}</td>
+                  <td className="score">{row.score}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Styles */}
       <style>{`
         .leaderboard-container {
-          padding: 40px 28px 40px 0;
+          padding: 40px 28px;
         }
-
         .title {
           font-size: 28px;
           font-weight: 700;
-          color: #4a0060;
+          color: #7c3aed;
         }
-
         .highlight-section {
           display: flex;
+          flex-wrap: wrap;
           gap: 16px;
           margin: 32px 0 24px;
+          justify-content: center;
         }
-
         .highlight-card {
-          background: #f6f3ff;
+          background: #ede9fe;
           min-width: 185px;
           padding: 22px 18px;
           border-radius: 12px;
           text-align: center;
-          box-shadow: 0 3px 8px #d3c7ea;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           transition: 0.25s;
         }
-
         .highlight-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 5px 14px #c9b9f3;
+          box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
         }
-
-        .icon {
-          font-size: 2.2em;
-          margin-bottom: 6px;
-        }
-
-        .name {
-          font-size: 1.1em;
-        }
-
-        .dept {
-          color: #6e6a8d;
-        }
-
-        .received {
-          margin-top: 10px;
-          font-weight: 500;
-          color: #333;
-        }
-
-        .sent {
-          font-weight: 600;
-          color: #800080;
-        }
-
+        .icon { font-size: 2.2em; margin-bottom: 6px; }
+        .name { font-size: 1.1em; }
+        .dept { color: #6e6a8d; }
+        .received { margin-top: 10px; font-weight: 500; color: #333; }
+        .sent { font-weight: 600; color: #7c3aed; }
         .table-wrapper {
-          background: #faf7ff;
+          background: #faf5ff;
           padding: 20px;
           border-radius: 14px;
-          box-shadow: 0 3px 8px #ddd7f0;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           margin-top: 20px;
         }
-
-        .table-title {
-          color: #800080;
-          margin-bottom: 14px;
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-
+        .table-title { color: #7c3aed; margin-bottom: 14px; }
+        table { width: 100%; border-collapse: collapse; }
         th {
           padding: 12px;
           text-align: left;
-          color: #8a55d3;
+          color: #7c3aed;
           font-weight: 600;
-          background: #ece7f7;
-          border-bottom: 2px solid #d6c9f3;
+          background: #f3f4f6;
+          border-bottom: 2px solid #e5e7eb;
         }
-
         td {
           padding: 10px;
           color: #222;
-          border-bottom: 1px solid #e6e2f1;
+          border-bottom: 1px solid #e5e7eb;
         }
-
-        tr:nth-child(even) {
-          background: #f9f7fc;
-        }
-
-        .score {
-          font-weight: 600;
-          color: #5b1aa8;
+        tr:nth-child(even) { background: #f9fafb; }
+        .score { font-weight: 600; color: #7c3aed; }
+        @media (max-width: 640px) {
+          .highlight-section { flex-direction: column; }
+          table { font-size: 12px; }
         }
       `}</style>
     </div>
