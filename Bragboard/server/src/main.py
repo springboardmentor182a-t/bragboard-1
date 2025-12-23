@@ -5,16 +5,25 @@ from src.employee.employee_controller import router as employee_router
 from src.routers.report_routers import router as report_router
 from src.auth.routes import router as auth_router
 from src.routers.export_routers import router as export_router
+from fastapi.middleware.cors import CORSMiddleware
+from src.database import Base, engine
+from src.models import user  # Import to register User model
+from src.routers import shoutouts, reactions
 from src.shoutouts.controller import router as shoutout_router
 
 # Create tables
 Base.metadata.create_all(bind=engine)
-app = FastAPI(
-    title="Reporting Shoutouts API",
-    version="1.0.0",
-    description="APIs for employees to report shoutouts and for admins to manage reports."
+app = FastAPI(title="BragBoard API")
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+@app.get("/")
 # Include routers
 app.include_router(analytics_router, prefix="/admin",
                    tags=["Admin Dashboard Analytics"])
@@ -28,4 +37,7 @@ app.include_router(auth_router, prefix="/auth")
 
 @app.get("/", tags=["Health"])
 def root():
-    return {"message": "API Server Running ✅"}
+    return {"message": "BragBoard API is running"}
+
+app.include_router(shoutouts.router)
+app.include_router(reactions.router)

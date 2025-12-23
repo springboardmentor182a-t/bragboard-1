@@ -6,42 +6,72 @@ import Login from "./features/authentication/pages/Login";
 import Signup from "./features/authentication/pages/Register";
 import ForgotPassword from "./features/authentication/pages/ForgotPassword";
 import VerifyOTP from "./features/authentication/pages/VerifyOTP";
-import ChangePassword from "./features/authentication/pages/ChangePassword";
-
-import DashboardLayout from "./components/Layout/DashboardLayout";
-
-import PrivateRoute from "./components/PrivateRoute";
-
+import ChangePassword from "./features/authentication/pages/ChangePassword";import React, { useState, useEffect } from 'react';
+import './App.css';
+import ShoutoutItem from './Reactions';
 function App() {
+  const [shoutouts, setShoutouts] = useState([]);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    fetchShoutouts();
+  }, []);
+
+  const fetchShoutouts = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/shoutouts`);
+      const data = await response.json();
+      setShoutouts(data);
+    } catch (error) {
+      console.error('Error fetching shoutouts:', error);
+    }
+  };
+
+  const createShoutout = async (e) => {
+    e.preventDefault();
+    if (!message.trim()) return;
+
+    setLoading(true);
+    try {
+      await fetch(`${API_BASE}/api/shoutouts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+      setMessage('');
+      fetchShoutouts(); // Refresh list
+    } catch (error) {
+      console.error('Error creating shoutout:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
+    <div className="App">
+      <h1>BragBoard</h1>
 
-          {/* Default route */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+      <form onSubmit={createShoutout} className="shoutout-form">
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Share your shoutout..."
+          rows="3"
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Posting...' : 'Post Shoutout'}
+        </button>
+      </form>
 
-          {/* Auth routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/verify-otp" element={<VerifyOTP />} />
-          <Route path="/change-password" element={<ChangePassword />} />
-
-          {/* Protected dashboard */}
-          <Route
-            path="/dashboard/*"
-            element={
-              <PrivateRoute>
-                <DashboardLayout />
-              </PrivateRoute>
-            }
+      <div className="shoutouts">
+        {shoutouts.map(shoutout => (
+          <ShoutoutItem
+            key={shoutout.id}
+            shoutout={shoutout}
+            onRefresh={fetchShoutouts}
           />
-
-        </Routes>
-      </Router>
-    </AuthProvider>
+        ))}
+      </div>
+    </div>
   );
 }
-
 export default App;
