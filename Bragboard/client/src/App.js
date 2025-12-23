@@ -53,6 +53,11 @@ import DashboardLayout from "./components/Layout/DashboardLayout";
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message })
       });
+         return (
+    <div className="App">
+      <h1>BragBoard</h1>
+
+      <form onSubmit={createShoutout} className="shoutout-form">
       setMessage('');
       fetchShoutouts(); // Refresh list
     } catch (error) {
