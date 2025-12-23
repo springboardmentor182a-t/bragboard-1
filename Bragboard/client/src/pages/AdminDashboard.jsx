@@ -1,6 +1,5 @@
 import React from "react";
-import Sidebar from "../components/Sidebar";
-import Topbar from "../components/Topbar";
+import DashboardLayout from "../components/Layout/DashboardLayout";
 import DashboardStats from "../components/DashboardStats";
 import DashboardCharts from "../components/DashboardCharts";
 import DashboardTable from "../components/DashboardTable";
@@ -8,33 +7,20 @@ import "../AdminAnalytics.css";
 
 const AdminDashboard = () => {
   return (
-    <div className="admin-layout">
-
-      {/* Sidebar navigation */}
-      <Sidebar />
-
-      <div className="main-section">
-
-        {/* Top navigation bar */}
-        <Topbar />
-
-        {/* Dashboard title */}
-        <h2>Admin Dashboard</h2>
-        <p style={{ color: "#777" }}>
-          Overview of system metrics and activities (placeholder view)
-        </p>
-
-        {/* Placeholder statistic cards */}
-        <DashboardStats />
-
-        {/* Placeholder charts area */}
-        <DashboardCharts />
-
-        {/* Placeholder table */}
-        <DashboardTable />
-
+    <DashboardLayout>
+      <div className="admin-dashboard-header mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Admin Dashboard
+        </h2>
       </div>
-    </div>
+
+      {/* Main content */}
+      <div className="space-y-8">
+        <DashboardStats />
+        <DashboardCharts />
+        <DashboardTable />
+      </div>
+    </DashboardLayout>
   );
 };
 
