@@ -1,40 +1,26 @@
 // EmpDashboard.jsx
-import { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
-import EmployeeDashboardLayout from "../layout/EmpDashboardLayout";
+import { useEffect, useState } from "react";
 import { getJson } from "../api";
+import EmployeeDashboardLayout from "../layout/EmpDashboardLayout";
 
 import Shoutouts from "../components/employee/Shoutouts";
 import Leaderboard from "../components/employee/Leaderboard";
 import Notifications from "../components/employee/Notifications";
+import Profile from "../components/employee/Profile";
 import Performance from "../components/employee/Performance";
 import Settings from "../components/employee/Settings";
 
 function EmpDashboard({ onLogout, userName }) {
   const [activeSection, setActiveSection] = useState("tasks");
-
-  // 🔹 Dashboard integration states (ADDED)
-  const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const role = localStorage.getItem("role");
-  const approvalStatus = localStorage.getItem("ApprovalStatus");
+  const employeeId = 1; // later: use real logged‑in user id
 
-  // 🚫 Block unapproved employee
-  if (approvalStatus === "pending") {
-    return <Navigate to="/ApprovalStatus" replace />;
-  }
-
-  // 🚫 Block non-employee
-  if (role !== "employee") {
-    return <Navigate to="/login" replace />;
-  }
-
-  // 📊 Employee dashboard API call (ADDED)
   useEffect(() => {
-    const loadDashboard = async () => {
+    const load = async () => {
       try {
-        const res = await getJson("/api/dashboard/employee");
+        const res = await getJson(`/api/dashboard/employee/${employeeId}`);
         setDashboardData(res);
       } catch (err) {
         console.error("Failed to load employee dashboard", err);
@@ -42,51 +28,35 @@ function EmpDashboard({ onLogout, userName }) {
         setLoading(false);
       }
     };
-
-    loadDashboard();
-  }, []);
+    load();
+  }, [employeeId]);
 
   let SectionComponent;
-
   switch (activeSection) {
     case "shoutouts":
-      SectionComponent = (
-        <Shoutouts
-          dashboardData={dashboardData}
-          loading={loading}
-        />
-      );
+      SectionComponent = <Shoutouts />;
       break;
-
     case "leaderboard":
-      SectionComponent = <Leaderboard loading={loading} />;
+      SectionComponent = <Leaderboard />;
       break;
-
     case "notifications":
-      SectionComponent = (
-        <Notifications
-          dashboardData={dashboardData}
-          loading={loading}
-        />
-      );
+      SectionComponent = <Notifications />;
       break;
-
+    case "profile":
+      SectionComponent = <Profile />;
+      break;
     case "performance":
-      SectionComponent = (
-        <Performance
-          dashboardData={dashboardData}
-          loading={loading}
-        />
-      );
+      SectionComponent = <Performance />;
       break;
-
     case "settings":
       SectionComponent = <Settings />;
       break;
-
     default:
       SectionComponent = <div>Select a section</div>;
   }
+
+  if (loading) return <div>Loading employee dashboard...</div>;
+  if (!dashboardData) return <div>Failed to load employee dashboard.</div>;
 
   return (
     <EmployeeDashboardLayout
@@ -94,8 +64,9 @@ function EmpDashboard({ onLogout, userName }) {
       setActiveSection={setActiveSection}
       onLogout={onLogout}
       userName={userName}
+      dashboardData={dashboardData}   // ✅ pass data to layout
     >
-      {loading ? <div>Loading dashboard...</div> : SectionComponent}
+      {SectionComponent}
     </EmployeeDashboardLayout>
   );
 }
