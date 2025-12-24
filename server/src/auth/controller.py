@@ -1,53 +1,18 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
+"""Authentication controller (routes)."""
+from fastapi import APIRouter
+from .models import UserLogin, UserSignup, AuthResponse
+from .service import authenticate_user, register_user
 
-from src.auth_service import AuthService
-from src.database import get_db
-from src.entities_user import UserResponse   # ✅ Correct import
-
-
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
-class RegisterRequest(BaseModel):
-    name: str
-    email: str
-    password: str
+@router.post("/login", response_model=AuthResponse)
+async def login(credentials: UserLogin):
+    """Admin login endpoint."""
+    return await authenticate_user(credentials)
 
 
-class LoginRequest(BaseModel):
-    email: str
-    password: str
-
-
-class OtpVerifyRequest(BaseModel):
-    email: str
-    otp: str
-
-
-class ForgotPasswordRequest(BaseModel):
-    email: str
-
-
-auth_service = AuthService()
-
-
-@router.post("/register")
-def register_user(payload: RegisterRequest, db: Session = Depends(get_db)):
-    return auth_service.register_user(payload, db)
-
-
-@router.post("/login")
-def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
-    return auth_service.login_user(payload, db)
-
-
-@router.post("/verify-otp")
-def verify_otp(payload: OtpVerifyRequest, db: Session = Depends(get_db)):
-    return auth_service.verify_otp(payload.email, payload.otp, db)
-
-
-@router.post("/forgot-password")
-def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    return auth_service.forgot_password(payload.email, db)
+@router.post("/signup")
+async def signup(user_data: UserSignup):
+    """Admin signup endpoint."""
+    return await register_user(user_data)
