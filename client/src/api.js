@@ -1,9 +1,16 @@
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://127.0.0.1:8000';
+
+async function handleResponse(response) {
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`API ${response.status}: ${text}`);
+  }
+  return response.json();
+}
 
 export async function getJson(endpoint) {
   const response = await fetch(`${API_BASE}${endpoint}`);
-  if (!response.ok) throw new Error(`API error: ${response.status}`);
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function postJson(endpoint, data) {
@@ -12,6 +19,5 @@ export async function postJson(endpoint, data) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error(`API error: ${response.status}`);
-  return response.json();
+  return handleResponse(response);
 }
