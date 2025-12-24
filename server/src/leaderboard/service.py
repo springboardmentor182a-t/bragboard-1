@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import List, Dict
 from sqlalchemy.orm import Session
-from src.models.user import User
-from src.models.shoutout import Shoutout
-
+from auth.models import User
+from leaderboard.models import LeaderboardEntry, DepartmentStats
+from database.core import SessionLocal
+from shoutouts.models import Shoutout
 
 class LeaderboardService:
     """

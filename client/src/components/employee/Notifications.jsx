@@ -34,7 +34,7 @@ function Notifications() {
 
   return (
     <div>
-      <h3>Notifications & Alerts</h3>
+      <h3 style={{ color: "#7c3aed", fontWeight: 700, fontSize: "24px", marginBottom: "20px" }}>Notifications & Alerts</h3>
       <div style={{ marginBottom: "20px" }}>
         {/* Filter controls */}
         <strong>Filter: </strong>
@@ -45,8 +45,8 @@ function Notifications() {
             style={{
               margin: "0 7px",
               padding: "5px 14px",
-              background: selectedType === type ? "#800080" : "#eee",
-              color: selectedType === type ? "#fff" : "#800080",
+              background: selectedType === type ? "#7c3aed" : "#f3f4f6",
+              color: selectedType === type ? "#fff" : "#7c3aed",
               border: "none",
               borderRadius: "6px",
               cursor: "pointer",
@@ -62,18 +62,18 @@ function Notifications() {
             key={n.id}
             style={{
               marginBottom: "16px",
-              background: n.read ? "#f5f1fa" : "#80008010",
+              background: n.read ? "#faf5ff" : "#ede9fe",
               borderRadius: "7px",
               padding: "12px 16px",
-              color: "#800080",
-              boxShadow: "0 2px 6px #0001",
+              color: "#374151",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between"
             }}
           >
             <span>
-              <strong style={{ marginRight: "9px" }}>
+              <strong style={{ marginRight: "9px", color: "#7c3aed" }}>
                 [{n.type}]
               </strong>
               {n.text}
@@ -82,10 +82,10 @@ function Notifications() {
               <button
                 onClick={() => toggleRead(n.id)}
                 style={{
-                  background: n.read ? "#dfb" : "#fff",
-                  color: n.read ? "#222" : "#800080",
+                  background: n.read ? "#d1fae5" : "#fff",
+                  color: n.read ? "#065f46" : "#7c3aed",
                   padding: "6px 10px",
-                  border: "1px solid #80008060",
+                  border: "1px solid #e5e7eb",
                   borderRadius: "4px",
                   marginRight: "8px",
                   cursor: "pointer"
@@ -96,8 +96,8 @@ function Notifications() {
               <button
                 onClick={() => dismiss(n.id)}
                 style={{
-                  background: "#fdeded",
-                  color: "#900",
+                  background: "#fee2e2",
+                  color: "#991b1b",
                   padding: "6px 10px",
                   border: "none",
                   borderRadius: "4px",
@@ -108,12 +108,12 @@ function Notifications() {
           </li>
         ))}
         {filteredNotifications.length === 0 && (
-          <li style={{ color: "#999", marginTop: "32px" }}>
+          <li style={{ color: "#9ca3af", marginTop: "32px" }}>
             No notifications in this category.
           </li>
         )}
       </ul>
-      <p style={{ marginTop: "24px" }}>Announcements, HR updates, policies, and security notifications managed here.</p>
+      <p style={{ marginTop: "24px", color: "#6b7280" }}>Announcements, HR updates, policies, and security notifications managed here.</p>
     </div>
   );
 }

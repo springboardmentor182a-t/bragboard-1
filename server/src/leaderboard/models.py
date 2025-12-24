@@ -1,8 +1,8 @@
-@@ -0,0 +1,25 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
-
+from database.core import Base
+from sqlalchemy import Column, Integer, String, DateTime
 class LeaderboardEntry(BaseModel):
     user_id: int
     name: str

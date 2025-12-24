@@ -1,49 +1,47 @@
 .sidebar {
-  background: #800080;   /* Purple */
-  color: #e416c9;           /* White text */
-  width: 220px;
-  min-height: 100vh;
-  padding: 20px 0;
+  background: #7c3aed;   /* Violet-600 to match admin */
+  color: white;
+  width: 256px;          /* Matching admin width */
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar h2 {
-  margin-bottom: 40px;
-  text-align: center;
-  color: #fff;           /* Make heading white */
+  margin-bottom: 32px;
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: white;
+  text-align: left;
+  padding-left: 8px;
 }
 
 .sidebar ul {
   list-style: none;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .sidebar ul li {
-  padding: 10px 20px;
-}
-
-.sidebar ul li a {
-  color: #931ce2;        /* White links */
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.sidebar ul li a:hover {
-  color: #ffd700;        /* Gold on hover */
-  text-decoration: underline;
-}
-.active-item {
-  background: #4b0082;
-  color: white;
+  padding: 8px;
+  cursor: pointer;
   border-radius: 6px;
-}
-.sidebar {
-  background: #800080;
+  transition: background 0.2s;
   color: white;
-  width: 220px;
-  height: 100vh;        /* Full screen height */
-  position: fixed;       /* <-- FIXED POSITION */
-  top: 0;
-  left: 0;
-  overflow-y: auto;      /* Scroll only inside sidebar */
-  padding: 20px 0;
+}
+
+.sidebar ul li:hover {
+  background: #6d28d9;   /* Violet-700 on hover */
+}
+
+.active-item {
+  background: #6d28d9;   /* Violet-700 for active */
+  font-weight: bold;
 }

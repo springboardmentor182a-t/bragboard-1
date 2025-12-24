@@ -38,53 +38,53 @@ function Performance() {
   }
 
   return (
-    <div>
-      <h3>Performance & Analytics</h3>
+    <div style={{ width: "100%", maxWidth: "1200px" }}>
+      <h3 style={{ color: "#7c3aed", fontWeight: 700, fontSize: "24px", marginBottom: "20px" }}>Performance & Analytics</h3>
       {/* KPI Data Cards */}
-      <div style={{ display: "flex", gap: "22px", marginBottom: "24px", marginTop: "10px" }}>
+      <div style={{ display: "flex", gap: "22px", marginBottom: "24px", marginTop: "10px", flexWrap: "wrap" }}>
         <div style={cardStyle}>
           <strong>Performance Score</strong>
-          <div style={{ fontSize: 26, color: "#800080", fontWeight: 600 }}>{perfData[4].score} {trend}</div>
-          <div style={{ color: delta >= 0 ? "#097c2d" : "#c00", fontSize: 14 }}>
+          <div style={{ fontSize: 26, color: "#7c3aed", fontWeight: 600 }}>{perfData[4].score} {trend}</div>
+          <div style={{ color: delta >= 0 ? "#059669" : "#dc2626", fontSize: 14 }}>
             {delta >= 0 ? "Up" : "Down"} {Math.abs(delta)} from last month
           </div>
         </div>
         <div style={cardStyle}>
           <strong>Attendance Rate</strong>
-          <div style={{ fontSize: 26, color: "#2141b2", fontWeight: 600 }}>{perfData[4].attendance}%</div>
+          <div style={{ fontSize: 26, color: "#2563eb", fontWeight: 600 }}>{perfData[4].attendance}%</div>
         </div>
         <div style={cardStyle}>
           <strong>Tasks Completed</strong>
-          <div style={{ fontSize: 26, color: "#099c70", fontWeight: 600 }}>{perfData[4].tasks}</div>
+          <div style={{ fontSize: 26, color: "#059669", fontWeight: 600 }}>{perfData[4].tasks}</div>
         </div>
       </div>
       {/* Performance Graph */}
       <div style={{
-        width: "100%", minWidth: "350px", height: "320px", maxWidth: "600px",
-        marginTop: "20px", background: "#f5f5f5", padding: "20px", borderRadius: "10px"
+        width: "100%", maxWidth: "800px", height: "320px",
+        marginTop: "20px", background: "#faf5ff", padding: "20px", borderRadius: "10px", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)"
       }}>
         <ResponsiveContainer width="100%" height={230}>
           <BarChart data={perfData}>
             <XAxis dataKey="month" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="score" fill="#800080" name="Score" />
-            <Bar dataKey="tasks" fill="#097c2d" name="Tasks" />
+            <Bar dataKey="score" fill="#7c3aed" name="Score" />
+            <Bar dataKey="tasks" fill="#059669" name="Tasks" />
           </BarChart>
         </ResponsiveContainer>
       </div>
       {/* Achievements */}
-      <div style={{ marginTop: "34px", background: "#efeaf8", padding: "18px", borderRadius: "10px", maxWidth: 480 }}>
-        <strong>Recent Achievements:</strong>
+      <div style={{ marginTop: "34px", background: "#ede9fe", padding: "18px", borderRadius: "10px", maxWidth: "800px", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)" }}>
+        <strong style={{ color: "#7c3aed" }}>Recent Achievements:</strong>
         <ul>
           {achievements.map((a, i) => (
-            <li key={i} style={{ marginBottom: "7px" }}>{a}</li>
+            <li key={i} style={{ marginBottom: "7px", color: "#374151" }}>{a}</li>
           ))}
         </ul>
       </div>
       {/* Goals section */}
-      <div style={{ marginTop: "30px", background: "#f8f3fa", padding: "16px", borderRadius: "10px", maxWidth: 480 }}>
-        <strong>Goals for Next Month:</strong>
+      <div style={{ marginTop: "30px", background: "#faf5ff", padding: "16px", borderRadius: "10px", maxWidth: "800px", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)" }}>
+        <strong style={{ color: "#7c3aed" }}>Goals for Next Month:</strong>
         <form onSubmit={addGoal} style={{ marginBottom: "8px" }}>
           <input
             type="text"
@@ -92,35 +92,35 @@ function Performance() {
             onChange={e => setNewGoal(e.target.value)}
             placeholder="Set a new goal"
             style={{
-              marginRight: "9px", padding: "8px", border: "1px solid #80008060", borderRadius: "5px", width: 220
+              marginRight: "9px", padding: "8px", border: "1px solid #d1d5db", borderRadius: "5px", width: 220
             }}
           />
           <button
             type="submit"
             style={{
-              background: "#800080", color: "#fff", border: "none",
-              padding: "8px 14px", borderRadius: "4px", fontWeight: 500
+              background: "#7c3aed", color: "#fff", border: "none",
+              padding: "8px 14px", borderRadius: "4px", fontWeight: 500, cursor: "pointer"
             }}>
             Add Goal
           </button>
         </form>
         <ul>
           {goals.map((goal, idx) => (
-            <li key={idx} style={{ marginBottom: "5px" }}>{goal}</li>
+            <li key={idx} style={{ marginBottom: "5px", color: "#374151" }}>{goal}</li>
           ))}
         </ul>
       </div>
-      <p style={{ marginTop: "22px" }}>Monthly performance, attendance, tasks and personal goals tracked here.</p>
+      <p style={{ marginTop: "22px", color: "#6b7280", marginBottom: "40px" }}>Monthly performance, attendance, tasks and personal goals tracked here.</p>
     </div>
   );
 }
 
 const cardStyle = {
-  background: "#f4f4f4",
+  background: "#ffffff",
   padding: "20px",
   borderRadius: "10px",
-  color: "#222",
-  boxShadow: "0 2px 6px #0002",
+  color: "#111827",
+  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
   minWidth: "170px"
 };
 

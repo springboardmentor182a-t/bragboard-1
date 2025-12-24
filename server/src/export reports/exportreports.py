@@ -9,6 +9,7 @@ from auth import get_current_admin, SECRET_KEY, ALGORITHM
 from jose import jwt
 import io
 from datetime import datetime
+from entities.shoutout import Shoutout
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Export Reports API")

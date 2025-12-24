@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import relationship
 from datetime import datetime
-
-Base = declarative_base()
+from database.core import Base
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -11,4 +10,4 @@ class Comment(Base):
     user_id = Column(Integer)
     content = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
