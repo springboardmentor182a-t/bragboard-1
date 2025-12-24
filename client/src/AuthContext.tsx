@@ -1,42 +1,55 @@
 // client/src/AuthContext.tsx
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { Session, User } from "@supabase/supabase-js";
+import { supabase } from "./integrations/supabase/client";
 
-export type AuthContextType = {
-  isAuthenticated: boolean;
-  userRole: "admin" | "employee" | null;
-  userData: { name: string; email: string } | null;
-  login: (role: "admin" | "employee", userData: { name: string; email: string }) => void;
-  logout: () => void;
-};
+interface AuthContextType {
+    session: Session | null;
+    user: User | null;
+    loading: boolean;
+    signOut: () => Promise<void>;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
-  return context;
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+    const [session, setSession] = useState<Session | null>(null);
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+            setLoading(false);
+        });
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+            setLoading(false);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const signOut = async () => {
+        await supabase.auth.signOut();
+    };
+
+    return (
+        <AuthContext.Provider value={{ session, user, loading, signOut }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState<"admin" | "employee" | null>(null);
-  const [userData, setUserData] = useState<{ name: string; email: string } | null>(null);
-
-  const login = (role: "admin" | "employee", userData: { name: string; email: string }) => {
-    setIsAuthenticated(true);
-    setUserRole(role);
-    setUserData(userData);
-  };
-
-  const logout = () => {
-    setIsAuthenticated(false);
-    setUserRole(null);
-    setUserData(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, userRole, userData, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
 };

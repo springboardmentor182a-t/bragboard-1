@@ -1,7 +1,10 @@
-﻿# server/src/main.py
+"""Entry point for the BragBoard Admin API."""
+import uvicorn
+from .app import app
+from .config import HOST, PORT
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+if __name__ == "__main__":
+    uvicorn.run(app, host=HOST, port=PORT)
 
 # ---------------------------
 # Import routers
