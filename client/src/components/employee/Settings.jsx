@@ -76,7 +76,7 @@ function Settings() {
           </select>
         </div>
 
-      
+
       </div>
 
       <button className="save-btn" onClick={handleSave}>Save Settings</button>

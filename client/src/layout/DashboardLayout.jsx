@@ -6,7 +6,7 @@ function DashboardLayout({ children, activeSection, setActiveSection }) {
     <div className="text-black">
       {/* Wrapper */}
       <div className="flex">
-        
+
         {/* Sidebar (forced fixed via wrapper) */}
         <div className="fixed top-0 left-0 h-screen w-64 z-50">
           <Sidebar
@@ -17,7 +17,7 @@ function DashboardLayout({ children, activeSection, setActiveSection }) {
 
         {/* Main content area */}
         <div className="ml-64 flex-1 min-h-screen bg-gray-50">
-          
+
           {/* Fixed Header */}
           <div className="fixed top-0 left-64 right-0 h-16 z-40 bg-white shadow">
             <Header />
