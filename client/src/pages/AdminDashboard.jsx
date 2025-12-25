@@ -1,0 +1,131 @@
+<<<<<<< HEAD
+import { useState } from 'react';
+import DashboardLayout from "../layout/DashboardLayout";
+
+import ShoutOuts from '../components/Admin/ShoutoutsPage';
+import AnalyticsCards from '../components/Admin/AnalyticsCards';
+import Departments from '../components/Admin/Departments';
+import Employees from '../components/Admin/Employees';
+import DashboardOverview from '../components/Admin/DashboardOverview';
+import ExportReports from './ExportReports';
+import Leaderboard from './leaderboardPage';
+import { Navigate } from "react-router-dom"; 
+
+import ApprovalRequests from "../components/Admin/ApprovalRequests";
+
+
+function AdminDashboard() {
+  const [activeSection, setActiveSection] = useState('dashboard');
+  const [loading] = useState(false);
+  const role = localStorage.getItem("role");
+
+if (role !== "admin") {
+  return <Navigate to="/login" replace />;
+}
+
+
+  let SectionComponent; 
+  switch (activeSection) {
+    
+    case 'shoutouts':
+      SectionComponent = <ShoutOuts />;
+      break;
+    case 'departments':
+      SectionComponent = <Departments />;
+      break;
+      case 'dashboard':
+      SectionComponent = <DashboardOverview />;
+      break;
+    case 'analytics':
+      SectionComponent = <AnalyticsCards loading={loading} />;
+      break;
+    case 'employees':
+      SectionComponent = <Employees />;
+      break;
+    case 'leaderboard':
+      SectionComponent = <Leaderboard loading={loading} />;
+      break;
+    case 'approvals':
+      SectionComponent = <ApprovalRequests />;
+      break;
+    case 'exportreports':
+      SectionComponent = <ExportReports />;
+      break;
+    default:
+      SectionComponent = <div>Select a section.</div>;
+  }
+
+  return (
+    <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}>
+      {SectionComponent}
+    </DashboardLayout>
+  );
+}
+export default AdminDashboard;
+
+=======
+import { useState } from 'react';
+import DashboardLayout from "../layout/DashboardLayout";
+
+import ShoutOuts from '../components/Admin/ShoutoutsPage';
+import AnalyticsCards from '../components/Admin/AnalyticsCards';
+import Departments from '../components/Admin/Departments';
+import Employees from '../components/Admin/Employees';
+import DashboardOverview from '../components/Admin/DashboardOverview';
+import ExportReports from './ExportReports';
+import Leaderboard from './leaderboardPage';
+import { Navigate } from "react-router-dom"; 
+
+import ApprovalRequests from "../components/Admin/ApprovalRequests";
+
+
+function AdminDashboard() {
+  const [activeSection, setActiveSection] = useState('dashboard');
+  const [loading] = useState(false);
+  const role = localStorage.getItem("role");
+
+if (role !== "admin") {
+  return <Navigate to="/login" replace />;
+}
+
+
+  let SectionComponent; 
+  switch (activeSection) {
+    
+    case 'shoutouts':
+      SectionComponent = <ShoutOuts />;
+      break;
+    case 'departments':
+      SectionComponent = <Departments />;
+      break;
+      case 'dashboard':
+      SectionComponent = <DashboardOverview />;
+      break;
+    case 'analytics':
+      SectionComponent = <AnalyticsCards loading={loading} />;
+      break;
+    case 'employees':
+      SectionComponent = <Employees />;
+      break;
+    case 'leaderboard':
+      SectionComponent = <Leaderboard loading={loading} />;
+      break;
+    case 'approvals':
+      SectionComponent = <ApprovalRequests />;
+      break;
+    case 'exportreports':
+      SectionComponent = <ExportReports />;
+      break;
+    default:
+      SectionComponent = <div>Select a section.</div>;
+  }
+
+  return (
+    <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}>
+      {SectionComponent}
+    </DashboardLayout>
+  );
+}
+export default AdminDashboard;
+
+>>>>>>> 3e2424c214281832d92a15cbeb86496329d2c772
