@@ -22,7 +22,15 @@ from routers.leaderboard_router import router as leaderboard_router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app = FastAPI(title="BragBoard API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
