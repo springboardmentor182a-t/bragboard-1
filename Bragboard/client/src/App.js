@@ -113,6 +113,18 @@ function App() {
       </main>
     </div>
   );
-}
+}export default App;
+          <Route
+            path="/dashboard/*"
+            element={
+              <PrivateRoute>
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          />
+
+        </Routes>
+      </Router>
+    </AuthProvider>
 
 export default App;
