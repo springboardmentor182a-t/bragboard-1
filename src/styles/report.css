@@ -1,0 +1,39 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+}
+
+.app-container {
+  width: 400px;
+  margin: 60px auto;
+  text-align: center;
+}
+
+.report-box {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.selector {
+  margin-bottom: 20px;
+}
+
+select {
+  padding: 6px;
+  margin-left: 10px;
+}
+
+.export-btn {
+  padding: 10px 20px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.export-btn:hover {
+  background-color: #125aa0;
+}
