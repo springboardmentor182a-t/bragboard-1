@@ -69,11 +69,12 @@ import DashboardLayout from "./components/Layout/DashboardLayout";
 
 import PrivateRoute from "./components/PrivateRoute";
 import React from 'react';
-import './App.css';
+import './App.css';import Leaderboard from "./pages/Leaderboard";
+import "./App.css";
 
 function App() {
   return (
-    <AuthProvider>
+       <AuthProvider>
       <Router>
         <Routes>
 <form onSubmit={createShoutout} className="shoutout-form">
@@ -101,14 +102,18 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/change-password" element={<ChangePassword />} />
+    <div className="app-container">
+      <header className="app-header">
+        <h1>🏆 Employee Leaderboard</h1>
+        <p>Gamified recognition based on shout-outs & reactions</p>
+      </header>
 
-          {/* Protected dashboard */}
- ))}
-      </div>
+      <main className="app-content">
+        <Leaderboard />
+      </main>
     </div>
   );
-}
-export default App;
+}export default App;
           <Route
             path="/dashboard/*"
             element={
@@ -121,3 +126,5 @@ export default App;
         </Routes>
       </Router>
     </AuthProvider>
+
+export default App;

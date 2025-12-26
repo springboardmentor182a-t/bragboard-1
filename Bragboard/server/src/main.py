@@ -13,12 +13,15 @@ from src.database import Base, engine
 from src.models import user  # Import to register User model
 from src.routers import shoutouts, reactions
 from src.shoutouts.controller import router as shoutout_router
+from fastapi.middleware.cors import CORSMiddleware
+from models.user import Base
+from models import leaderboard, shoutout, reaction  # Import all models to register them
+from database import engine
+from routers.leaderboard_router import router as leaderboard_router
 
-# Create all tables automatically
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="BragBoard API", version="1.0")
-
+app = FastAPI()
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -28,15 +31,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app = FastAPI(title="BragBoard API")
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 @app.get("/")
 # Include routers
 app.include_router(analytics_router, prefix="/admin",
@@ -58,3 +59,4 @@ def root():
 
 app.include_router(shoutouts.router)
 app.include_router(reactions.router)
+app.include_router(leaderboard_router)
