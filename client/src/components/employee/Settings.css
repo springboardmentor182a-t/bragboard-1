@@ -1,16 +1,12 @@
 /* THEME ON BODY (GLOBAL) */
 body.theme-light {
-  background-color: #f3f4f6;
-  /* light gray */
-  color: #111827;
-  /* dark text */
+  background-color: #f3f4f6; /* light gray */
+  color: #111827;           /* dark text */
 }
 
 body.theme-dark {
-  background-color: #0f172a;
-  /* dark slate */
-  color: #e5e7eb;
-  /* light text */
+  background-color: #0f172a; /* dark slate */
+  color: #e5e7eb;            /* light text */
 }
 
 /* SETTINGS WRAPPER */
@@ -82,8 +78,7 @@ body.theme-light .settings-card {
 }
 
 body.theme-dark .settings-card {
-  background-color: #1f2937;
-  /* gray-800 */
+  background-color: #1f2937; /* gray-800 */
   color: #e5e7eb;
 }
 
@@ -94,8 +89,7 @@ body.theme-dark .settings-card {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #c4b5fd;
-  background-color: inherit;
-  /* follow card */
+  background-color: inherit;  /* follow card */
   color: inherit;
   font-size: 1rem;
   outline: none;

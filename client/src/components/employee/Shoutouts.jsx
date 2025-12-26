@@ -7,7 +7,7 @@ const CATEGORIES = ["Teamwork", "Leadership", "Creativity", "Support", "Extra Mi
 export default function Shoutouts() {
   // Get current user ID from localStorage
   const CURRENT_USER_ID = parseInt(localStorage.getItem("user_id")) || 1;
-
+  
   const [allShoutouts, setAllShoutouts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("mine");
@@ -33,7 +33,8 @@ export default function Shoutouts() {
   const loadShoutouts = async () => {
     try {
       setLoading(true);
-      const response = await getJson("/shoutouts");
+      // Use trailing slash to avoid the 307 redirect FastAPI adds for the canonical route
+      const response = await getJson("/shoutouts/");
       const apiList = response.data || [];
 
       if (apiList.length > 0) {
@@ -45,7 +46,7 @@ export default function Shoutouts() {
           reactions: s.reactions || { like: 0, love: 0, laugh: 0 },
         }));
         setAllShoutouts(normalized);
-
+        
         for (const shoutout of normalized) {
           loadComments(shoutout.id);
           loadReactions(shoutout.id);
@@ -83,14 +84,41 @@ export default function Shoutouts() {
     e.preventDefault();
     if (!recipients.length) return alert("Select at least one recipient");
 
+    // Map selected recipient names to employee IDs expected by the API
+    const recipientIds = recipients
+      .map((name) => EMPLOYEES.find((emp) => emp.name === name)?.id)
+      .filter(Boolean);
+
+    if (!recipientIds.length) {
+      return alert("Could not resolve recipients to employee IDs.");
+    }
+
     try {
-      const name = recipients.join(", ");
-      const response = await postJson("/shoutouts", { name, message });
+      setLoading(true);
+      const payloads = recipientIds.map((receiver_id) => ({
+        message,
+        sender_id: CURRENT_USER_ID,
+        receiver_id,
+        tag: categories[0] || "General",
+        emoji: "👏",
+      }));
+
+      for (const body of payloads) {
+        const resp = await postJson("/shoutouts/", body);
+        if (resp.status >= 400) {
+          throw new Error(resp.data?.detail || "Failed to create shoutout");
+        }
+      }
+
       setRecipients([]);
+      setCategories([]);
       setMessage("");
       await loadShoutouts();
     } catch (err) {
       console.error("Failed to post shoutout:", err);
+      alert(err.message || "Failed to post shoutout");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -98,9 +126,9 @@ export default function Shoutouts() {
     try {
       // Call API to toggle reaction
       const response = await postJson(`/shoutouts/${id}/reaction/${type}?user_id=${CURRENT_USER_ID}`);
-
+      
       console.log("Reaction response:", response);
-
+      
       // Update UI with actual counts from server
       if (response.data && response.data.counts) {
         setAllShoutouts((prev) =>
@@ -108,9 +136,9 @@ export default function Shoutouts() {
             s.id !== id
               ? s
               : {
-                ...s,
-                reactions: response.data.counts,
-              }
+                  ...s,
+                  reactions: response.data.counts,
+                }
           )
         );
       }
@@ -123,16 +151,16 @@ export default function Shoutouts() {
     try {
       const response = await getJson(`/shoutouts/${shoutoutId}/reactions`);
       console.log(`Reaction response for shoutout ${shoutoutId}:`, response);
-
+      
       if (response.data && response.data.counts) {
         setAllShoutouts((prev) =>
           prev.map((s) =>
             s.id !== shoutoutId
               ? s
               : {
-                ...s,
-                reactions: response.data.counts,
-              }
+                  ...s,
+                  reactions: response.data.counts,
+                }
           )
         );
       } else {
@@ -142,9 +170,9 @@ export default function Shoutouts() {
             s.id !== shoutoutId
               ? s
               : {
-                ...s,
-                reactions: { like: 0, love: 0, laugh: 0 },
-              }
+                  ...s,
+                  reactions: { like: 0, love: 0, laugh: 0 },
+                }
           )
         );
       }
@@ -159,10 +187,10 @@ export default function Shoutouts() {
       const comments = response.data;
       console.log(`Loaded comments for shoutout ${shoutoutId}:`, comments);
       console.log(`Is array?`, Array.isArray(comments));
-
+      
       // Ensure comments is always an array
       const commentsArray = Array.isArray(comments) ? comments : [];
-
+      
       setCommentsByShoutout((prev) => ({
         ...prev,
         [shoutoutId]: commentsArray,
@@ -183,19 +211,19 @@ export default function Shoutouts() {
   const addComment = async (id) => {
     const text = (newComment[id] || "").trim();
     if (!text) return;
-
+    
     try {
       const response = await postJson(`/shoutouts/${id}/comments`, {
         content: text,
         user_id: CURRENT_USER_ID,
       });
-
+      
       console.log("Comment added response:", response);
       console.log("Current comments for shoutout:", commentsByShoutout[id]);
-
+      
       // Clear input first
       setNewComment((prev) => ({ ...prev, [id]: "" }));
-
+      
       // Reload comments from server to ensure sync
       await loadComments(id);
     } catch (err) {
@@ -209,7 +237,7 @@ export default function Shoutouts() {
       await fetch(`http://localhost:8000/shoutouts/comments/${commentId}?user_id=${CURRENT_USER_ID}`, {
         method: "DELETE",
       });
-
+      
       // Update UI
       setCommentsByShoutout((prev) => ({
         ...prev,
