@@ -38,5 +38,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/")
+# Include routers
+app.include_router(analytics_router, prefix="/admin",
+                   tags=["Admin Dashboard Analytics"])
+app.include_router(employee_router, prefix="/employee",
+                   tags=["Employee Analytics"])
+app.include_router(report_router)
+app.include_router(export_router) 
+app.include_router(shoutout_router, tags=["Shout-Outs"])
+app.include_router(auth_router, prefix="/auth")
 
+# Register Routers
+app.include_router(comment_router)
+
+@app.get("/")
+def root():
+    return {"message": "BragBoard FastAPI Server Running"}
+    return {"message": "BragBoard API is running"}
+
+app.include_router(shoutouts.router)
+app.include_router(reactions.router)
 app.include_router(leaderboard_router)
