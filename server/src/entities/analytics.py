@@ -35,4 +35,3 @@ class Employee(Base):
 #     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 #     sender = relationship("Employee", back_populates="sent_shoutouts", foreign_keys=[sender_id])
 #     receiver = relationship("Employee", back_populates="received_shoutouts", foreign_keys=[receiver_id])
-

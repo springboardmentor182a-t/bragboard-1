@@ -8,7 +8,7 @@ import Employees from '../components/Admin/Employees';
 import DashboardOverview from '../components/Admin/DashboardOverview';
 import ExportReports from './ExportReports';
 import Leaderboard from './leaderboardPage';
-import { Navigate } from "react-router-dom"; 
+import { Navigate } from "react-router-dom";
 
 import ApprovalRequests from "../components/Admin/ApprovalRequests";
 
@@ -18,21 +18,21 @@ function AdminDashboard() {
   const [loading] = useState(false);
   const role = localStorage.getItem("role");
 
-if (role !== "admin") {
-  return <Navigate to="/login" replace />;
-}
+  if (role !== "admin") {
+    return <Navigate to="/login" replace />;
+  }
 
 
-  let SectionComponent; 
+  let SectionComponent;
   switch (activeSection) {
-    
+
     case 'shoutouts':
       SectionComponent = <ShoutOuts />;
       break;
     case 'departments':
       SectionComponent = <Departments />;
       break;
-      case 'dashboard':
+    case 'dashboard':
       SectionComponent = <DashboardOverview />;
       break;
     case 'analytics':
@@ -61,4 +61,3 @@ if (role !== "admin") {
   );
 }
 export default AdminDashboard;
-

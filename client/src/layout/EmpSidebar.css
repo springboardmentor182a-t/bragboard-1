@@ -1,7 +1,9 @@
 .sidebar {
-  background: #7c3aed;   /* Violet-600 to match admin */
+  background: #7c3aed;
+  /* Violet-600 to match admin */
   color: white;
-  width: 256px;          /* Matching admin width */
+  width: 256px;
+  /* Matching admin width */
   height: 100vh;
   position: fixed;
   top: 0;
@@ -38,10 +40,12 @@
 }
 
 .sidebar ul li:hover {
-  background: #6d28d9;   /* Violet-700 on hover */
+  background: #6d28d9;
+  /* Violet-700 on hover */
 }
 
 .active-item {
-  background: #6d28d9;   /* Violet-700 for active */
+  background: #6d28d9;
+  /* Violet-700 for active */
   font-weight: bold;
 }

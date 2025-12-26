@@ -66,11 +66,10 @@ function ShoutoutCard({ shoutout, isTrash, onDeleteClick, onRestore, userMap }) 
 
   return (
     <article
-      className={`relative flex gap-4 rounded-xl border px-4 py-3 transition ${
-        isTrash
+      className={`relative flex gap-4 rounded-xl border px-4 py-3 transition ${isTrash
           ? "border-orange-200 bg-orange-50/80 hover:border-orange-300 hover:bg-orange-50"
           : "border-slate-100 bg-slate-50 hover:border-indigo-200 hover:bg-indigo-50/40"
-      }`}
+        }`}
     >
       {/* Buttons */}
       <div className="absolute top-2 right-2 flex gap-1">
@@ -149,7 +148,7 @@ function ShoutoutsPage() {
     (async function load() {
       try {
         const token = localStorage.getItem("access_token");
-        
+
         // First, fetch all users to create a mapping
         let allUsers = [];
         try {
@@ -216,7 +215,7 @@ function ShoutoutsPage() {
       const token = localStorage.getItem("access_token");
       const res = await fetch(
         `http://127.0.0.1:8000/admin/shoutouts/${id}/soft`,
-        { 
+        {
           method: "PATCH",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -231,10 +230,10 @@ function ShoutoutsPage() {
       setItems((prev) =>
         prev.map((item) =>
           item.id === id
-            ? { 
-                ...item, 
-                deletedAt: updatedShoutout.deleted_at || new Date().toISOString() 
-              }
+            ? {
+              ...item,
+              deletedAt: updatedShoutout.deleted_at || new Date().toISOString()
+            }
             : item
         )
       );
@@ -251,7 +250,7 @@ function ShoutoutsPage() {
       const token = localStorage.getItem("access_token");
       const res = await fetch(
         `http://127.0.0.1:8000/admin/shoutouts/${id}`,
-        { 
+        {
           method: "DELETE",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -276,7 +275,7 @@ function ShoutoutsPage() {
       const token = localStorage.getItem("access_token");
       const res = await fetch(
         `http://127.0.0.1:8000/admin/shoutouts/${id}/restore`,
-        { 
+        {
           method: "PATCH",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -323,21 +322,19 @@ function ShoutoutsPage() {
           <div className="flex bg-slate-100 rounded-lg p-1 shadow-sm">
             <button
               onClick={() => setActiveTab("active")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                activeTab === "active"
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "active"
                   ? "bg-white shadow-sm text-slate-900 border border-slate-200"
                   : "text-slate-500 hover:text-slate-700 hover:bg-slate-200"
-              }`}
+                }`}
             >
               Active ({activeItems.length})
             </button>
             <button
               onClick={() => setActiveTab("trash")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                activeTab === "trash"
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "trash"
                   ? "bg-white shadow-sm text-slate-900 border border-slate-200"
                   : "text-slate-500 hover:text-slate-700 hover:bg-slate-200"
-              }`}
+                }`}
             >
               Trash ({trashItems.length})
             </button>
