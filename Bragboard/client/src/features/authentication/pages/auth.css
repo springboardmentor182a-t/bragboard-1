@@ -92,3 +92,70 @@
     font-size: 13px;
     color: #dc2626;
 }
+
+/* =========================
+   Mobile View - Auth Pages
+   ========================= */
+
+@media (max-width: 768px) {
+    .auth-container {
+        min-height: 100vh;
+        padding: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+        margin-top: 40px;
+        border-radius: 12px;
+        box-shadow: none;
+    }
+
+    .auth-card h2,
+    .auth-card h1 {
+        font-size: 20px;
+        text-align: center;
+        margin-bottom: 16px;
+    }
+
+    .auth-card input {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
+        margin-bottom: 12px;
+    }
+
+    .auth-card button {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
+        margin-top: 10px;
+    }
+
+    .auth-card p,
+    .auth-card a {
+        font-size: 13px;
+        text-align: center;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+
+    .auth-card h2,
+    .auth-card h1 {
+        font-size: 18px;
+    }
+
+    .auth-card input {
+        font-size: 13px;
+    }
+
+    .auth-card button {
+        font-size: 14px;
+    }
+}
