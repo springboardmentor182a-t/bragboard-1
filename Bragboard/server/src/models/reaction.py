@@ -1,16 +1,19 @@
-from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, UniqueConstraint
+from sqlalchemy import Column, Integer, Enum, ForeignKey, DateTime
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
-from src.database import Base
+
+Base = declarative_base()
 
 class Reaction(Base):
     __tablename__ = "reactions"
 
-    id = Column(Integer, primary_key=True)
-    shoutout_id = Column(Integer, ForeignKey("shoutouts.id"))
-    user_id = Column(Integer, ForeignKey("users.id"))
-    type = Column(String)  # like | clap | star
-    created_at = Column(DateTime, server_default=func.now())
+    id = Column(Integer, primary_key=True, index=True)
+    shoutout_id = Column(Integer, ForeignKey("shoutouts.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    __table_args__ = (
-        UniqueConstraint("shoutout_id", "user_id"),
+    type = Column(
+        Enum("like", "clap", "star", name="reaction_type"),
+        nullable=False
     )
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
