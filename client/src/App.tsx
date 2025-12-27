@@ -1,65 +1,81 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { DashboardLayout } from "@/layout/PageContainer";
-import Login from "./pages/auth/Login";
-import Signup from "./pages/auth/Signup";
-import ForgotPassword from "./pages/auth/ForgotPassword";
-import Overview from "./pages/dashboard/Overview";
-import Users from "./pages/dashboard/Users";
-import Moderation from "./pages/dashboard/Moderation";
-import FlaggedContent from "./pages/dashboard/FlaggedContent";
-import Analytics from "./pages/dashboard/Analytics";
-import Settings from "./pages/dashboard/Settings";
-import NotFound from "./pages/NotFound";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { Toaster } from "sonner";
+import { AuthProvider, useAuth } from "./AuthContext";
 
-const queryClient = new QueryClient();
+import LoginPage from "./pages/auth/LoginPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import OTPVerificationPage from "./pages/auth/OtpVerificationPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 
-import { useApp } from "@/context/AppContext";
+import AdminReportsPage from "./pages/reports/AdminReportsPage";
+import ReportShoutoutPage from "./pages/reports/ReportShoutoutPage";
+import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
 
-// Protected Route wrapper
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useApp();
+const RequireAuth: React.FC<{
+  role: "admin" | "employee";
+  children: React.ReactNode;
+}> = ({ role, children }) => {
+  const { isAuthenticated, userRole, loading } = useAuth();
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
+  if (loading) return null;
+  if (!isAuthenticated) return <Navigate to="/auth/login" />;
+  if (userRole !== role) return <Navigate to="/" />;
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return <>{children}</>;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <Toaster position="top-right" richColors />
+
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/login" element={<LoginPage />} />
+          <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/auth/verify-otp" element={<OTPVerificationPage />} />
+          <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
 
-          <Route path="/dashboard" element={<ProtectedRoute><Overview /></ProtectedRoute>} />
-          <Route path="/dashboard/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-          <Route path="/dashboard/moderation" element={<ProtectedRoute><Moderation /></ProtectedRoute>} />
-          <Route path="/dashboard/flagged" element={<ProtectedRoute><FlaggedContent /></ProtectedRoute>} />
-          <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-          <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          {/* EMPLOYEE */}
+          <Route
+            path="/employee/dashboard"
+            element={
+              <RequireAuth role="employee">
+                <EmployeeDashboard />
+              </RequireAuth>
+            }
+          />
 
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<NotFound />} />
+          <Route
+            path="/report-shoutout"
+            element={
+              <RequireAuth role="employee">
+                <ReportShoutoutPage />
+              </RequireAuth>
+            }
+          />
+
+          {/* ADMIN */}
+          <Route
+            path="/admin/reports"
+            element={
+              <RequireAuth role="admin">
+                <AdminReportsPage />
+              </RequireAuth>
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/auth/login" />} />
         </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </Router>
+    </AuthProvider>
+  );
+};
 
 export default App;
-
-
