@@ -12,9 +12,9 @@ import {
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
 
-const LineChart = ({ data, height = 540 }) => {
+const LineChart = ({ data }) => {
   return (
-    <div style={{ height }}>
+    <div style={{ height: "100%", width: "100%" }}>
       <Line
         data={{
           labels: data.map((_, i) => `Day ${i + 1}`),
@@ -31,7 +31,14 @@ const LineChart = ({ data, height = 540 }) => {
         }}
         options={{
           maintainAspectRatio: false,
-          plugins: { legend: { position: "bottom" } },
+          plugins: { legend: { display: false } }, // Hide legend for cleaner look
+          scales: {
+            y: { grid: { display: true, color: 'rgba(0,0,0,0.05)' }, border: { display: false } },
+            x: { grid: { display: false }, border: { display: false } },
+          },
+          elements: {
+            point: { radius: 0, hitRadius: 10, hoverRadius: 5 }, // No dots by default
+          },
         }}
       />
     </div>

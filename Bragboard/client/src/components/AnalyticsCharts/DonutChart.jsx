@@ -9,12 +9,12 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const DonutChart = ({ data, height = 480 }) => {
+const DonutChart = ({ data }) => {
   const labels = data.map((i) => i.name);
   const values = data.map((i) => i.count);
 
   return (
-    <div style={{ height }}>
+    <div style={{ height: "100%", width: "100%" }}>
       <Doughnut
         data={{
           labels,
@@ -34,7 +34,9 @@ const DonutChart = ({ data, height = 480 }) => {
         }}
         options={{
           maintainAspectRatio: false,
-          plugins: { legend: { position: "bottom" } },
+          responsive: true,
+          cutout: "70%",
+          plugins: { legend: { position: "bottom", labels: { boxWidth: 12, usePointStyle: true, padding: 20 } } },
         }}
       />
     </div>

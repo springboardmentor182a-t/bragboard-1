@@ -1,130 +1,153 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./Context/AuthContext";
-
-import Login from "./features/authentication/pages/Login";
-import Signup from "./features/authentication/pages/Register";
-import ForgotPassword from "./features/authentication/pages/ForgotPassword";
-import VerifyOTP from "./features/authentication/pages/VerifyOTP";
-import ChangePassword from "./features/authentication/pages/ChangePassword";import React, { useState, useEffect } from 'react';
-const createShoutout = async (e) => {
-    e.preventDefault();
-    if (!message.trim()) return;
-
-    setLoading(true);
- const fetchShoutouts = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/api/shoutouts`);
-      const data = await response.json();
-      setShoutouts(data);
-    } catch (error) {
-      console.error('Error fetching shoutouts:', error);
-    }
-  };
-import './App.css';
-import ShoutoutItem from './Reactions';
-function App() {
-  const [shoutouts, setShoutouts] = useState([]);
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    fetchShoutouts();
-  }, []);
-import ChangePassword from "./features/authentication/pages/ChangePassword";
-   const fetchShoutouts = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/api/shoutouts`);
-      const data = await response.json();
-      setShoutouts(data);
-    } catch (error) {
-      console.error('Error fetching shoutouts:', error);
-    }
-  };
-const createShoutout = async (e) => {
-    e.preventDefault();
-    if (!message.trim()) return;
-
-    setLoading(true);
-import DashboardLayout from "./components/Layout/DashboardLayout";
- setLoading(true);
-    try {
-      await fetch(`${API_BASE}/api/shoutouts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
-      });
-         return (
-    <div className="App">
-      <h1>BragBoard</h1>
-
-      <form onSubmit={createShoutout} className="shoutout-form">
-      setMessage('');
-      fetchShoutouts(); // Refresh list
-    } catch (error) {
-      console.error('Error creating shoutout:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-import PrivateRoute from "./components/PrivateRoute";
 import React from 'react';
-import './App.css';import Leaderboard from "./pages/Leaderboard";
-import "./App.css";
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider, useAuth } from './Context/AuthContext';
 
-function App() {
+// Pages
+import LoginPage from './pages/auth/LoginPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import EmployeeDashboard from './pages/employee/EmployeeDashboard';
+import ShoutOuts from './pages/ShoutOuts';
+import Reports from './pages/Reports';
+import Analytics from './pages/Analytics';
+import Settings from './pages/Settings';
+import ExportReport from './pages/ExportReport';
+import UserManagement from './pages/admin/UserManagement';
+
+// Styles
+import './App.css';
+
+// Protected Route Component
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (adminOnly && !isAdmin()) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+// App Content Component
+const AppContent = () => {
+  const { isAuthenticated, isAdmin } = useAuth();
+  const location = useLocation();
+
   return (
-       <AuthProvider>
-      <Router>
-        <Routes>
-<form onSubmit={createShoutout} className="shoutout-form">
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Share your shoutout..."
-          rows="3"
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Posting...' : 'Post Shoutout'}
-        </button>
-      </form>
-          {/* Default route */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-<div className="shoutouts">
-        {shoutouts.map(shoutout => (
-          <ShoutoutItem
-            key={shoutout.id}
-            shoutout={shoutout}
-            onRefresh={fetchShoutouts}
-          {/* Auth routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/verify-otp" element={<VerifyOTP />} />
-          <Route path="/change-password" element={<ChangePassword />} />
-    <div className="app-container">
-      <header className="app-header">
-        <h1>🏆 Employee Leaderboard</h1>
-        <p>Gamified recognition based on shout-outs & reactions</p>
-      </header>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={
+        isAuthenticated() ?
+          <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace /> :
+          <LoginPage />
+      } />
 
-      <main className="app-content">
-        <Leaderboard />
-      </main>
-    </div>
+      {/* Protected Employee Routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <EmployeeDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shoutouts"
+        element={
+          <ProtectedRoute>
+            <ShoutOuts />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute>
+            <Reports />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <Analytics />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Protected Admin Routes */}
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/export-report"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <ExportReport />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <UserManagement />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Default Route */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated() ?
+            <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace /> :
+            <Navigate to="/login" state={{ from: location }} replace />
+        }
+      />
+
+      {/* 404 Route */}
+      <Route
+        path="*"
+        element={
+          isAuthenticated() ?
+            <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace /> :
+            <Navigate to="/login" state={{ from: location }} replace />
+        }
+      />
+    </Routes>
   );
-}export default App;
-          <Route
-            path="/dashboard/*"
-            element={
-              <PrivateRoute>
-                <DashboardLayout />
-              </PrivateRoute>
-            }
-          />
+};
 
-        </Routes>
-      </Router>
+// Main App Component
+const App = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
+  );
+};
 
 export default App;

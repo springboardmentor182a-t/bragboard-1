@@ -11,12 +11,12 @@ import {
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const BarChart = ({ data, height = 520 }) => {
+const BarChart = ({ data }) => {
   const labels = data.map((i) => i.name);
   const values = data.map((i) => i.shoutouts);
 
   return (
-    <div style={{ height }}>
+    <div style={{ height: "100%", width: "100%" }}>
       <Bar
         data={{
           labels,
@@ -32,6 +32,10 @@ const BarChart = ({ data, height = 520 }) => {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { display: false }, border: { display: false } },
+            x: { grid: { display: false }, border: { display: false } },
+          },
         }}
       />
     </div>
