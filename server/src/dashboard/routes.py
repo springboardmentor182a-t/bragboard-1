@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.database import get_db
 from src.shoutouts.models import Shoutout
-from src.leaderboard.models import Leaderboard
+from src.leaderboard.models import Leaderboard  # ✅ FIXED IMPORT
 from . import service
 
 router = APIRouter(
@@ -34,6 +34,7 @@ def admin_dashboard(db: Session = Depends(get_db)):
             ]
         }
     except Exception as e:
+        print("🔥 ADMIN DASHBOARD ERROR:", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -49,7 +50,7 @@ def employee_dashboard(employee_id: int, db: Session = Depends(get_db)):
         ).count()
 
         leaderboard_entry = db.query(Leaderboard).filter(
-            Leaderboard.employee_id == employee_id
+            Leaderboard.user_id == employee_id   # ✅ FIXED COLUMN
         ).first()
 
         recent_received = db.query(Shoutout).filter(
@@ -73,4 +74,5 @@ def employee_dashboard(employee_id: int, db: Session = Depends(get_db)):
             ]
         }
     except Exception as e:
+        print("🔥 EMPLOYEE DASHBOARD ERROR:", e)
         raise HTTPException(status_code=500, detail=str(e))
