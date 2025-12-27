@@ -4,7 +4,7 @@ function Header({ userRole = "admin", userName = "Alex" }) {
     <header className="bg-white shadow flex items-center justify-between px-6 py-4 mb-6">
       {/* App/Section Title */}
       <div className="text-2xl font-bold text-purple-700">{userRole === "admin" ? "Admin" : "Employee"} Dashboard</div>
-
+   
       {/* Profile area */}
       <div className="flex items-center gap-4">
         <div className="text-right">
@@ -20,3 +20,4 @@ function Header({ userRole = "admin", userName = "Alex" }) {
   );
 }
 export default Header;
+

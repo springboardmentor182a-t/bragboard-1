@@ -28,3 +28,4 @@ function Sidebar({ activeSection, setActiveSection }) {
   );
 }
 export default Sidebar;
+

@@ -45,3 +45,5 @@ def remove_comment(comment_id: int, user_id: int, db: Session = Depends(get_db))
         raise HTTPException(status_code=403, detail="Not authorized")
     crud.delete_comment(db, comment)
     return None
+
+
