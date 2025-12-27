@@ -1,55 +1,95 @@
-// client/src/AuthContext.tsx
-import { createContext, useContext, useEffect, useState } from "react";
-import { Session, User } from "@supabase/supabase-js";
-import { supabase } from "./integrations/supabase/client";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
-interface AuthContextType {
-    session: Session | null;
-    user: User | null;
-    loading: boolean;
-    signOut: () => Promise<void>;
-}
+export type AuthContextType = {
+  isAuthenticated: boolean;
+  userRole: "admin" | "employee" | null;
+  userData: { id: number; name: string; email: string } | null;
+  loading: boolean;
+  login: (
+    role: "admin" | "employee",
+    userData: { id: number; name: string; email: string } // ✅ fixed
+  ) => void;
+  logout: () => void;
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [session, setSession] = useState<Session | null>(null);
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
-
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
-
-    const signOut = async () => {
-        await supabase.auth.signOut();
-    };
-
-    return (
-        <AuthContext.Provider value={{ session, user, loading, signOut }}>
-            {children}
-        </AuthContext.Provider>
-    );
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
 };
 
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error("useAuth must be used within an AuthProvider");
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<"admin" | "employee" | null>(null);
+
+  // ✅ fixed: added id
+  const [userData, setUserData] = useState<{
+    id: number;
+    name: string;
+    email: string;
+  } | null>(null);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const savedAuth = localStorage.getItem("auth");
+    if (savedAuth) {
+      const parsed = JSON.parse(savedAuth);
+      setIsAuthenticated(parsed.isAuthenticated);
+      setUserRole(parsed.userRole);
+      setUserData(parsed.userData);
     }
-    return context;
+    setLoading(false);
+  }, []);
+
+  const login = (
+    role: "admin" | "employee",
+    userData: { id: number; name: string; email: string }
+  ) => {
+    setIsAuthenticated(true);
+    setUserRole(role);
+    setUserData(userData);
+
+    // optional but safe (keeps login on refresh)
+    localStorage.setItem(
+      "auth",
+      JSON.stringify({
+        isAuthenticated: true,
+        userRole: role,
+        userData,
+      })
+    );
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    setUserRole(null);
+    setUserData(null);
+    localStorage.removeItem("auth");
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        userRole,
+        userData,
+        loading,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
