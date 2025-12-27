@@ -76,8 +76,8 @@ function Comments() {
   return (
     <div>
       <h1>Comments for Shoutout 1</h1>
-      {usingMock && <p style={{color: 'orange'}}>⚠️ Using mock data - API server not running</p>}
-      {error && <p style={{color: 'red'}}>Error: {error}</p>}
+      {usingMock && <p style={{ color: 'orange' }}>⚠️ Using mock data - API server not running</p>}
+      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
       <ul>
         {comments.map(comment => (
           <li key={comment.id}>

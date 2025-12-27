@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../Context/AuthContext';
+import DashboardLayout from '../components/Layout/DashboardLayout.jsx';
 
 const Settings = () => {
   const { user, toggleTheme, userSettings, updateSettings } = useAuth();
 
-  // Use settings from context instead of local state
-  const [settings, setSettings] = useState(userSettings);
+  // ... (state hooks) ...
+  const [settings, setSettings] = useState(userSettings || {});
   const [activeTab, setActiveTab] = useState('profile');
   const [isSaved, setIsSaved] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
   // Update local settings when context settings change
   useEffect(() => {
-    setSettings(userSettings);
+    if (userSettings) {
+      setSettings(userSettings);
+    }
   }, [userSettings]);
 
   // Check if settings have changed
@@ -21,25 +24,24 @@ const Settings = () => {
     setHasChanges(hasUnsavedChanges);
   }, [settings, userSettings]);
 
-  // Handle notification toggles
+  // ... (handlers skipped for brevity, keeping existing logic) ...
   const handleNotificationChange = (key) => {
     const newSettings = {
       ...settings,
       notifications: {
-        ...settings.notifications,
-        [key]: !settings.notifications[key]
+        ...(settings.notifications || {}),
+        [key]: !settings.notifications?.[key]
       }
     };
     setSettings(newSettings);
     setIsSaved(false);
   };
 
-  // Toggle all notifications
   const toggleAllNotifications = () => {
     const allOn = !Object.values(settings.notifications).every(Boolean);
     const newSettings = {
       ...settings,
-      notifications: Object.keys(settings.notifications).reduce((acc, key) => {
+      notifications: Object.keys(settings.notifications || {}).reduce((acc, key) => {
         acc[key] = allOn;
         return acc;
       }, {})
@@ -48,12 +50,11 @@ const Settings = () => {
     setIsSaved(false);
   };
 
-  // Handle privacy changes
   const handlePrivacyChange = (key, value) => {
     const newSettings = {
       ...settings,
       privacy: {
-        ...settings.privacy,
+        ...(settings.privacy || {}),
         [key]: value
       }
     };
@@ -61,12 +62,11 @@ const Settings = () => {
     setIsSaved(false);
   };
 
-  // Handle preference changes - theme changes apply immediately
   const handlePreferenceChange = (key, value) => {
     const newSettings = {
       ...settings,
       preferences: {
-        ...settings.preferences,
+        ...(settings.preferences || {}),
         [key]: value
       }
     };
@@ -74,19 +74,16 @@ const Settings = () => {
     setSettings(newSettings);
     setIsSaved(false);
 
-    // Immediately apply theme changes and save
     if (key === 'theme') {
       if (typeof toggleTheme === 'function') {
         toggleTheme(value);
       }
-      // Auto-save theme changes immediately
       updateSettings(newSettings);
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
     }
   };
 
-  // Handle profile changes
   const handleProfileChange = (field, value) => {
     const newSettings = {
       ...settings,
@@ -100,150 +97,154 @@ const Settings = () => {
   };
 
   const handleSaveSettings = () => {
-    // Save to context (which will save to localStorage)
     updateSettings(settings);
-
-    // Show success message
     setIsSaved(true);
     setHasChanges(false);
-
-    // Hide success message after 3 seconds
     setTimeout(() => setIsSaved(false), 3000);
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Fixed Header */}
-      <div className="sticky top-0 bg-white z-10 pt-4 pb-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Settings</h1>
+    <DashboardLayout>
+      <div className="w-full px-8 pb-20">
+        {/* Header Section */}
+        <div className="py-8">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-4 transition-colors duration-200">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+          </div>
 
-        {/* Alert Messages */}
-        <div className="space-y-2">
-          {isSaved && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-              ✅ Settings saved successfully! Your preferences have been updated.
-            </div>
-          )}
+          {/* Alert Messages */}
+          <div className="space-y-4 mt-4">
+            {isSaved && (
+              <div className="flex items-center bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md shadow-sm">
+                <span className="mr-2">✅</span>
+                <span className="font-medium">Settings saved successfully!</span>
+              </div>
+            )}
 
-          {hasChanges && !isSaved && (
-            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-              ⚠️ You have unsaved changes. Don't forget to save your settings.
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* SETTINGS CARD WITH MARGIN TOP */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-4">
-        {/* STICKY TABS */}
-        <div className="sticky top-[140px] bg-white z-10 border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
-            {['profile', 'notifications', 'privacy', 'preferences'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${activeTab === tab
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </nav>
+            {hasChanges && !isSaved && (
+              <div className="flex items-center bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-md shadow-sm">
+                <span className="mr-2">⚠️</span>
+                <span className="font-medium">You have unsaved changes.</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* SETTINGS CONTENT */}
-        <div className="p-6">
+        {/* Horizontal Tab Navigation */}
+        <div className="flex space-x-4 mb-8 border-b border-gray-200 overflow-x-auto px-1">
+          {[
+            { id: 'profile', label: '👤 Profile' },
+            { id: 'notifications', label: '🔔 Notifications' },
+            { id: 'privacy', label: '🔒 Privacy' },
+            { id: 'preferences', label: '⚙️ Preferences' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-3 text-sm font-semibold transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === tab.id
+                ? 'border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/20 dark:text-blue-400 rounded-t-lg'
+                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-blue-500 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-t-lg'
+                }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* MAIN CONTENT AREA */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-200 p-6">
           {/* Profile Settings */}
           {activeTab === 'profile' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-800">Profile Settings</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={user.name}
-                    onChange={(e) => handleProfileChange('name', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    defaultValue={settings.profile?.email || "jane.doe@company.com"}
-                    onChange={(e) => handleProfileChange('email', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Department
-                  </label>
-                  <select
-                    defaultValue={user.department}
-                    onChange={(e) => handleProfileChange('department', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option>Software Engineering</option>
-                    <option>Marketing</option>
-                    <option>Sales</option>
-                    <option>Design</option>
-                    <option>Human Resources</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Job Title
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={settings.profile?.jobTitle || "Senior Software Engineer"}
-                    onChange={(e) => handleProfileChange('jobTitle', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
+            <div className="space-y-8">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bio
-                </label>
-                <textarea
-                  rows="4"
-                  placeholder="Tell your colleagues about yourself..."
-                  defaultValue={settings.profile?.bio || "Passionate about building great software and helping teammates succeed!"}
-                  onChange={(e) => handleProfileChange('bio', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Public Profile</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="col-span-1 md:col-span-2">
+                    <div className="flex items-center space-x-6">
+                      <div className="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-2xl font-bold">
+                        {user?.name?.charAt(0) || 'U'}
+                      </div>
+                      <div>
+                        <button className="px-4 py-2 bg-white border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
+                          Change Avatar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Full Name</label>
+                    <input
+                      type="text"
+                      defaultValue={user?.name}
+                      onChange={(e) => handleProfileChange('name', e.target.value)}
+                      className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Email Address</label>
+                    <input
+                      type="email"
+                      defaultValue={settings.profile?.email || "jane.doe@company.com"}
+                      onChange={(e) => handleProfileChange('email', e.target.value)}
+                      className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Department</label>
+                    <select
+                      defaultValue={user?.department}
+                      onChange={(e) => handleProfileChange('department', e.target.value)}
+                      className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option>Software Engineering</option>
+                      <option>Marketing</option>
+                      <option>Sales</option>
+                      <option>Design</option>
+                      <option>Human Resources</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Job Title</label>
+                    <input
+                      type="text"
+                      defaultValue={settings.profile?.jobTitle || "Senior Software Engineer"}
+                      onChange={(e) => handleProfileChange('jobTitle', e.target.value)}
+                      className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="col-span-1 md:col-span-2 space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Bio</label>
+                    <textarea
+                      rows="4"
+                      defaultValue={settings.profile?.bio || "Passionate about building great software!"}
+                      onChange={(e) => handleProfileChange('bio', e.target.value)}
+                      className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Notification Settings - Modern Card Style with Icons */}
+          {/* Notification Settings */}
           {activeTab === 'notifications' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-800">Notification Preferences</h2>
+            <div className="space-y-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Notification Preferences</h2>
                 <button
                   onClick={toggleAllNotifications}
-                  className="text-sm text-blue-500 hover:text-blue-600 font-medium"
+                  className="text-sm text-blue-600 hover:text-blue-800 border px-3 py-1 rounded hover:bg-blue-50"
                 >
-                  {Object.values(settings.notifications).every(Boolean) ? 'Turn all off' : 'Turn all on'}
+                  {Object.values(settings.notifications || {}).every(Boolean) ? 'Turn all off' : 'Turn all on'}
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-6">
                 {[
                   { key: 'emailNotifications', label: 'Email Notifications', desc: 'Receive notifications via email', icon: '📧' },
                   { key: 'pushNotifications', label: 'Push Notifications', desc: 'Receive push notifications in browser', icon: '🔔' },
@@ -251,21 +252,21 @@ const Settings = () => {
                   { key: 'reactionAlerts', label: 'Reaction Alerts', desc: 'Get notified when someone reacts to your posts', icon: '❤️' },
                   { key: 'weeklyDigest', label: 'Weekly Digest', desc: 'Receive weekly summary of activities', icon: '📊' }
                 ].map((item) => (
-                  <div key={item.key} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:border-blue-300 transition-all">
-                    <div className="flex items-center space-x-4">
-                      <div className="text-xl">{item.icon}</div>
+                  <div key={item.key} className="flex items-center justify-between">
+                    <div className="flex items-start space-x-3">
+                      <div className="mt-1 text-xl dark:text-gray-300">{item.icon}</div>
                       <div>
-                        <p className="font-medium text-gray-800">{item.label}</p>
-                        <p className="text-sm text-gray-600">{item.desc}</p>
+                        <p className="font-semibold text-gray-900 dark:text-white">{item.label}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{item.desc}</p>
                       </div>
                     </div>
                     <button
                       onClick={() => handleNotificationChange(item.key)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.notifications[item.key] ? 'bg-blue-500' : 'bg-gray-300'
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${settings.notifications?.[item.key] ? 'bg-blue-600' : 'bg-gray-200'
                         }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${settings.notifications[item.key] ? 'translate-x-6' : 'translate-x-1'
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${settings.notifications?.[item.key] ? 'translate-x-6' : 'translate-x-1'
                           }`}
                       />
                     </button>
@@ -275,142 +276,119 @@ const Settings = () => {
             </div>
           )}
 
-          {/* Privacy Settings - Modern Card Style with Icons */}
+          {/* Privacy Settings */}
           {activeTab === 'privacy' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-800">Privacy Settings</h2>
-
-              <div className="grid grid-cols-1 gap-3">
-                <div className="p-4 bg-white border border-gray-200 rounded-xl">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Profile Visibility
-                  </label>
-                  <select
-                    value={settings.privacy.profileVisibility}
-                    onChange={(e) => handlePrivacyChange('profileVisibility', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="public">Public (Everyone in company)</option>
-                    <option value="team">Team Members Only</option>
-                    <option value="private">Private (Only me)</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:border-blue-300 transition-all">
-                  <div className="flex items-center space-x-4">
-                    <div className="text-xl">👁️</div>
-                    <div>
-                      <p className="font-medium text-gray-800">Show Reactions on Profile</p>
-                      <p className="text-sm text-gray-600">Display reactions you receive on your profile</p>
-                    </div>
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Privacy & Security</h2>
+                <div className="space-y-6">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <label className="block text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">
+                      Profile Visibility
+                    </label>
+                    <select
+                      value={settings.privacy?.profileVisibility || 'public'}
+                      onChange={(e) => handlePrivacyChange('profileVisibility', e.target.value)}
+                      className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="public">Public (Everyone at Company)</option>
+                      <option value="team">My Team Only</option>
+                      <option value="private">Private (Only Me)</option>
+                    </select>
                   </div>
-                  <button
-                    onClick={() => handlePrivacyChange('showReactions', !settings.privacy.showReactions)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.privacy.showReactions ? 'bg-blue-500' : 'bg-gray-300'
-                      }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${settings.privacy.showReactions ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                    />
-                  </button>
-                </div>
 
-                <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:border-blue-300 transition-all">
-                  <div className="flex items-center space-x-4">
-                    <div className="text-xl">🏷️</div>
+                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-800">Allow Tagging</p>
-                      <p className="text-sm text-gray-600">Allow others to tag you in shoutouts</p>
+                      <p className="font-semibold text-gray-900 dark:text-white">Show Received Reactions</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Display emojis on your profile stats</p>
                     </div>
-                  </div>
-                  <button
-                    onClick={() => handlePrivacyChange('allowTagging', !settings.privacy.allowTagging)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.privacy.allowTagging ? 'bg-blue-500' : 'bg-gray-300'
-                      }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${settings.privacy.allowTagging ? 'translate-x-6' : 'translate-x-1'
+                    <button
+                      onClick={() => handlePrivacyChange('showReactions', !settings.privacy?.showReactions)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.privacy?.showReactions ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
                         }`}
-                    />
-                  </button>
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${settings.privacy?.showReactions ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-white">Allow Mentions</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Let others tag you in their shoutouts</p>
+                    </div>
+                    <button
+                      onClick={() => handlePrivacyChange('allowTagging', !settings.privacy?.allowTagging)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.privacy?.allowTagging ? 'bg-blue-600' : 'bg-gray-200'
+                        }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${settings.privacy?.allowTagging ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Preference Settings */}
+          {/* Preferences */}
           {activeTab === 'preferences' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-800">App Preferences</h2>
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">App Preferences</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Interface Theme</label>
+                    <select
+                      value={settings.preferences?.theme || 'light'}
+                      onChange={(e) => handlePreferenceChange('theme', e.target.value)}
+                      className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="light">Light Mode</option>
+                      <option value="dark">Dark Mode</option>
+                      <option value="system">System Default</option>
+                    </select>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-4 border border-gray-200 rounded-xl">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Theme
-                  </label>
-                  <select
-                    value={settings.preferences.theme}
-                    onChange={(e) => handlePreferenceChange('theme', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                    <option value="system">System Default</option>
-                  </select>
-                </div>
-
-                <div className="p-4 border border-gray-200 rounded-xl">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Language
-                  </label>
-                  <select
-                    value={settings.preferences.language}
-                    onChange={(e) => handlePreferenceChange('language', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="english">English</option>
-                    <option value="spanish">Spanish</option>
-                    <option value="french">French</option>
-                    <option value="german">German</option>
-                  </select>
-                </div>
-
-                <div className="p-4 border border-gray-200 rounded-xl">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Timezone
-                  </label>
-                  <select
-                    value={settings.preferences.timezone}
-                    onChange={(e) => handlePreferenceChange('timezone', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="UTC-5">EST (UTC-5)</option>
-                    <option value="UTC-8">PST (UTC-8)</option>
-                    <option value="UTC+0">GMT (UTC+0)</option>
-                    <option value="UTC+1">CET (UTC+1)</option>
-                  </select>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Language</label>
+                    <select
+                      value={settings.preferences?.language || 'english'}
+                      onChange={(e) => handlePreferenceChange('language', e.target.value)}
+                      className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="english">English (US)</option>
+                      <option value="spanish">Spanish</option>
+                      <option value="french">French</option>
+                      <option value="german">German</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* SAVE BUTTON AT BOTTOM */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">
-              {hasChanges
-                ? "You have unsaved changes. Click save to keep your preferences."
-                : "All changes are saved. Your preferences are up to date."
-              }
-            </p>
+        {/* Footer Save Area */}
+        <div className="mt-12 flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex space-x-4">
+            <button
+              disabled={!hasChanges}
+              onClick={() => setSettings(userSettings || {})}
+              className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50"
+            >
+              Reset
+            </button>
             <button
               onClick={handleSaveSettings}
               disabled={!hasChanges}
-              className={`font-semibold py-2 px-6 rounded-lg transition-colors ${hasChanges
-                ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              className={`px-6 py-2 rounded-md font-medium text-white transition-all ${hasChanges
+                ? 'bg-blue-600 hover:bg-blue-700 shadow-sm'
+                : 'bg-gray-300 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
                 }`}
             >
               Save Changes
@@ -418,7 +396,7 @@ const Settings = () => {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
