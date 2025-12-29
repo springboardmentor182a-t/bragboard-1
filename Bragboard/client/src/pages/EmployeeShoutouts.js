@@ -1,5 +1,5 @@
 import React from "react";
-import DashboardLayout from "../components/Layout/DashboardLayout";
+import DashboardLayout from "../components/Layout/DashboardLayout.jsx";
 import ReportShoutoutForm from "../components/Shoutouts/ReportShoutoutForm";
 import MyShoutoutsList from "../components/Shoutouts/MyShoutoutsList";
 

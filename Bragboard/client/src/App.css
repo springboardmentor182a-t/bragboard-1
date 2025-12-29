@@ -42,7 +42,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: center;
   border-bottom: 1px solid #ddd;
@@ -53,6 +54,39 @@ th {
   font-weight: bold;
 }
 
-tr:hover {
-  background-color: #f1f5f9;
+.shoutout-item p {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.shoutout-item small {
+  color: #666;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.reactions {
+  display: flex;
+  gap: 10px;
+}
+
+.reactions button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.reactions button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.reactions button:hover {
+  background-color: #f0f0f0;
+}
+
+.reactions button.active:hover {
+  background-color: #0056b3;
 }

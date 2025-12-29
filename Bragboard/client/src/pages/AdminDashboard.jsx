@@ -1,5 +1,5 @@
 import React from "react";
-import DashboardLayout from "../components/Layout/DashboardLayout";
+import DashboardLayout from "../components/Layout/DashboardLayout.jsx";
 import DashboardStats from "../components/DashboardStats";
 import DashboardCharts from "../components/DashboardCharts";
 import DashboardTable from "../components/DashboardTable";

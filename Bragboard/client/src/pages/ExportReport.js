@@ -3,12 +3,10 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-
-
-
-
+import DashboardLayout from "../components/Layout/DashboardLayout.jsx";
 
 export default function ExportReport() {
+  // ... (previous state/logic) ...
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -116,63 +114,116 @@ export default function ExportReport() {
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Export Reports</h2>
-
-      {/* Error / Loading State */}
-      {error && <div style={{ color: "red", marginBottom: 10 }}>Error: {error}</div>}
-      {loading && <div>Loading reports...</div>}
-
-      <div style={{ display: "flex", gap: 12, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
-        <label>
-          From: <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-        </label>
-        <label>
-          To: <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-        </label>
-
-        <button onClick={fetchReports} style={{ ...buttonStyle, background: "#6b7280" }}>Refresh Data</button>
-
-        <div style={{ marginLeft: 12 }}>
-          <strong>Columns:</strong>
-          {Object.keys(selectedColumns).map((col) => (
-            <label key={col} style={{ marginLeft: 8 }}>
-              <input type="checkbox" checked={selectedColumns[col]} onChange={() => toggleColumn(col)} /> {col}
-            </label>
-          ))}
+    <DashboardLayout>
+      <div style={{ padding: 20 }} className="min-h-screen transition-colors duration-200">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6 transition-colors duration-200">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Export Reports</h2>
         </div>
-      </div>
 
-      <div style={{ marginBottom: 12, display: "flex", gap: 8 }}>
-        <button onClick={exportXLSX} style={buttonStyle}>Export Excel (Client)</button>
-        <button onClick={exportPDF} style={{ ...buttonStyle, background: "#dc2626" }}>Export PDF (Client)</button>
-      </div>
+        {/* Error / Loading State */}
+        {error && <div className="text-red-500 mb-4 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">Error: {error}</div>}
 
-      <div ref={tableRef} style={{ border: "1px solid #ddd", padding: 8, borderRadius: 6, overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              {visibleColumns.map((col) => (
-                <th key={col} style={{ borderBottom: "1px solid #ccc", textAlign: "left", padding: 6 }}>{col.toUpperCase()}</th>
+        {/* Controls Container */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6 transition-colors duration-200">
+          <div className="flex flex-col md:flex-row gap-6 mb-6">
+            <div className="flex flex-wrap gap-4 items-end">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">From Date</label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To Date</label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+              <button
+                onClick={fetchReports}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center h-[42px]"
+              >
+                Refresh Data
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Visible Columns:</span>
+            <div className="flex flex-wrap gap-3">
+              {Object.keys(selectedColumns).map((col) => (
+                <label key={col} className="inline-flex items-center space-x-2 cursor-pointer bg-gray-50 dark:bg-gray-700/50 px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={selectedColumns[col]}
+                    onChange={() => toggleColumn(col)}
+                    className="rounded text-blue-600 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-500"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-200 capitalize">{col.replace('_', ' ')}</span>
+                </label>
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {!data || data.length === 0 ? (
-              <tr><td colSpan={visibleColumns.length} style={{ padding: 8 }}>{loading ? "Loading..." : "No results"}</td></tr>
-            ) : (
-              filtered.map((row) => (
-                <tr key={row.id}>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <button
+              onClick={exportXLSX}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-sm flex items-center"
+            >
+              <span className="mr-2">📊</span> Export Excel
+            </button>
+            <button
+              onClick={exportPDF}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-sm flex items-center"
+            >
+              <span className="mr-2">📄</span> Export PDF
+            </button>
+          </div>
+        </div>
+
+        {/* Table Container */}
+        <div ref={tableRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-gray-50 dark:bg-gray-700/50">
+                <tr>
                   {visibleColumns.map((col) => (
-                    <td key={col} style={{ padding: 6, borderBottom: "1px solid #eee" }}>{row[col]}</td>
+                    <th key={col} className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+                      {col.replace('_', ' ')}
+                    </th>
                   ))}
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {!data || data.length === 0 ? (
+                  <tr>
+                    <td colSpan={visibleColumns.length} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                      {loading ? "Loading data..." : "No reports found"}
+                    </td>
+                  </tr>
+                ) : (
+                  filtered.map((row) => (
+                    <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                      {visibleColumns.map((col) => (
+                        <td key={col} className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                          {row[col]}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
 
