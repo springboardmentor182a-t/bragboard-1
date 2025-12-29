@@ -10,10 +10,10 @@ import Performance from "../components/employee/Performance";
 import Settings from "../components/employee/Settings";
 
 function EmpDashboard({ onLogout, userName }) {
-
+  
   const [activeSection, setActiveSection] = useState("tasks");
 
-
+  
   const role = localStorage.getItem("role");
   const approvalStatus = localStorage.getItem("ApprovalStatus");
 

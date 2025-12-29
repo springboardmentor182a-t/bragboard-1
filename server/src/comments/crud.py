@@ -26,3 +26,4 @@ def update_comment(db: Session, db_comment: Comment, update: CommentUpdate):
 def delete_comment(db: Session, db_comment: Comment):
     db.delete(db_comment)
     db.commit()
+

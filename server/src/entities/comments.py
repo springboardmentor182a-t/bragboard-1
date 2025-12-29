@@ -10,3 +10,4 @@ class Comment(Base):
     user_id = Column(Integer)
     content = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

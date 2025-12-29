@@ -1,5 +1,5 @@
 // EmpDashboardLayout.jsx
-import EmpSidebar from "./EmpSiderbar";
+import EmpSidebar from "./EmpSidebar";
 import Navbar from "./Navbar";
 
 function EmployeeDashboardLayout({
@@ -19,8 +19,8 @@ function EmployeeDashboardLayout({
       {/* RIGHT SIDE */}
       <div className="flex-1 flex flex-col ml-[256px]">
         {/* TOP NAVBAR */}
-        <Navbar setActiveSection={setActiveSection} onLogout={onLogout} />
-
+         <Navbar setActiveSection={setActiveSection} onLogout={onLogout} />
+       
 
         {/* MAIN CONTENT */}
         <main className="flex-1 p-6 mt-[70px] overflow-y-auto">
