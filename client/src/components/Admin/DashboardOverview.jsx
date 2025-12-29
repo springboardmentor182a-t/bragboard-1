@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Departments from "./Departments";
 import Employees from "./Employees";
-import { EMPLOYEES as INIT_EMPS, SHOUTOUTS as INIT_SHOUTS, getEmployeeName } from "../../data/constants";
+import { EMPLOYEES as INIT_EMPS, SHOUTOUTS as INIT_SHOUTS, getEmployeeName,LEADERBOARD } from "../../data/constants";
 
 function DashboardOverview() {
   const [view, setView] = useState("overview"); // "overview" or "departments"
