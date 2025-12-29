@@ -92,3 +92,134 @@
     font-size: 13px;
     color: #dc2626;
 }
+
+/* =========================
+   Global Fixes
+   ========================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* =========================
+   Auth Container
+   ========================= */
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f7fb;
+    overflow-x: hidden;
+}
+
+/* =========================
+   Auth Card (Desktop)
+   ========================= */
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.auth-card h1,
+.auth-card h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.auth-card input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 15px;
+    margin-bottom: 14px;
+    border-radius: 8px;
+    border: 1px solid #d0d7de;
+}
+
+.auth-card button {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.auth-card p,
+.auth-card a {
+    font-size: 14px;
+    text-align: center;
+}
+
+/* =========================
+   Mobile View (Tablets & Phones)
+   ========================= */
+
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 16px;
+        align-items: flex-start;
+    }
+
+    .auth-card {
+        max-width: 100%;
+        padding: 22px;
+        margin-top: 40px;
+        border-radius: 12px;
+        box-shadow: none;
+    }
+
+    .auth-card h1,
+    .auth-card h2 {
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
+
+    .auth-card input {
+        font-size: 14px;
+        padding: 12px;
+        min-height: 44px;
+        /* Touch friendly */
+    }
+
+    .auth-card button {
+        font-size: 15px;
+        padding: 14px;
+        min-height: 44px;
+        margin-top: 8px;
+    }
+
+    .auth-card p,
+    .auth-card a {
+        font-size: 13px;
+    }
+}
+
+/* =========================
+   Extra Small Devices
+   ========================= */
+
+@media (max-width: 480px) {
+
+    .auth-card h1,
+    .auth-card h2 {
+        font-size: 18px;
+    }
+
+    .auth-card input {
+        font-size: 13px;
+    }
+
+    .auth-card button {
+        font-size: 14px;
+    }
+}
