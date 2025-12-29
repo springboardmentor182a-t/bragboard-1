@@ -1,13 +1,18 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
+import API from "../../services/api"; // adjust path if needed
+
 import { Link, NavLink } from "react-router-dom";
 
 export default function AdminReports() {
-  const reports = [
-    { id: 101, reportedBy: "Alice", reason: "Spam", status: "Pending" },
-    { id: 102, reportedBy: "Robert", reason: "Duplicate", status: "Deleted" },
-    { id: 103, reportedBy: "Sarah", reason: "Spam", status: "Resolved" }
-  ];
-
+  const [reports, setReports] = useState([]);
+const [stats, setStats] = useState({
+  total: 0,
+  pending: 0,
+  resolved: 0,
+});
+  
+ 
   const statusClass = {
     Pending: "bg-amber-200 text-amber-900",
     Deleted: "bg-gray-200 text-gray-900",
