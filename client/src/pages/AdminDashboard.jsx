@@ -40,26 +40,45 @@ function EmpDashboard({ onLogout, userName }) {
 
   let SectionComponent;
   switch (activeSection) {
+
+    case 'shoutouts':
+      SectionComponent = <ShoutOuts />;
     case "dashboard":
       SectionComponent = <Performance data={dashboardData} />;
       break;
+    case 'departments':
+      SectionComponent = <Departments />;
     case "shoutouts":
       SectionComponent = <Shoutouts />;
       break;
+      case 'dashboard':
+      SectionComponent = <DashboardOverview />;
     case "leaderboard":
       SectionComponent = <Leaderboard />;
       break;
+    case 'analytics':
+      SectionComponent = <AnalyticsCards loading={loading} />;
     case "notifications":
       SectionComponent = <Notifications />;
       break;
+    case 'employees':
+      SectionComponent = <Employees />;
     case "settings":
       SectionComponent = <Settings />;
       break;
+    case 'leaderboard':
+      SectionComponent = <Leaderboard loading={loading} />;
+      break;
+    case 'approvals':
+      SectionComponent = <ApprovalRequests />;
+      break;
+
     default:
-      SectionComponent = <div>Select a section</div>;
+      SectionComponent = <div>Select a section.</div>;
   }
 
   return (
+    <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}>
     <EmployeeDashboardLayout
       activeSection={activeSection}
       setActiveSection={setActiveSection}
@@ -67,9 +86,12 @@ function EmpDashboard({ onLogout, userName }) {
       userName={userName}
     >
       {SectionComponent}
+    </DashboardLayout>
     </EmployeeDashboardLayout>
   );
 }
+export default AdminDashboard;
 
-export default EmpDashboard;
+
+  
 
