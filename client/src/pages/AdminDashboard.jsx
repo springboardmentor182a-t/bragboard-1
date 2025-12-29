@@ -1,76 +1,98 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { Navigate } from "react-router-dom";
-import EmployeeDashboardLayout from "../layout/EmpDashboardLayout";
 
-import Shoutouts from "../components/employee/Shoutouts";
-import Leaderboard from "../components/employee/Leaderboard";
+import DashboardLayout from "../layout/DashboardLayout";
+
+import ShoutOuts from '../components/Admin/ShoutoutsPage';
 import AnalyticsCards from '../components/Admin/AnalyticsCards';
-import ShoutOutsPage from '../components/Common/ShoutOuts';
 import Departments from '../components/Admin/Departments';
 import Employees from '../components/Admin/Employees';
 import DashboardOverview from '../components/Admin/DashboardOverview';
-import { Navigate } from "react-router-dom"; 
-import Notifications from "../components/employee/Notifications";
-import Performance from "../components/employee/Performance";
-import Settings from "../components/employee/Settings";
+import ExportReports from './ExportReports';
+import Leaderboard from './leaderboardPage';
+import ApprovalRequests from "../components/Admin/ApprovalRequests";
 
-function EmpDashboard({ onLogout, userName }) {
-  const [activeSection, setActiveSection] = useState("dashboard");
+function AdminDashboard() {
+  const [activeSection, setActiveSection] = useState('dashboard');
   const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const role = localStorage.getItem("role");
-  const approvalStatus = localStorage.getItem("ApprovalStatus");
-  const employeeId = localStorage.getItem("userId");
+  const adminId = localStorage.getItem("userId");
 
-  // ✅ Hooks FIRST
+  // 🔹 DASHBOARD API INTEGRATION
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/api/dashboard/employee/${employeeId}`)
-      .then((res) => res.json())
-      .then((data) => setDashboardData(data));
-  }, [employeeId]);
+    if (!adminId) return;
 
-  // ✅ Guards AFTER hooks
-  if (approvalStatus === "pending") {
-    return <Navigate to="/ApprovalStatus" replace />;
-  }
+    fetch(`http://127.0.0.1:8000/api/dashboard/admin/${adminId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load dashboard");
+        return res.json();
+      })
+      .then((data) => {
+        setDashboardData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [adminId]);
 
-  if (role !== "employee") {
+  // 🔒 Role guard
+  if (role !== "admin") {
     return <Navigate to="/login" replace />;
   }
 
   let SectionComponent;
   switch (activeSection) {
+    case 'dashboard':
+      SectionComponent = (
+        <DashboardOverview
+          data={dashboardData}
+          loading={loading}
+          error={error}
+        />
+      );
+      break;
+
+    case 'analytics':
+      SectionComponent = (
+        <AnalyticsCards
+          data={dashboardData}
+          loading={loading}
+        />
+      );
+      break;
+
+    case 'leaderboard':
+      SectionComponent = (
+        <Leaderboard
+          data={dashboardData?.leaderboard}
+          loading={loading}
+        />
+      );
+      break;
 
     case 'shoutouts':
       SectionComponent = <ShoutOuts />;
-    case "dashboard":
-      SectionComponent = <Performance data={dashboardData} />;
       break;
+
     case 'departments':
       SectionComponent = <Departments />;
-    case "shoutouts":
-      SectionComponent = <Shoutouts />;
       break;
-      case 'dashboard':
-      SectionComponent = <DashboardOverview />;
-    case "leaderboard":
-      SectionComponent = <Leaderboard />;
-      break;
-    case 'analytics':
-      SectionComponent = <AnalyticsCards loading={loading} />;
-    case "notifications":
-      SectionComponent = <Notifications />;
-      break;
+
     case 'employees':
       SectionComponent = <Employees />;
-    case "settings":
-      SectionComponent = <Settings />;
       break;
-    case 'leaderboard':
-      SectionComponent = <Leaderboard loading={loading} />;
-      break;
+
     case 'approvals':
       SectionComponent = <ApprovalRequests />;
+      break;
+
+    case 'exportreports':
+      SectionComponent = <ExportReports />;
       break;
 
     default:
@@ -78,20 +100,13 @@ function EmpDashboard({ onLogout, userName }) {
   }
 
   return (
-    <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}>
-    <EmployeeDashboardLayout
+    <DashboardLayout
       activeSection={activeSection}
       setActiveSection={setActiveSection}
-      onLogout={onLogout}
-      userName={userName}
     >
       {SectionComponent}
     </DashboardLayout>
-    </EmployeeDashboardLayout>
   );
 }
+
 export default AdminDashboard;
-
-
-  
-
