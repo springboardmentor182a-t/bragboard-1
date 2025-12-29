@@ -1,13 +1,16 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from datetime import datetime
-from src.database import Base
+from src.core import Base
 
 class LeaderboardEntry(Base):
     __tablename__ = "leaderboard"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    email = Column(String, nullable=True)
+
+    # 🔗 link to user table
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+
+    # leaderboard-specific fields
     points = Column(Integer, default=0)
     attempts = Column(Integer, default=0)
     level = Column(String, default="Bronze")

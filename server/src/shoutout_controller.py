@@ -5,6 +5,7 @@ from datetime import datetime
 from src.core import get_db
 from src.entities_shoutout import Shoutout
 from src.entities_user import User
+from src.entities.entities_leaderboard import LeaderboardEntry
 
 router = APIRouter(prefix="/shoutouts", tags=["Shoutouts"])
 
@@ -30,25 +31,43 @@ def create_shoutout(
     )
     db.add(shout)
 
-    # ✅ Update activity timestamps
     now = datetime.utcnow()
-    sender.last_active = now
-    receiver.last_active = now
 
-    # ✅ Increment attempts (sender action)
-    sender.attempts += 1
+    # ✅ Fetch or create leaderboard entries
+    sender_lb = (
+        db.query(LeaderboardEntry)
+        .filter(LeaderboardEntry.user_id == sender_id)
+        .first()
+    )
+    if not sender_lb:
+        sender_lb = LeaderboardEntry(user_id=sender_id)
+        db.add(sender_lb)
 
-    # ✅ 🔥 Increment points (receiver reward)
-    receiver.points = (receiver.points or 0) + 1
+    receiver_lb = (
+        db.query(LeaderboardEntry)
+        .filter(LeaderboardEntry.user_id == receiver_id)
+        .first()
+    )
+    if not receiver_lb:
+        receiver_lb = LeaderboardEntry(user_id=receiver_id)
+        db.add(receiver_lb)
+
+    # ✅ Increment attempts (sender)
+    sender_lb.attempts += 1
+
+    # ✅ Increment points (receiver)
+    receiver_lb.points += 1
+
+    # ✅ Update last active
+    sender_lb.last_active = now
+    receiver_lb.last_active = now
 
     db.commit()
-
     db.refresh(shout)
-    db.refresh(receiver)
 
     return {
         "message": "Shoutout created!",
-        "receiver_points": receiver.points
+        "shoutout": shout
     }
 
 
