@@ -11,6 +11,9 @@
 # production
 /build
 
+# project env files
+Bragboard/client/.env
+
 # misc
 .DS_Store
 .env.local

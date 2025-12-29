@@ -51,7 +51,7 @@ const ShoutOutFeed = () => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="p-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
-        
+
         <div className="space-y-6">
           {shoutouts.map((shoutout) => (
             <div key={shoutout.id} className="border-b border-gray-100 pb-6 last:border-0 last:pb-0">
@@ -60,7 +60,7 @@ const ShoutOutFeed = () => {
                   {getPrefix(shoutout.type)}
                 </div>
               )}
-              
+
               <div className="flex items-start space-x-3">
                 <div className="flex-1">
                   <p className="font-semibold text-gray-800 mb-1">

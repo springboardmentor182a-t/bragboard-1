@@ -15,7 +15,7 @@ const DashboardLayout = ({ children, activeTab, setActiveTab }) => {
       <main
         className="
           ml-64               /* space for sidebar width (64 = 16rem = 256px) */
-          pt-16              /* space for navbar height */
+          pt-20              /* space for navbar height */
           px-8
           w-[calc(100%-16rem)]   /* auto-fit content beside sidebar */
         "

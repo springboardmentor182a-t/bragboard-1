@@ -9,12 +9,12 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const PieChart = ({ data, height = 480 }) => {
+const PieChart = ({ data }) => {
   const labels = data.map((i) => i.name);
   const values = data.map((i) => i.count);
 
   return (
-    <div style={{ height }}>
+    <div style={{ height: "100%", width: "100%" }}>
       <Pie
         data={{
           labels,
@@ -22,18 +22,20 @@ const PieChart = ({ data, height = 480 }) => {
             {
               data: values,
               backgroundColor: [
-                "#3b82f6",
-                "#10b981",
                 "#f59e0b",
-                "#ef4444",
-                "#8b5cf6",
+                "#2563eb",
+                "#10b981",
+                "#ec4899",
+                "#7c3aed",
               ],
+              borderWidth: 1,
             },
           ],
         }}
         options={{
           maintainAspectRatio: false,
-          plugins: { legend: { position: "bottom" } },
+          responsive: true,
+          plugins: { legend: { position: "bottom", labels: { boxWidth: 12, usePointStyle: true, padding: 20 } } },
         }}
       />
     </div>

@@ -12,9 +12,9 @@ import {
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
 
-const TrendChart = ({ data, height = 540 }) => {
+const TrendChart = ({ data }) => {
   return (
-    <div style={{ height }}>
+    <div style={{ height: "100%", width: "100%" }}>
       <Line
         data={{
           labels: data.map((_, i) => `Point ${i + 1}`),
@@ -32,7 +32,16 @@ const TrendChart = ({ data, height = 540 }) => {
         options={{
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { position: "bottom" } },
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { position: 'bottom', align: 'end', labels: { boxWidth: 10, usePointStyle: true } } },
+          scales: {
+            y: { grid: { display: true, color: 'rgba(0,0,0,0.05)' }, border: { display: false } },
+            x: { grid: { display: false }, border: { display: false } },
+          },
+          elements: {
+            point: { radius: 0, hitRadius: 10, hoverRadius: 5 },
+            line: { tension: 0.4 },
+          },
         }}
       />
     </div>

@@ -1,113 +1,95 @@
-import React, { useState, useMemo } from 'react';
-import StatsCards from '../components/Dashboard/StatsCards';
-import Leaderboard from '../components/Dashboard/Leaderboard';
-import DepartmentStats from '../components/Dashboard/DepartmentStats';
-import DashboardLayout from "../components/Layout/DashboardLayout.jsx";
-import { useAuth } from "../Context/AuthContext";
+import React, { useState, useMemo, useEffect } from 'react';
+import StatsCards from '../../components/Dashboard/StatsCards';
+import Leaderboard from '../../components/Dashboard/Leaderboard';
+import DepartmentStats from '../../components/Dashboard/DepartmentStats';
+import DashboardLayout from '../../components/Layout/DashboardLayout.jsx';
+import { useAuth } from "../../Context/AuthContext";
+import { shoutouts as shoutoutsApi } from '../../services/api';
 
-const Dashboard = () => {
+const EmployeeDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [viewFilter, setViewFilter] = useState('all'); // 'all', 'toMe', 'fromMe'
   const [sortBy, setSortBy] = useState('recent'); // 'recent', 'department'
-  const [shoutouts, setShoutouts] = useState([
-    {
-      id: 1,
-      sender: "John Smith",
-      senderDept: "Marketing",
-      recipient: "Jane Doe",
-      recipientDept: "Software Engineering",
-      message: "Awesome work on the Q3 Project! Your attention to detail really made the difference.",
-      timestamp: "2 hours ago",
-      reactions: { like: 5, clap: 3, star: 2 },
-      comments: [
-        { id: 1, user: "Mike Chen", message: "Absolutely! Jane was amazing!", timestamp: "1 hour ago" }
-      ]
-    },
-    {
-      id: 2,
-      sender: "Jane Doe",
-      senderDept: "Software Engineering",
-      recipient: "Mike Chen",
-      recipientDept: "Software Engineering",
-      message: "Thanks for helping me with that bug fix! You're a lifesaver!",
-      timestamp: "3 hours ago",
-      reactions: { like: 3, clap: 6, star: 1 },
-      comments: []
-    },
-    {
-      id: 3,
-      sender: "Sarah Lee",
-      senderDept: "Product",
-      recipient: "Team Alpha",
-      recipientDept: "Product",
-      message: "Crushed those deadlines! Incredible teamwork everyone!",
-      timestamp: "4 hours ago",
-      reactions: { like: 8, clap: 4, star: 1 },
-      comments: []
-    },
-    {
-      id: 4,
-      sender: "Alex Johnson",
-      senderDept: "Sales",
-      recipient: "Jane Doe",
-      recipientDept: "Software Engineering",
-      message: "Your presentation today was outstanding! Really inspired the team.",
-      timestamp: "6 hours ago",
-      reactions: { like: 7, clap: 2, star: 4 },
-      comments: []
-    },
-    {
-      id: 5,
-      sender: "Jane Doe",
-      senderDept: "Software Engineering",
-      recipient: "Team Engineering",
-      recipientDept: "Software Engineering",
-      message: "Great job everyone on the deployment! The new features are live and working perfectly.",
-      timestamp: "1 day ago",
-      reactions: { like: 12, clap: 8, star: 3 },
-      comments: []
-    },
-    {
-      id: 6,
-      sender: "David Kim",
-      senderDept: "HR",
-      recipient: "Sarah Lee",
-      recipientDept: "Product",
-      message: "Excellent leadership on the new initiative! The team's morale is at an all-time high.",
-      timestamp: "1 day ago",
-      reactions: { like: 9, clap: 5, star: 2 },
-      comments: []
-    },
-    {
-      id: 7,
-      sender: "Lisa Wong",
-      senderDept: "Finance",
-      recipient: "Team Marketing",
-      recipientDept: "Marketing",
-      message: "The campaign results exceeded all expectations! Fantastic work on the creative strategy.",
-      timestamp: "2 days ago",
-      reactions: { like: 15, clap: 7, star: 4 },
-      comments: []
-    }
-  ]);
+  const [shoutouts, setShoutouts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [userReactions, setUserReactions] = useState({});
   const [commentInputs, setCommentInputs] = useState({});
   const [editingComment, setEditingComment] = useState(null);
 
+  useEffect(() => {
+    fetchShoutouts();
+  }, []);
+
+  const fetchShoutouts = async () => {
+    try {
+      const response = await shoutoutsApi.getAll();
+      const formattedShoutouts = response.data.map(s => ({
+        id: s.id,
+        sender: s.sender?.name || 'Unknown',
+        senderDept: s.sender?.department || 'General',
+        recipients: s.recipients.map(r => r.name), // Array for logic
+        recipientDisplay: s.recipients.map(r => r.name).join(', '), // String for display
+        recipientDept: s.recipients[0]?.department || 'General',
+        message: s.message,
+        timestamp: new Date(s.created_at).toLocaleString(),
+        reactions: processReactions(s.reactions),
+        comments: s.comments.map(c => ({
+          id: c.id,
+          user: c.user?.name || 'Unknown',
+          message: c.text,
+          timestamp: new Date(c.created_at).toLocaleString()
+        }))
+      }));
+      setShoutouts(formattedShoutouts);
+    } catch (error) {
+      console.error("Failed to fetch shoutouts", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const processReactions = (reactionsList) => {
+    const counts = { like: 0, clap: 0, star: 0 };
+    if (!reactionsList) return counts;
+    reactionsList.forEach(r => {
+      if (counts[r.type] !== undefined) counts[r.type]++;
+    });
+    return counts;
+  };
+  // Delete shoutout (Admin only)
+  const handleDeleteShoutout = async (shoutoutId) => {
+    if (user?.role !== 'admin') return;
+    if (window.confirm("Are you sure you want to delete this shoutout?")) {
+      try {
+        await shoutoutsApi.delete(shoutoutId);
+        setShoutouts(prev => prev.filter(s => s.id !== shoutoutId));
+      } catch (error) {
+        console.error("Failed to delete shoutout", error);
+        alert("Failed to delete shoutout");
+      }
+    }
+  };
+
   const handleReaction = (shoutoutId, reactionType) => {
-    const userKey = `${user.name}-${shoutoutId}`;
+    const userKey = user ? `${user.name}-${shoutoutId}` : `guest-${shoutoutId}`;
     const currentUserReactions = userReactions[userKey] || {};
     const hasReacted = currentUserReactions[reactionType];
 
     setShoutouts(prev => prev.map(shoutout => {
       if (shoutout.id === shoutoutId) {
         const newReactions = { ...shoutout.reactions };
+
         if (hasReacted) {
-          // Remove reaction
+          // Flatten: Remove reaction
           newReactions[reactionType] = Math.max(0, newReactions[reactionType] - 1);
         } else {
-          // Add reaction
+          // Mutually Exclusive: Remove ANY existing reaction first
+          const oldReactionType = Object.keys(currentUserReactions).find(type => currentUserReactions[type]);
+          if (oldReactionType) {
+            newReactions[oldReactionType] = Math.max(0, newReactions[oldReactionType] - 1);
+          }
+          // Then add new one
           newReactions[reactionType] = newReactions[reactionType] + 1;
         }
         return { ...shoutout, reactions: newReactions };
@@ -115,14 +97,25 @@ const Dashboard = () => {
       return shoutout;
     }));
 
-    // Update user's reactions
-    setUserReactions(prev => ({
-      ...prev,
-      [userKey]: {
-        ...currentUserReactions,
-        [reactionType]: !hasReacted
+    // Update user's reactions state
+    setUserReactions(prev => {
+      const newUserReactions = { ...currentUserReactions };
+
+      if (hasReacted) {
+        // Toggle off
+        newUserReactions[reactionType] = false;
+      } else {
+        // Clear all, set new
+        ['like', 'clap', 'star'].forEach(type => {
+          newUserReactions[type] = (type === reactionType);
+        });
       }
-    }));
+
+      return {
+        ...prev,
+        [userKey]: newUserReactions
+      };
+    });
   };
 
   const getReactionEmoji = (type) => {
@@ -186,20 +179,21 @@ const Dashboard = () => {
     setEditingComment(null);
   };
 
+
+
   // Filter and sort shoutouts based on current view - optimized with useMemo
   const filteredShoutouts = useMemo(() => {
+    // ... existing logic ...
     let filtered;
     switch (viewFilter) {
       case 'toMe':
-        filtered = shoutouts.filter(shoutout => shoutout.recipient === user.name);
+        filtered = shoutouts.filter(shoutout => shoutout.recipients.includes(user.name));
         break;
       case 'fromMe':
         filtered = shoutouts.filter(shoutout => shoutout.sender === user.name);
         break;
       default:
-        filtered = shoutouts.filter(shoutout =>
-          shoutout.sender === user.name || shoutout.recipient === user.name
-        );
+        filtered = shoutouts;
     }
 
     // Sort based on sortBy
@@ -212,16 +206,21 @@ const Dashboard = () => {
     }
 
     // Default: sort by recent (id descending for demo purposes)
-    return [...filtered].sort((a, b) => b.id - a.id);
+    const sorted = [...filtered].sort((a, b) => b.id - a.id);
+    return sorted;
   }, [shoutouts, viewFilter, sortBy, user.name]);
+
+
 
   return (
     <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
       <div className="w-full max-w-full overflow-hidden">
-
-        {/* Fixed Header (Spacing fixed here) */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 pt-1 pb-3 border-b border-gray-200 dark:border-gray-700 -mx-6 px-6 transition-colors duration-200">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Employee Dashboard</h1>
+        {/* ... stats ... */}
+        {/* Header with gray gap */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6 text-center transition-colors duration-200">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+            {user?.role === 'admin' ? 'Admin Dashboard' : 'Employee Dashboard'}
+          </h1>
         </div>
 
         <div className="pt-2">
@@ -244,11 +243,11 @@ const Dashboard = () => {
                 {/* Sort Controls */}
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">Sort by:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Sort by:</span>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white w-32"
+                      className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white"
                       aria-label="Sort shoutouts by"
                     >
                       <option value="recent">Recent</option>
@@ -264,25 +263,25 @@ const Dashboard = () => {
                   onClick={() => setViewFilter('all')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewFilter === 'all'
                     ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-white shadow-sm'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
-                  All ({shoutouts.filter(s => s.sender === user.name || s.recipient === user.name).length})
+                  All ({shoutouts.length})
                 </button>
                 <button
                   onClick={() => setViewFilter('toMe')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewFilter === 'toMe'
                     ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-white shadow-sm'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
-                  To Me ({shoutouts.filter(s => s.recipient === user.name).length})
+                  To Me ({shoutouts.filter(s => s.recipients.includes(user.name)).length})
                 </button>
                 <button
                   onClick={() => setViewFilter('fromMe')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewFilter === 'fromMe'
                     ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-white shadow-sm'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                 >
                   From Me ({shoutouts.filter(s => s.sender === user.name).length})
@@ -294,29 +293,43 @@ const Dashboard = () => {
               {filteredShoutouts.map((shoutout) => (
                 <div key={shoutout.id} className="p-6">
 
-                  <div className="mb-4">
-                    <p className="font-semibold text-gray-800">
-                      {shoutout.sender} → {shoutout.recipient}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">{shoutout.timestamp}</p>
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <p className="font-semibold text-gray-800 dark:text-white">
+                        {shoutout.sender} → {shoutout.recipientDisplay}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{shoutout.timestamp}</p>
+                    </div>
+                    {user?.role === 'admin' && (
+                      <button
+                        onClick={() => handleDeleteShoutout(shoutout.id)}
+                        className="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors p-1"
+                        title="Delete Shoutout (Admin only)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
 
-                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-4">
-                    <p className="text-gray-800 italic">"{shoutout.message}"</p>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg p-4 mb-4">
+                    <p className="text-gray-800 dark:text-blue-100 italic">"{shoutout.message}"</p>
                   </div>
 
                   <div className="flex items-center space-x-6 mb-4">
                     {['like', 'clap', 'star'].map((reactionType) => {
-                      const userKey = `${user.name}-${shoutout.id}`;
+                      const userKey = user ? `${user.name}-${shoutout.id}` : `guest-${shoutout.id}`;
                       const hasReacted = userReactions[userKey]?.[reactionType];
                       return (
                         <button
                           key={reactionType}
-                          onClick={() => handleReaction(shoutout.id, reactionType)}
+                          onClick={() => user && handleReaction(shoutout.id, reactionType)}
                           className={`flex items-center space-x-2 px-3 py-1 rounded-full transition-colors ${hasReacted
-                            ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                            : 'hover:bg-gray-100 text-gray-600'
+                            ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/60'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'
                             }`}
+                          title={`${reactionType} (${shoutout.reactions[reactionType]})`}
                         >
                           <span className="text-lg">{getReactionEmoji(reactionType)}</span>
                           <span className="font-medium">{shoutout.reactions[reactionType]}</span>
@@ -326,14 +339,14 @@ const Dashboard = () => {
                   </div>
 
                   {shoutout.comments.length > 0 && (
-                    <div className="border-t border-gray-100 pt-4">
-                      <h4 className="font-medium text-gray-700 mb-3">Comments:</h4>
+                    <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
+                      <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">Comments:</h4>
                       {shoutout.comments.map((comment) => (
-                        <div key={comment.id} className="bg-gray-50 rounded-lg p-3 mb-2">
+                        <div key={comment.id} className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 mb-2">
                           {editingComment === comment.id ? (
                             <div className="space-y-2">
                               <div className="flex justify-between items-center">
-                                <span className="font-semibold text-gray-800">Editing comment</span>
+                                <span className="font-semibold text-gray-800 dark:text-white">Editing comment</span>
                                 <div className="flex space-x-2">
                                   <button
                                     onClick={() => handleEditComment(shoutout.id, comment.id, commentInputs[`edit-${comment.id}`] || comment.message)}
@@ -352,27 +365,27 @@ const Dashboard = () => {
                               <textarea
                                 value={commentInputs[`edit-${comment.id}`] || comment.message}
                                 onChange={(e) => setCommentInputs(prev => ({ ...prev, [`edit-${comment.id}`]: e.target.value }))}
-                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 dark:text-white"
                                 rows="2"
                               />
                             </div>
                           ) : (
                             <>
                               <div className="flex justify-between items-center mb-1">
-                                <span className="font-semibold text-gray-800">{comment.user}</span>
+                                <span className="font-semibold text-gray-800 dark:text-gray-200">{comment.user}</span>
                                 <div className="flex items-center space-x-2">
-                                  <span className="text-sm text-gray-500">{comment.timestamp}</span>
+                                  <span className="text-sm text-gray-500 dark:text-gray-400">{comment.timestamp}</span>
                                   {comment.user === user.name && (
                                     <div className="flex space-x-1">
                                       <button
                                         onClick={() => startEditing(comment.id)}
-                                        className="text-xs text-blue-600 hover:text-blue-800"
+                                        className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                                       >
                                         Edit
                                       </button>
                                       <button
                                         onClick={() => handleDeleteComment(shoutout.id, comment.id)}
-                                        className="text-xs text-red-600 hover:text-red-800"
+                                        className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                                       >
                                         Delete
                                       </button>
@@ -380,7 +393,7 @@ const Dashboard = () => {
                                   )}
                                 </div>
                               </div>
-                              <p className="text-gray-700">{comment.message}</p>
+                              <p className="text-gray-700 dark:text-gray-300">{comment.message}</p>
                             </>
                           )}
                         </div>
@@ -388,7 +401,7 @@ const Dashboard = () => {
                     </div>
                   )}
 
-                  <div className="border-t border-gray-100 pt-4 mt-4">
+                  <div className="border-t border-gray-100 dark:border-gray-700 pt-4 mt-4">
                     <div className="flex space-x-2">
                       <input
                         type="text"
@@ -396,7 +409,7 @@ const Dashboard = () => {
                         value={commentInputs[shoutout.id] || ''}
                         onChange={(e) => setCommentInputs(prev => ({ ...prev, [shoutout.id]: e.target.value }))}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddComment(shoutout.id)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white"
                         aria-label="Add a comment"
                       />
                       <button
@@ -404,7 +417,7 @@ const Dashboard = () => {
                         disabled={!commentInputs[shoutout.id]?.trim()}
                         className={`font-medium py-2 px-4 rounded-lg transition-colors ${commentInputs[shoutout.id]?.trim()
                           ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                          : 'bg-gray-200 text-gray-500 cursor-not-allowed' // This one might need dark mode too but technically gray-200 is ok for disabled
                           }`}
                       >
                         Post
@@ -423,4 +436,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default EmployeeDashboard;
