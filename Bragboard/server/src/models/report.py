@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Text, String, ForeignKey, DateTime
 from datetime import datetime
 
-from database import Base
+from src.database import Base
 
 
 class Report(Base):

@@ -1,7 +1,7 @@
 from sqlalchemy import func
-from src.models import Users, ShoutOuts, Comments, Reactions, ShoutOutRecipients
+from src.models import User, ShoutOuts, Comments, Reactions, ShoutOutRecipients
 def total_employees(db):
-    return db.query(func.count(Users.id)).scalar()
+    return db.query(func.count(User.id)).scalar()
 def total_shoutouts(db):
     return db.query(func.count(ShoutOuts.id)).scalar()
 def total_comments(db):

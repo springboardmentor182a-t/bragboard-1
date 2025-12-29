@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from src.database import get_db
-from src.models import Users, ShoutOuts, Comments, Reactions, ShoutOutRecipients
+from src.models import User, ShoutOuts, Comments, Reactions, ShoutOutRecipients
 from sqlalchemy import func
 from datetime import datetime, timedelta
 class AnalyticsService:
@@ -9,7 +9,7 @@ class AnalyticsService:
         self.db = db
     def overview(self):
         return {
-            "total_employees": self.db.query(Users).count(),
+            "total_employees": self.db.query(User).count(),
             "total_shoutouts": self.db.query(ShoutOuts).count(),
             "total_comments": self.db.query(Comments).count(),
             "total_reactions": self.db.query(Reactions).count(),
@@ -58,8 +58,8 @@ class AnalyticsService:
 
     def department_stats(self):
         data = (
-            self.db.query(Users.department, func.count().label("count"))
-            .group_by(Users.department)
+            self.db.query(User.department, func.count().label("count"))
+            .group_by(User.department)
             .all()
         )
         return [{"department": i[0], "employees": i[1]} for i in data]

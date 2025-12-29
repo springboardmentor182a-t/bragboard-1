@@ -1,0 +1,94 @@
+/* Page */
+.bb-auth-page {
+    min-height: 100vh;
+    background: #f4f6fb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Card */
+.bb-auth-card {
+    width: 420px;
+    background: #fff;
+    padding: 32px;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Brand */
+.bb-brand {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.bb-app-title {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.bb-app-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Form */
+.bb-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Inputs */
+.bb-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+}
+
+.bb-input:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+/* Button */
+.bb-submit {
+    margin-top: 8px;
+    padding: 12px;
+    background: #6366f1;
+    color: #fff;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.bb-submit:hover {
+    background: #4f46e5;
+}
+
+/* Links */
+.bb-link {
+    font-size: 14px;
+    color: #6366f1;
+    text-decoration: none;
+}
+
+.bb-link:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+.bb-foot {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Errors */
+.bb-error {
+    font-size: 13px;
+    color: #dc2626;
+}

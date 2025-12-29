@@ -1,10 +1,13 @@
 import React from "react";
+import DashboardLayout from "../components/Layout/DashboardLayout";
 
-export default function Settings() {
+const Settings = () => {
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold mb-4">Settings</h1>
-      <p>Admin settings page: configure app options here.</p>
-    </div>
+    <DashboardLayout>
+      <h2 className="text-2xl font-bold mb-4">Settings</h2>
+      <p>Application settings.</p>
+    </DashboardLayout>
   );
-}
+};
+
+export default Settings;

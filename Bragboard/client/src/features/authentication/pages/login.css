@@ -1,0 +1,93 @@
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f5f7ff;
+}
+
+.auth-card {
+    width: 500px;
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0px 8px 28px rgba(0, 0, 0, 0.08);
+}
+
+.auth-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.auth-logo {
+    width: 40px;
+    height: auto;
+}
+
+.auth-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1d1d1f;
+}
+
+.auth-form label {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #d9d9d9;
+    font-size: 15px;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.show-btn {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4f46e5;
+}
+
+.auth-options {
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.forgot-link {
+    color: #4f46e5;
+}
+
+.auth-btn-primary {
+    width: 100%;
+    padding: 14px;
+    margin-top: 25px;
+    background: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.link {
+    color: #4f46e5;
+}

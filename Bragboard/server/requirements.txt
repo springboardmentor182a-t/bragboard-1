@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
+# requests # Often needed, adding just in case, though not explicitly seen yet. Removed for now to stick to evidence.
