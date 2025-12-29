@@ -12,6 +12,8 @@ import ForgotPassword from "./components/Auth/ForgotPassword";
 import ResetPassword from "./components/Auth/ResetPassword";
 
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminShoutoutReports from "./pages/AdminShoutoutReports";
+
 import EmployeeDashboard from "./pages/EmpDashboard";
 import Shoutouts from "./components/employee/Shoutouts";
 import EmployeeReportingShoutout from "./pages/EmployeeReportingShoutout";
@@ -63,6 +65,8 @@ function AppShell() {
         {/* Other Pages */}
         <Route path="/shoutouts" element={<Shoutouts />} />
         <Route path="/employee/reporting-shoutout" element={<EmployeeReportingShoutout />} />
+        <Route path="/admin/shoutout-reports" element={<AdminShoutoutReports />} />
+    
 
         <Route path="/ApprovalStatus" element={<ApprovalStatus />} />
 
