@@ -4,6 +4,12 @@ import EmployeeDashboardLayout from "../layout/EmpDashboardLayout";
 
 import Shoutouts from "../components/employee/Shoutouts";
 import Leaderboard from "../components/employee/Leaderboard";
+import AnalyticsCards from '../components/Admin/AnalyticsCards';
+import ShoutOutsPage from '../components/Common/ShoutOuts';
+import Departments from '../components/Admin/Departments';
+import Employees from '../components/Admin/Employees';
+import DashboardOverview from '../components/Admin/DashboardOverview';
+import { Navigate } from "react-router-dom"; 
 import Notifications from "../components/employee/Notifications";
 import Performance from "../components/employee/Performance";
 import Settings from "../components/employee/Settings";
@@ -66,3 +72,4 @@ function EmpDashboard({ onLogout, userName }) {
 }
 
 export default EmpDashboard;
+
