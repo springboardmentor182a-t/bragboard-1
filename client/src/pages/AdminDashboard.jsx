@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { Navigate } from "react-router-dom";
 
 import DashboardLayout from "../layout/DashboardLayout";
-
+import ShoutOuts from '../components/Admin/ShoutOuts';
 import ShoutOuts from '../components/Admin/ShoutoutsPage';
 import AnalyticsCards from '../components/Admin/AnalyticsCards';
+import ShoutOutsPage from '../components/Common/ShoutOuts';
 import Departments from '../components/Admin/Departments';
 import Employees from '../components/Admin/Employees';
+import Leaderboard from '../components/Admin/Leaderboard';
 import DashboardOverview from '../components/Admin/DashboardOverview';
-import ExportReports from './ExportReports';
-import Leaderboard from './leaderboardPage';
-import ApprovalRequests from "../components/Admin/ApprovalRequests";
+
 
 function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -110,3 +110,4 @@ function AdminDashboard() {
 }
 
 export default AdminDashboard;
+
