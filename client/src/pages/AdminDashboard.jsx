@@ -18,6 +18,9 @@ function AdminDashboard() {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  if (role !== "admin") {
+  return <Navigate to="/login" replace />;
+}
 
   const role = localStorage.getItem("role");
   const adminId = localStorage.getItem("userId");
@@ -111,5 +114,6 @@ function AdminDashboard() {
 }
 
 export default AdminDashboard;
+
 
 
