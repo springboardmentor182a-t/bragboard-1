@@ -9,13 +9,11 @@ import Notifications from "../components/employee/Notifications";
 import Performance from "../components/employee/Performance";
 import Settings from "../components/employee/Settings";
 
-function EmpDashboard({ userName }) {
+function EmpDashboard({ onLogout, userName }) {
   const [activeSection, setActiveSection] = useState("overview");
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const navigate = useNavigate(); // ✅ MUST BE HERE
 
   const role = localStorage.getItem("role");
   const approvalStatus = localStorage.getItem("ApprovalStatus");
@@ -26,6 +24,8 @@ function EmpDashboard({ userName }) {
     ? parseInt(rawEmployeeId.replace(/[^0-9]/g, ""))
     : null;
 
+  useEffect(() => {
+    // stop loading if employeeId is missing/invalid
   // ✅ LOGOUT HANDLER (TOP LEVEL)
   const handleLogout = () => {
     localStorage.removeItem("user_id");
@@ -83,6 +83,7 @@ function EmpDashboard({ userName }) {
       <EmployeeDashboardLayout
         activeSection={activeSection}
         setActiveSection={setActiveSection}
+        onLogout={onLogout}
         onLogout={handleLogout}
         userName={userName}
       >
@@ -98,6 +99,7 @@ function EmpDashboard({ userName }) {
       <EmployeeDashboardLayout
         activeSection={activeSection}
         setActiveSection={setActiveSection}
+        onLogout={onLogout}
         onLogout={handleLogout}
         userName={userName}
       >
@@ -116,9 +118,6 @@ function EmpDashboard({ userName }) {
       break;
     case "shoutouts":
       SectionComponent = <Shoutouts />;
-      break;
-    case "leaderboard":
-      SectionComponent = <Leaderboard />;
       break;
     case "notifications":
       SectionComponent = <Notifications />;

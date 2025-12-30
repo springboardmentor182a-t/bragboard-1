@@ -1,64 +1,116 @@
-import { useState } from 'react';
-import DashboardLayout from "../layout/DashboardLayout";
+import { useState, useEffect } from 'react';
+import { Navigate } from "react-router-dom";
 
-import ShoutOuts from '../components/Admin/ShoutoutsPage';
+import DashboardLayout from "../layout/DashboardLayout";
+import ShoutOuts from '../components/Admin/ShoutOuts';
+import ShoutOutsPage from '../components/Common/ShoutOuts';
 import AnalyticsCards from '../components/Admin/AnalyticsCards';
+import ShoutOutsPageCommon from '../components/Common/ShoutOuts';
 import Departments from '../components/Admin/Departments';
 import Employees from '../components/Admin/Employees';
+import Leaderboard from '../components/Admin/Leaderboard';
 import DashboardOverview from '../components/Admin/DashboardOverview';
-import ExportReports from './ExportReports';
-import Leaderboard from './leaderboardPage';
-import { Navigate } from "react-router-dom"; 
-
 import ApprovalRequests from "../components/Admin/ApprovalRequests";
-
+import ExportReports from '../components/Admin/ExportReports';
 
 function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [loading] = useState(false);
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const role = localStorage.getItem("role");
+  const adminId = localStorage.getItem("userId");
 
-if (role !== "admin") {
-  return <Navigate to="/login" replace />;
-}
+  // DASHBOARD API INTEGRATION
+  useEffect(() => {
+    if (!adminId) {
+      setLoading(false);
+      return;
+    }
 
+    fetch(`http://127.0.0.1:8000/api/dashboard/admin/${adminId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load dashboard");
+        return res.json();
+      })
+      .then((data) => {
+        setDashboardData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [adminId]);
 
-  let SectionComponent; 
+  // Role guard
+  if (role !== "admin") {
+    return <Navigate to="/login" replace />;
+  }
+
+  let SectionComponent;
   switch (activeSection) {
-    
+    case 'dashboard':
+      SectionComponent = (
+        <DashboardOverview
+          data={dashboardData}
+          loading={loading}
+          error={error}
+        />
+      );
+      break;
+
+    case 'analytics':
+      SectionComponent = (
+        <AnalyticsCards
+          data={dashboardData}
+          loading={loading}
+        />
+      );
+      break;
+
+    case 'leaderboard':
+      SectionComponent = (
+        <Leaderboard
+          data={dashboardData?.leaderboard}
+          loading={loading}
+        />
+      );
+      break;
+
     case 'shoutouts':
       SectionComponent = <ShoutOuts />;
       break;
+
     case 'departments':
       SectionComponent = <Departments />;
       break;
-      case 'dashboard':
-      SectionComponent = <DashboardOverview />;
-      break;
-    case 'analytics':
-      SectionComponent = <AnalyticsCards loading={loading} />;
-      break;
+
     case 'employees':
       SectionComponent = <Employees />;
       break;
-    case 'leaderboard':
-      SectionComponent = <Leaderboard loading={loading} />;
-      break;
+
     case 'approvals':
       SectionComponent = <ApprovalRequests />;
       break;
+
     case 'exportreports':
       SectionComponent = <ExportReports />;
       break;
+
     default:
       SectionComponent = <div>Select a section.</div>;
   }
 
   return (
-    <DashboardLayout activeSection={activeSection} setActiveSection={setActiveSection}>
+    <DashboardLayout
+      activeSection={activeSection}
+      setActiveSection={setActiveSection}
+    >
       {SectionComponent}
     </DashboardLayout>
   );
 }
-export default AdminDashboard;
 
+export default AdminDashboard;
