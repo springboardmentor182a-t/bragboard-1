@@ -2,10 +2,11 @@ import './EmpSidebar.css';
 
 function EmpSidebar({ activeSection, setActiveSection }) {
   const items = [
+     {id:"overview", label: "Overview"},
     { id: "shoutouts", label: "Shoutouts" },
     { id: "leaderboard", label: "Leaderboard" },
     { id: "notifications", label: "Notifications" },
-    { id: "performance", label: "Analytics" },
+    { id: "performance", label: "Performance & Analytics" },
   ];
 
   return (
