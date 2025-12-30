@@ -13,8 +13,8 @@ def add_or_toggle_reaction(db: Session, data: ReactionCreate) -> ReactionCount:
     existing = (
         db.query(Reaction)
         .filter(
-            Reaction.parent_type == data.parent_type,
-            Reaction.parent_id == data.parent_id,
+            Reaction.shoutout_type == data.shoutout_type,
+            Reaction.shoutout_id == data.shoutout_id,
             Reaction.user_id == data.user_id,
             Reaction.reaction_type == data.reaction_type,
         )
@@ -34,24 +34,24 @@ def add_or_toggle_reaction(db: Session, data: ReactionCreate) -> ReactionCount:
     rows = (
         db.query(Reaction.reaction_type, func.count(Reaction.id))
         .filter(
-            Reaction.parent_type == data.parent_type,
-            Reaction.parent_id == data.parent_id,
+            Reaction.shoutout_type == data.shoutout_type,
+            Reaction.shoutout_id == data.shoutout_id,
         )
         .group_by(Reaction.reaction_type)
         .all()
     )
     counts = {r[0]: r[1] for r in rows}
-    return ReactionCount(parent_type=data.parent_type, parent_id=data.parent_id, counts=counts)
+    return ReactionCount(shoutout_type=data.shoutout_type, shoutout_id=data.shoutout_id, counts=counts)
 
 def get_counts(db: Session, parent_type: str, parent_id: int) -> ReactionCount:
     rows = (
         db.query(Reaction.reaction_type, func.count(Reaction.id))
         .filter(
-            Reaction.parent_type == parent_type,
-            Reaction.parent_id == parent_id,
+            Reaction.shoutout_type == parent_type,
+            Reaction.shoutout_id == parent_id,
         )
         .group_by(Reaction.reaction_type)
         .all()
     )
     counts = {r[0]: r[1] for r in rows}
-    return ReactionCount(parent_type=parent_type, parent_id=parent_id, counts=counts)
+    return ReactionCount(shoutout_type=parent_type, shoutout_id=parent_id, counts=counts)

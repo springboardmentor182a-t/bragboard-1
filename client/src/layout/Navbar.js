@@ -3,7 +3,7 @@ import { FiSearch, FiLogIn } from "react-icons/fi";
 
 function Navbar({ setActiveSection, onLogout }) {
   return (
-    <nav className="fixed top-0 left-[220px] right-0 h-[70px] bg-white shadow-md z-50 flex items-center px-6">
+    <nav className="fixed top-0 left-[256px] right-0 h-[70px] bg-white shadow-md z-50 flex items-center px-6">
       {/* SEARCH BAR */}
       <div className="relative w-[280px]">
         <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />

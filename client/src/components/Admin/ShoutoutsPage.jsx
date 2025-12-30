@@ -53,9 +53,10 @@ function DeleteConfirmModal({ isOpen, onClose, shoutoutId, onSoftDelete, onHardD
 }
 
 /* Card */
-function ShoutoutCard({ shoutout, isTrash, onDeleteClick, onRestore }) {
-  const fromName = getEmployeeName(shoutout.from);
-  const toName = getEmployeeName(shoutout.to);
+function ShoutoutCard({ shoutout, isTrash, onDeleteClick, onRestore, userMap }) {
+  // Use userMap if available, otherwise fall back to getEmployeeName
+  const fromName = userMap[shoutout.from] || getEmployeeName(shoutout.from);
+  const toName = userMap[shoutout.to] || getEmployeeName(shoutout.to);
   const initials = toName
     .split(" ")
     .map((n) => n[0])
@@ -142,12 +143,62 @@ function ShoutoutsPage() {
   const [activeTab, setActiveTab] = useState("active"); // 'active' | 'trash'
   const [confirmData, setConfirmData] = useState(null); // {id, fromTrash:boolean}
   const [items, setItems] = useState([]);
+  const [userMap, setUserMap] = useState({}); // Map of user_id -> user name
 
   useEffect(() => {
-    const sorted = [...SHOUTOUTS].sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
-    setItems(sorted);
+    (async function load() {
+      try {
+        const token = localStorage.getItem("access_token");
+        
+        // First, fetch all users to create a mapping
+        let allUsers = [];
+        try {
+          const usersRes = await fetch("http://127.0.0.1:8000/admin/users", {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+          });
+          if (usersRes.ok) {
+            allUsers = await usersRes.json();
+          }
+        } catch (e) {
+          console.warn("Could not fetch users", e);
+        }
+
+        // Create user ID to name mapping
+        const mapping = {};
+        allUsers.forEach(u => {
+          mapping[u.id] = u.name || u.email || "Unknown User";
+        });
+        setUserMap(mapping);
+
+        // Now fetch shoutouts
+        const res = await fetch("http://127.0.0.1:8000/admin/shoutouts/?page=1&page_size=200&include_deleted=true", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error(`status=${res.status}`);
+        const data = await res.json();
+        // ensure consistent fields across static fallback and API
+        const mapped = (Array.isArray(data) ? data : []).map((s) => ({
+          id: s.id,
+          emoji: s.emoji || "👏",
+          from: s.sender_id || s.from,
+          to: s.receiver_id || s.to,
+          reason: s.message || s.reason,
+          tag: s.tag || "General",
+          createdAt: s.created_at || s.createdAt,
+          deletedAt: s.deleted_at || s.deletedAt || null,
+        }));
+        const sorted = mapped.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setItems(sorted);
+      } catch (e) {
+        console.warn("Admin shoutouts API failed, falling back to static", e);
+        const sorted = [...SHOUTOUTS].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setItems(sorted);
+      }
+    })();
   }, []);
 
   const activeItems = items.filter((i) => !i.deletedAt);
@@ -162,21 +213,32 @@ function ShoutoutsPage() {
   // Move to trash (soft delete)
   const softDelete = async (id) => {
     try {
+      const token = localStorage.getItem("access_token");
       const res = await fetch(
         `http://127.0.0.1:8000/admin/shoutouts/${id}/soft`,
-        { method: "PATCH" }
+        { 
+          method: "PATCH",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        }
       );
       if (!res.ok) {
         console.error("Failed to soft delete", res.status);
         return;
       }
+      const updatedShoutout = await res.json();
       setItems((prev) =>
         prev.map((item) =>
           item.id === id
-            ? { ...item, deletedAt: new Date().toISOString() }
+            ? { 
+                ...item, 
+                deletedAt: updatedShoutout.deleted_at || new Date().toISOString() 
+              }
             : item
         )
       );
+      console.log("Soft deleted shoutout:", id);
     } catch (e) {
       console.error("Soft delete error", e);
     }
@@ -186,15 +248,22 @@ function ShoutoutsPage() {
   // Hard delete (permanent)
   const hardDelete = async (id) => {
     try {
+      const token = localStorage.getItem("access_token");
       const res = await fetch(
         `http://127.0.0.1:8000/admin/shoutouts/${id}`,
-        { method: "DELETE" }
+        { 
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        }
       );
       if (!res.ok) {
         console.error("Failed to hard delete", res.status);
         return;
       }
       setItems((prev) => prev.filter((item) => item.id !== id));
+      console.log("Hard deleted shoutout:", id);
     } catch (e) {
       console.error("Hard delete error", e);
     }
@@ -204,19 +273,27 @@ function ShoutoutsPage() {
   // Restore from trash
   const handleRestore = async (id) => {
     try {
+      const token = localStorage.getItem("access_token");
       const res = await fetch(
         `http://127.0.0.1:8000/admin/shoutouts/${id}/restore`,
-        { method: "PATCH" }
+        { 
+          method: "PATCH",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        }
       );
       if (!res.ok) {
         console.error("Failed to restore", res.status);
         return;
       }
+      const restoredShoutout = await res.json();
       setItems((prev) =>
         prev.map((item) =>
           item.id === id ? { ...item, deletedAt: null } : item
         )
       );
+      console.log("Restored shoutout:", id);
     } catch (e) {
       console.error("Restore error", e);
     }
@@ -278,6 +355,7 @@ function ShoutoutsPage() {
               isTrash={activeTab === "trash"}
               onDeleteClick={handleDeleteClick}
               onRestore={handleRestore}
+              userMap={userMap}
             />
           ))}
 

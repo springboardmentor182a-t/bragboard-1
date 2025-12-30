@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import EmployeeDashboardLayout from "../layout/EmpDashboardLayout";
 
 import Overview from "../components/employee/Overview";
@@ -18,7 +18,7 @@ function EmpDashboard({ onLogout, userName }) {
   const role = localStorage.getItem("role");
   const approvalStatus = localStorage.getItem("ApprovalStatus");
 
-  // sanitize employeeId
+  // ✅ sanitize employeeId
   const rawEmployeeId = localStorage.getItem("userId");
   const employeeId = rawEmployeeId
     ? parseInt(rawEmployeeId.replace(/[^0-9]/g, ""))
@@ -26,6 +26,18 @@ function EmpDashboard({ onLogout, userName }) {
 
   useEffect(() => {
     // stop loading if employeeId is missing/invalid
+  // ✅ LOGOUT HANDLER (TOP LEVEL)
+  const handleLogout = () => {
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("role");
+    localStorage.removeItem("ApprovalStatus");
+    localStorage.removeItem("token");
+
+    navigate("/login", { replace: true });
+  };
+
+  useEffect(() => {
     if (!employeeId || isNaN(employeeId)) {
       setLoading(false);
       return;
@@ -62,7 +74,6 @@ function EmpDashboard({ onLogout, userName }) {
     return <Navigate to="/ApprovalStatus" replace />;
   }
 
-  // Block non-employee
   if (role !== "employee") {
     return <Navigate to="/login" replace />;
   }
@@ -73,6 +84,7 @@ function EmpDashboard({ onLogout, userName }) {
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         onLogout={onLogout}
+        onLogout={handleLogout}
         userName={userName}
       >
         <div className="flex items-center justify-center h-full">
@@ -88,6 +100,7 @@ function EmpDashboard({ onLogout, userName }) {
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         onLogout={onLogout}
+        onLogout={handleLogout}
         userName={userName}
       >
         <div className="flex items-center justify-center h-full">
@@ -123,7 +136,7 @@ function EmpDashboard({ onLogout, userName }) {
     <EmployeeDashboardLayout
       activeSection={activeSection}
       setActiveSection={setActiveSection}
-      onLogout={onLogout}
+      onLogout={handleLogout}
       userName={userName}
     >
       {SectionComponent}

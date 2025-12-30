@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-export default function ExportReports() {
+function ExportReports() {
   const [department, setDepartment] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -116,3 +116,5 @@ export default function ExportReports() {
     </div>
   );
 } 
+
+export default ExportReports;

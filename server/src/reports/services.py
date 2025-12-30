@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from src.reports import models, schemas
-from src.reports.enums import ReportStatus, ReportAction
-from src.admin_logs.models import AdminLog  
-from src.shoutouts.models import Shoutout
+from reports import models, schemas
+from reports.enums import ReportStatus, ReportAction
+from admin_logs.models import AdminLog  
+from shoutouts.models import Shoutout
 
 def create_report(db: Session, *, user_id: int, shoutout_id: int, data: schemas.ReportCreate):
     
