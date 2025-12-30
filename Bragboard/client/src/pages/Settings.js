@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import DashboardLayout from '../components/Layout/DashboardLayout.jsx';
+import { settings as settingsApi } from '../services/api';
 
 const Settings = () => {
   const { user, toggleTheme, userSettings, updateSettings } = useAuth();
@@ -96,11 +97,30 @@ const Settings = () => {
     setIsSaved(false);
   };
 
-  const handleSaveSettings = () => {
-    updateSettings(settings);
-    setIsSaved(true);
-    setHasChanges(false);
-    setTimeout(() => setIsSaved(false), 3000);
+  const handleSaveSettings = async () => {
+    try {
+      // Create backend payload - only name and department for now as per API
+      const backendPayload = {
+        name: settings.profile?.name || user.name, // Fallback to current user name if not edited
+        department: settings.profile?.department || user.department
+      };
+
+      const updatedUser = await settingsApi.updateProfile(backendPayload);
+
+      // Update local context
+      updateSettings(settings); // Keep local preferences in local storage/context
+      // Ideally we should also update AuthContext user object with new name/dept
+      // But updateSettings only updates 'userSettings' wrapper. 
+      // The auth context needs a reload or manual user update. 
+      // For now, we assume reloading or simple feedback is enough.
+
+      setIsSaved(true);
+      setHasChanges(false);
+      setTimeout(() => setIsSaved(false), 3000);
+    } catch (err) {
+      console.error("Failed to save settings", err);
+      alert("Failed to save profile changes.");
+    }
   };
 
   return (

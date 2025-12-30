@@ -4,6 +4,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import DashboardLayout from "../components/Layout/DashboardLayout.jsx";
+import { reports, exportData } from "../services/api";
 
 export default function ExportReport() {
   // ... (previous state/logic) ...
@@ -30,31 +31,13 @@ export default function ExportReport() {
     setLoading(true);
     setError("");
     try {
-      const token = localStorage.getItem("token"); // Assuming standard 'token' key
-      if (!token) {
-        throw new Error("No authentication token found. Please login.");
-      }
-
-      const response = await fetch("http://127.0.0.1:8000/reports/admin", {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch reports: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      // Map API data to flat structure for table if needed, or use as is
-      // API returns: { id, shoutout_id, reported_by, reason, status, created_at... }
-      setData(result);
+      // Use reports service to get JSON data for the table
+      // (Assuming 'reports' service is imported)
+      const response = await reports.getAllReports();
+      setData(response.data);
     } catch (err) {
       console.error(err);
-      setError(err.message);
-      // Fallback to empty or keep previous data?
-      // setData([]); 
+      setError(err.message || "Failed to fetch reports");
     } finally {
       setLoading(false);
     }

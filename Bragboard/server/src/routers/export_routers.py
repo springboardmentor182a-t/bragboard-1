@@ -7,7 +7,7 @@ import io
 from src.database import get_db
 from src.auth.auth import admin_required
 from src.utils.jwt_handler import TokenData
-from src.models.report import Report
+from src.models import Report
 
 router = APIRouter(
     prefix="/admin/export",

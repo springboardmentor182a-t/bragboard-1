@@ -1,126 +1,72 @@
-import React, { useState } from 'react';
-import { useAuth } from '../Context/AuthContext';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/Layout/DashboardLayout.jsx';
+import { reports } from '../services/api';
 
 const Reports = () => {
-  const { user } = useAuth();
-  const [timeRange, setTimeRange] = useState('week');
+  const [myReports, setMyReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // ... (data skipped for brevity, keeping existing logic) ...
-  const reportData = {
-    week: {
-      shoutoutsSent: 12,
-      reactionsReceived: 36,
-      commentsMade: 8,
-      topContributors: [
-        { name: "John Smith", count: 15 },
-        { name: "Mike Chen", count: 12 },
-        { name: "Alex Rivera", count: 10 },
-        { name: "Sarah Lee", count: 8 },
-        { name: "You", count: 12 }
-      ],
-      departmentStats: [
-        { department: "Engineering", shoutouts: 45 },
-        { department: "Marketing", shoutouts: 28 },
-        { department: "Sales", shoutouts: 32 },
-        { department: "Design", shoutouts: 19 },
-        { department: "HR", shoutouts: 12 }
-      ]
-    },
-    month: {
-      shoutoutsSent: 42,
-      reactionsReceived: 128,
-      commentsMade: 35,
-      topContributors: [
-        { name: "John Smith", count: 58 },
-        { name: "Mike Chen", count: 45 },
-        { name: "You", count: 42 },
-        { name: "Sarah Lee", count: 38 },
-        { name: "Alex Rivera", count: 35 }
-      ],
-      departmentStats: [
-        { department: "Engineering", shoutouts: 165 },
-        { department: "Sales", shoutouts: 142 },
-        { department: "Marketing", shoutouts: 98 },
-        { department: "Design", shoutouts: 76 },
-        { department: "HR", shoutouts: 45 }
-      ]
+  // Note: Create report usually happens on the Shoutout itself (e.g. "Report this shoutout"), 
+  // but we can list them here.
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      const response = await reports.getMyReports();
+      setMyReports(response.data);
+    } catch (err) {
+      console.error("Failed to fetch reports", err);
+      setError("Failed to load your reports.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const currentData = reportData[timeRange];
-
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Analytics & Reports</h1>
+      <div className="max-w-6xl mx-auto p-6">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">My Reports</h1>
 
-          <div className="flex space-x-2">
-            {["week", "month"].map(range => (
-              <button
-                key={range}
-                onClick={() => setTimeRange(range)}
-                className={`px-4 py-2 rounded-lg font-medium ${timeRange === range
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-                  }`}
-              >
-                {range === "week" ? "This Week" : "This Month"}
-              </button>
-            ))}
+        {loading && <p className="text-gray-500">Loading...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+
+        {!loading && myReports.length === 0 && (
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow text-center">
+            <p className="text-gray-500 dark:text-gray-400">You haven't reported any shoutouts.</p>
           </div>
-        </div>
+        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {[
-            { label: "Shout-outs Sent", value: currentData.shoutoutsSent },
-            { label: "Reactions Received", value: currentData.reactionsReceived },
-            { label: "Comments Made", value: currentData.commentsMade }
-          ].map((stat, i) => (
-            <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700 text-center transition-colors duration-200">
-              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stat.value}</p>
-              <p className="text-gray-600 dark:text-gray-400">{stat.label}</p>
+        <div className="grid gap-4">
+          {myReports.map((report) => (
+            <div key={report.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold text-gray-800 dark:text-white">Report on Shoutout #{report.shoutout_id}</h3>
+                  <p className="text-sm text-gray-500 mt-1">Reason: <span className="font-medium">{report.reason}</span></p>
+                  <p className="text-xs text-gray-400 mt-2">Submitted on {new Date(report.created_at).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${report.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      report.status === 'resolved' ? 'bg-green-100 text-green-800' :
+                        'bg-gray-100 text-gray-800'
+                    }`}>
+                    {report.status.toUpperCase()}
+                  </span>
+                </div>
+              </div>
+              {report.admin_notes && (
+                <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded text-sm">
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">Admin Response:</span>
+                  <p className="text-gray-600 dark:text-gray-400">{report.admin_notes}</p>
+                </div>
+              )}
             </div>
           ))}
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-            <h2 className="font-semibold mb-4 text-gray-800 dark:text-white">Top Contributors</h2>
-            {currentData.topContributors.map((c, i) => (
-              <div key={i} className="flex justify-between bg-gray-50 dark:bg-gray-700/50 p-3 rounded mb-2 text-gray-700 dark:text-gray-200">
-                <span className={c.name === "You" ? "text-blue-600 font-medium" : ""}>
-                  {i + 1}. {c.name}
-                </span>
-                <span>{c.count}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-            <h2 className="font-semibold mb-4 text-gray-800 dark:text-white">Department Performance</h2>
-            {currentData.departmentStats.map((d, i) => (
-              <div key={i} className="mb-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-700 dark:text-gray-200">{d.department}</span>
-                  <span className="text-gray-600 dark:text-gray-300">{d.shoutouts}</span>
-                </div>
-                <div className="bg-gray-200 h-2 rounded">
-                  <div
-                    className="bg-blue-500 h-2 rounded"
-                    style={{
-                      width: `${(d.shoutouts /
-                        Math.max(...currentData.departmentStats.map(x => x.shoutouts))) * 100}%`
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-
       </div>
     </DashboardLayout>
   );

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from .comment_model import Comment
+from src.models import Comment
 
 def add_comment(db: Session, shoutout_id: int, user_id: int, content: str):
     comment = Comment(shoutout_id=shoutout_id, user_id=user_id, content=content)

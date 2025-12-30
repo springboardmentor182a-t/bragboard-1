@@ -16,20 +16,14 @@ const LOGIN_CREDENTIALS = {
 };
 
 const LoginPage = () => {
-  const [email, setEmail] = useState(LOGIN_CREDENTIALS.employee.email);
-  const [password, setPassword] = useState(LOGIN_CREDENTIALS.employee.password);
-  const [loginType, setLoginType] = useState('employee');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
   const { login, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Auto-fill credentials based on login type
-  useEffect(() => {
-    setEmail(LOGIN_CREDENTIALS[loginType].email);
-    setPassword(LOGIN_CREDENTIALS[loginType].password);
-  }, [loginType]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -58,13 +52,16 @@ const LoginPage = () => {
         navigate('/dashboard', { replace: true });
       }
     } catch (err) {
-      setError('Invalid email or password');
+      console.error("Login failed:", err);
+      setError(err.response?.data?.detail || err.message || 'Invalid email or password');
       setLoading(false);
     }
   };
 
-  const toggleLoginType = () => {
-    setLoginType(prev => prev === 'admin' ? 'employee' : 'admin');
+  const fillCredentials = (type) => {
+    setEmail(LOGIN_CREDENTIALS[type].email);
+    setPassword(LOGIN_CREDENTIALS[type].password);
+    setIsAdminLogin(type === 'admin');
   };
 
   return (
@@ -142,16 +139,28 @@ const LoginPage = () => {
               </>
             ) : 'Sign in'}
           </button>
-
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={toggleLoginType}
-              className="text-sm font-medium text-purple-300 hover:text-white transition-colors"
-            >
-              {loginType === 'admin' ? 'Switch to Employee Login' : 'Switch to Admin Login'}
-            </button>
-          </div>
+          
+          {isAdminLogin ? (
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => fillCredentials('employee')}
+                className="text-sm text-blue-300 hover:text-blue-200 hover:underline"
+              >
+                Switch to Employee Login
+              </button>
+            </div>
+          ) : (
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => fillCredentials('admin')}
+                className="text-sm text-blue-300 hover:text-blue-200 hover:underline"
+              >
+                Switch to Admin Login
+              </button>
+            </div>
+          )}
         </form>
 
         <div className="mt-8 pt-6 border-t border-white/10 text-center text-sm text-gray-400">
@@ -162,10 +171,20 @@ const LoginPage = () => {
         </div>
 
         <div className="mt-6 bg-black/20 rounded-lg p-4 text-xs text-gray-400 font-mono">
-          <p className="font-bold text-gray-300 mb-2">Demo Login Credentials:</p>
+          <p className="font-bold text-gray-300 mb-2">Demo Login Credentials (Click to fill):</p>
           <div className="space-y-1">
-            <p><span className="text-blue-300">Employee:</span> {LOGIN_CREDENTIALS.employee.email} / employee123</p>
-            <p><span className="text-purple-300">Admin:</span> {LOGIN_CREDENTIALS.admin.email} / admin123</p>
+            <p
+              onClick={() => fillCredentials('employee')}
+              className="cursor-pointer hover:bg-white/10 p-1 rounded transition-colors"
+            >
+              <span className="text-blue-300">Employee:</span> {LOGIN_CREDENTIALS.employee.email} / employee123
+            </p>
+            <p
+              onClick={() => fillCredentials('admin')}
+              className="cursor-pointer hover:bg-white/10 p-1 rounded transition-colors"
+            >
+              <span className="text-purple-300">Admin:</span> {LOGIN_CREDENTIALS.admin.email} / admin123
+            </p>
           </div>
         </div>
       </div>
