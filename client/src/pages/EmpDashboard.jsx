@@ -18,14 +18,14 @@ function EmpDashboard({ onLogout, userName }) {
   const role = localStorage.getItem("role");
   const approvalStatus = localStorage.getItem("ApprovalStatus");
 
-  // ✅ sanitize employeeId
+  // sanitize employeeId
   const rawEmployeeId = localStorage.getItem("userId");
   const employeeId = rawEmployeeId
     ? parseInt(rawEmployeeId.replace(/[^0-9]/g, ""))
     : null;
 
   useEffect(() => {
-    // ✅ FIX: stop loading if employeeId is missing/invalid
+    // stop loading if employeeId is missing/invalid
     if (!employeeId || isNaN(employeeId)) {
       setLoading(false);
       return;
@@ -62,6 +62,7 @@ function EmpDashboard({ onLogout, userName }) {
     return <Navigate to="/ApprovalStatus" replace />;
   }
 
+  // Block non-employee
   if (role !== "employee") {
     return <Navigate to="/login" replace />;
   }
@@ -104,9 +105,6 @@ function EmpDashboard({ onLogout, userName }) {
       break;
     case "shoutouts":
       SectionComponent = <Shoutouts />;
-      break;
-    case "leaderboard":
-      SectionComponent = <Leaderboard />;
       break;
     case "notifications":
       SectionComponent = <Notifications />;
