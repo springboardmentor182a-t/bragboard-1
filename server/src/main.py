@@ -6,10 +6,11 @@ from src.database import Base, engine
 from src.shoutouts.controller import router as shoutouts_router
 from src.analytics.routes import router as analytics_router
 from src.auth.auth_routes import router as auth_router
-from src.leaderboard.routes import router as leaderboard_router  
+from src.leaderboard.routes import router as leaderboard_router
 from src.comments.routes import router as comments_router
 from src.admin.routes import router as admin_router
 from src.dashboard.routes import router as dashboard_router
+
 app = FastAPI()
 
 # CORS Middleware
@@ -33,13 +34,7 @@ app.include_router(analytics_router)
 app.include_router(leaderboard_router)
 app.include_router(dashboard_router, tags=["Dashboard"])
 
+
 @app.get("/")
 async def root():
-    return {
-        "message": "🎉 BragBoard Backend is running!",
-        "docs": "http://localhost:8000/docs"
-    }
-
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
+    return {"message": "Bragboard API"}
