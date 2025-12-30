@@ -10,6 +10,7 @@ import Departments from '../components/Admin/Departments';
 import Employees from '../components/Admin/Employees';
 import Leaderboard from '../components/Admin/Leaderboard';
 import DashboardOverview from '../components/Admin/DashboardOverview';
+import ApprovalRequests from "../components/Admin/ApprovalRequests";
 
 
 function AdminDashboard() {
@@ -110,4 +111,5 @@ function AdminDashboard() {
 }
 
 export default AdminDashboard;
+
 
