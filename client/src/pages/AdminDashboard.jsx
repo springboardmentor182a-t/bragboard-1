@@ -3,31 +3,31 @@ import { Navigate } from "react-router-dom";
 
 import DashboardLayout from "../layout/DashboardLayout";
 import ShoutOuts from '../components/Admin/ShoutOuts';
-import ShoutOuts from '../components/Admin/ShoutoutsPage';
-import AnalyticsCards from '../components/Admin/AnalyticsCards';
 import ShoutOutsPage from '../components/Common/ShoutOuts';
+import AnalyticsCards from '../components/Admin/AnalyticsCards';
+import ShoutOutsPageCommon from '../components/Common/ShoutOuts';
 import Departments from '../components/Admin/Departments';
 import Employees from '../components/Admin/Employees';
 import Leaderboard from '../components/Admin/Leaderboard';
 import DashboardOverview from '../components/Admin/DashboardOverview';
 import ApprovalRequests from "../components/Admin/ApprovalRequests";
-
+import ExportReports from '../components/Admin/ExportReports';
 
 function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  if (role !== "admin") {
-  return <Navigate to="/login" replace />;
-}
 
   const role = localStorage.getItem("role");
   const adminId = localStorage.getItem("userId");
 
-  // 🔹 DASHBOARD API INTEGRATION
+  // DASHBOARD API INTEGRATION
   useEffect(() => {
-    if (!adminId) return;
+    if (!adminId) {
+      setLoading(false);
+      return;
+    }
 
     fetch(`http://127.0.0.1:8000/api/dashboard/admin/${adminId}`)
       .then((res) => {
@@ -44,7 +44,7 @@ function AdminDashboard() {
       });
   }, [adminId]);
 
-  // 🔒 Role guard
+  // Role guard
   if (role !== "admin") {
     return <Navigate to="/login" replace />;
   }
@@ -114,7 +114,3 @@ function AdminDashboard() {
 }
 
 export default AdminDashboard;
-
-
-
-
