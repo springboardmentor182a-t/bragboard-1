@@ -2,6 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout.jsx';
 import { analytics, shoutouts as shoutoutsApi } from '../../services/api';
 import { useAuth } from "../../Context/AuthContext";
+import DashboardStats from '../../components/Dashboard/DashboardStats.jsx';
+import DashboardCharts from '../../components/Dashboard/DashboardCharts.jsx';
+import ShoutOutFeed from '../../components/Dashboard/ShoutOutFeed.js';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -35,7 +38,12 @@ const AdminDashboard = () => {
           analytics.getDepartmentStats()
         ]);
 
-        setStats(overviewRes.data);
+        setStats({
+          ...overviewRes.data,
+          total_employees: 50, // Placeholder - fetch from API if available
+          total_departments: deptRes.data.length,
+          pending_approvals: 5 // Placeholder - fetch from API if available
+        });
         setContributors(contributorsRes.data);
         setDepartments(deptRes.data);
       } catch (error) {
@@ -237,11 +245,7 @@ const AdminDashboard = () => {
   }, [shoutouts, viewFilter, sortBy, user.name]);
 
 
-  const statCards = [
-    { label: 'Shout-outs Sent', value: stats.total_shoutouts },
-    { label: 'Reactions Received', value: stats.total_reactions },
-    { label: 'Comments Made', value: stats.total_comments },
-  ];
+
 
   return (
     <DashboardLayout>
@@ -251,50 +255,18 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          {statCards.map((stat, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm text-center transition-colors duration-200">
-              <p className="text-4xl font-bold text-gray-800 dark:text-white mb-2">{stat.value}</p>
-              <p className="text-gray-500 dark:text-gray-400 font-medium">{stat.label}</p>
-            </div>
-          ))}
-        </div>
+        <DashboardStats stats={stats} />
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-
-          {/* Top Contributors */}
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm transition-colors duration-200">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-6">Top Contributors</h2>
-            <div className="space-y-4">
-              {contributors.map((c, index) => (
-                <div key={c.employee_id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-8 h-8 rounded-full ${index === 0 ? 'bg-yellow-400' : index === 1 ? 'bg-gray-400' : index === 2 ? 'bg-orange-400' : 'bg-blue-400'} flex items-center justify-center text-white font-bold`}>
-                      {index + 1}
-                    </div>
-                    {/* Note: backend returns 'employee_id' currently */}
-                    <span className="font-medium text-gray-800 dark:text-gray-200">Employee #{c.employee_id}</span>
-                  </div>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">{c.sent_shoutouts} shoutouts</span>
-                </div>
-              ))}
-              {contributors.length === 0 && <p className="text-gray-500">No contributors yet.</p>}
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          {/* Analytics Charts */}
+          <div className="lg:col-span-1">
+            <DashboardCharts chartData={departments} />
           </div>
 
-          {/* Department Performance */}
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm transition-colors duration-200">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-6">Department Performance</h2>
-            <div className="space-y-5">
-              {departments.map((d, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-300 font-medium">{d.department || 'Unassigned'}</span>
-                  <span className="text-gray-500 dark:text-gray-400 text-sm">{d.employees} employees</span>
-                </div>
-              ))}
-              {departments.length === 0 && <p className="text-gray-500">No department data.</p>}
-            </div>
+          {/* Recent Activity Feed */}
+          <div className="lg:col-span-2">
+            <ShoutOutFeed shoutouts={shoutouts.slice(0, 3).map(s => ({ sender: s.sender, recipient: s.recipientDisplay, message: s.message }))} />
           </div>
         </div>
 
