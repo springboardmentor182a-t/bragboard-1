@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from database import SessionLocal
-from services.leaderboard_service import get_leaderboard
+from src.database import SessionLocal
+from src.services.leaderboard_service import get_leaderboard
 
 router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
 

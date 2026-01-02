@@ -4,7 +4,7 @@ import Leaderboard from '../../components/Dashboard/Leaderboard';
 import DepartmentStats from '../../components/Dashboard/DepartmentStats';
 import DashboardLayout from '../../components/Layout/DashboardLayout.jsx';
 import { useAuth } from "../../Context/AuthContext";
-import { shoutouts as shoutoutsApi } from '../../services/api';
+import { shoutouts as shoutoutsApi, analytics } from '../../services/api';
 
 const EmployeeDashboard = () => {
   const { user } = useAuth();
@@ -17,24 +17,40 @@ const EmployeeDashboard = () => {
   const [commentInputs, setCommentInputs] = useState({});
   const [editingComment, setEditingComment] = useState(null);
 
+  // Analytics State
+  const [stats, setStats] = useState({
+    total_shoutouts: 0,
+    total_reactions: 0,
+    total_comments: 0
+  });
+  const [contributors, setContributors] = useState([]);
+  const [departments, setDepartments] = useState([]);
+
   useEffect(() => {
-    fetchShoutouts();
+    fetchData();
   }, []);
 
-  const fetchShoutouts = async () => {
+  const fetchData = async () => {
     try {
-      const response = await shoutoutsApi.getAll();
-      const formattedShoutouts = response.data.map(s => ({
+      const [shoutoutsRes, overviewRes, contributorsRes, deptRes] = await Promise.all([
+        shoutoutsApi.getAll(),
+        analytics.getOverview(),
+        analytics.getTopContributors(5),
+        analytics.getDepartmentStats()
+      ]);
+
+      // Process shoutouts
+      const formattedShoutouts = shoutoutsRes.data.map(s => ({
         id: s.id,
         sender: s.sender?.name || 'Unknown',
         senderDept: s.sender?.department || 'General',
-        recipients: s.recipients.map(r => r.name), // Array for logic
-        recipientDisplay: s.recipients.map(r => r.name).join(', '), // String for display
+        recipients: s.recipients.map(r => r.name),
+        recipientDisplay: s.recipients.map(r => r.name).join(', '),
         recipientDept: s.recipients[0]?.department || 'General',
         message: s.message,
         timestamp: new Date(s.created_at).toLocaleString(),
         reactions: processReactions(s.reactions),
-        comments: s.comments.map(c => ({
+        comments: (s.comments || []).map(c => ({
           id: c.id,
           user: c.user?.name || 'Unknown',
           message: c.text,
@@ -42,8 +58,14 @@ const EmployeeDashboard = () => {
         }))
       }));
       setShoutouts(formattedShoutouts);
+
+      // Set Analytics
+      setStats(overviewRes.data);
+      setContributors(contributorsRes.data);
+      setDepartments(deptRes.data);
+
     } catch (error) {
-      console.error("Failed to fetch shoutouts", error);
+      console.error("Failed to fetch dashboard data", error);
     } finally {
       setLoading(false);
     }
@@ -224,11 +246,11 @@ const EmployeeDashboard = () => {
         </div>
 
         <div className="pt-2">
-          <StatsCards />
+          <StatsCards stats={stats} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-6">
-            <Leaderboard />
-            <DepartmentStats />
+            <Leaderboard leaders={contributors} />
+            <DepartmentStats departments={departments} />
           </div>
 
           {/* Shoutout Feed */}

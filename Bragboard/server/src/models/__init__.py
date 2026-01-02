@@ -1,2 +1,1 @@
-from .models import User, ShoutOuts, ShoutOutRecipients, Comments, Reactions
-from .report import Report
+from .models import User, Shoutout, ShoutoutRecipient, Comment, Reaction, Report, Leaderboard

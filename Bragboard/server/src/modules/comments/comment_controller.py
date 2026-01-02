@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from ...database import get_db
-from ...auth.jwt_handler import get_current_user
+from src.database import get_db
+from src.utils.jwt_handler import get_current_user
 
 from .comment_schema import CommentCreate, CommentUpdate, CommentOut
 from .comment_service import (
@@ -18,12 +18,10 @@ router = APIRouter(prefix="/comments", tags=["Comments"])
 def add_comment_api(
     shoutout_id: int,
     data: CommentCreate,
-    db: Session = Depends(get_db)
-    # Temporarily removed auth for demo
-    # user=Depends(get_current_user)
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
 ):
-    # Mock user_id for demo
-    return add_comment(db, shoutout_id, 1, data.content)
+    return add_comment(db, shoutout_id, user["id"], data.content)
 
 # ▶ Get Comments for Shoutout
 @router.get("/{shoutout_id}", response_model=list[CommentOut])

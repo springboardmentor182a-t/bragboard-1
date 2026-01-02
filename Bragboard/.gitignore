@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# Javascript/Node
+node_modules/
+dist/
+build/
+.DS_Store
+
+
+# Logs
+*.log
+*.txt
+npm-debug.log*
+
+# Debug Scripts
+debug_*.py
+check_*.py
+temp_*.py
+test_db_connection.py
+create_admin.py
+setup_db.py
+seed_db.py

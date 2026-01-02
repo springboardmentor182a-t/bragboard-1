@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout.jsx';
+import { users as userApi } from '../../services/api';
 
 const UserManagement = () => {
-    const [users, setUsers] = useState([
-        { id: 1, name: 'John Smith', email: 'john.smith@company.com', role: 'Employee', department: 'Marketing', status: 'Active' },
-        { id: 2, name: 'Jane Doe', email: 'jane.doe@company.com', role: 'Admin', department: 'Software Engineering', status: 'Active' },
-        { id: 3, name: 'Mike Chen', email: 'mike.chen@company.com', role: 'Employee', department: 'Software Engineering', status: 'On Leave' },
-        { id: 4, name: 'Sarah Lee', email: 'sarah.lee@company.com', role: 'Employee', department: 'Product', status: 'Active' },
-        { id: 5, name: 'Alex Johnson', email: 'alex.j@company.com', role: 'Employee', department: 'Sales', status: 'Inactive' },
-    ]);
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const fetchUsers = async () => {
+        try {
+            const response = await userApi.getAll();
+            setUsers(response.data);
+        } catch (error) {
+            console.error("Failed to fetch users", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -33,19 +44,41 @@ const UserManagement = () => {
         }
     };
 
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingUser, setEditingUser] = useState(null);
+    const [editFormData, setEditFormData] = useState({ role: '', department: '' });
+
+    const handleEditClick = (user) => {
+        setEditingUser(user);
+        setEditFormData({ role: user.role, department: user.department });
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdateUser = async (e) => {
+        e.preventDefault();
+        try {
+            await userApi.update(editingUser.id, editFormData);
+            setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...editFormData } : u));
+            setIsEditModalOpen(false);
+            setEditingUser(null);
+        } catch (error) {
+            console.error("Failed to update user", error);
+            alert("Failed to update user");
+        }
+    };
+
     return (
         <DashboardLayout>
             <div className="max-w-7xl mx-auto">
-                {/* Header */}
+                {/* HeaderAndStats ... same as before ... */}
+                {/* Simplified for brevity in replace, keeping structure */}
+
                 {/* Header */}
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-8 transition-colors duration-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-800 dark:text-white">User Management</h1>
                         <p className="text-gray-500 dark:text-gray-400 mt-1">Manage system access and employee records</p>
                     </div>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow-lg shadow-blue-500/30 font-semibold">
-                        <span>+</span> Add New User
-                    </button>
                 </div>
 
                 {/* Stats */}
@@ -70,28 +103,16 @@ const UserManagement = () => {
 
                 {/* Table Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-
                     {/* Toolbar */}
                     <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row gap-4 justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
                         <div className="relative w-full md:w-96">
-                            <svg className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
                             <input
                                 type="text"
                                 placeholder="Search users..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white transition-all"
+                                className="w-full pl-4 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white transition-all"
                             />
-                        </div>
-                        <div className="flex gap-2">
-                            <button className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
-                                Filter
-                            </button>
-                            <button className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
-                                Export
-                            </button>
                         </div>
                     </div>
 
@@ -103,7 +124,6 @@ const UserManagement = () => {
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Department</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                             </thead>
@@ -122,7 +142,7 @@ const UserManagement = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === 'Admin'
+                                            <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${(user.role === 'Admin' || user.role === 'admin')
                                                 ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                                                 : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
                                                 }`}>
@@ -132,18 +152,11 @@ const UserManagement = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                                             {user.department}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                                                {user.status}
-                                            </span>
-                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-4 transition-colors">Edit</button>
                                             <button
-                                                onClick={() => handleDelete(user.id)}
-                                                className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors"
-                                            >
-                                                Delete
+                                                onClick={() => handleEditClick(user)}
+                                                className="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-md text-sm transition-colors mr-2">
+                                                Edit Rule
                                             </button>
                                         </td>
                                     </tr>
@@ -151,16 +164,53 @@ const UserManagement = () => {
                             </tbody>
                         </table>
                     </div>
+                </div>
 
-                    {/* Pagination (Static) */}
-                    <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                        <span>Showing 1 to {filteredUsers.length} of {filteredUsers.length} entries</span>
-                        <div className="flex gap-2">
-                            <button disabled className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50">Previous</button>
-                            <button disabled className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50">Next</button>
+                {/* Edit Modal */}
+                {isEditModalOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl border border-gray-700">
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Edit User Role</h2>
+                            <form onSubmit={handleUpdateUser}>
+                                <div className="mb-4">
+                                    <label className="block text-gray-700 dark:text-gray-300 mb-2">Role</label>
+                                    <select
+                                        value={editFormData.role}
+                                        onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value })}
+                                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                                    >
+                                        <option value="employee">Employee</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div className="mb-6">
+                                    <label className="block text-gray-700 dark:text-gray-300 mb-2">Department</label>
+                                    <input
+                                        type="text"
+                                        value={editFormData.department}
+                                        onChange={(e) => setEditFormData({ ...editFormData, department: e.target.value })}
+                                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsEditModalOpen(false)}
+                                        className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                    >
+                                        Update User
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </DashboardLayout>
     );

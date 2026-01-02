@@ -12,6 +12,7 @@ import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import ExportReport from './pages/ExportReport';
 import UserManagement from './pages/admin/UserManagement';
+import Register from './features/authentication/pages/Register';
 
 // Styles
 import './App.css';
@@ -48,6 +49,11 @@ const AppContent = () => {
         isAuthenticated() ?
           <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace /> :
           <LoginPage />
+      } />
+      <Route path="/signup" element={
+        isAuthenticated() ?
+          <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace /> :
+          <Register />
       } />
 
       {/* Protected Employee Routes */}

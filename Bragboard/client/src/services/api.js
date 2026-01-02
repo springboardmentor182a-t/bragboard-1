@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5000/api';
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -50,11 +50,20 @@ export const shoutouts = {
   delete: (id) => api.delete(`/shoutouts/${id}`),
 };
 
+// Export all services
 export const users = {
-  getAll: () => api.get('/users'),
+  getAll: (skip = 0, limit = 100) => api.get(`/users?skip=${skip}&limit=${limit}`),
   getById: (id) => api.get(`/users/${id}`),
   update: (id, data) => api.put(`/users/${id}`, data),
 };
+
+export const settings = {
+  changePassword: (data) => api.put('/settings/password', data),
+  updateProfile: (data) => api.put('/settings/profile', data),
+};
+
+export { reports } from './reports';
+export { exportData } from './export';
 
 export const analytics = {
   getOverview: () => api.get('/analytics/overview'),

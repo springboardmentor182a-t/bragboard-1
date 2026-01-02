@@ -1,13 +1,13 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from src.models.models import ShoutOuts, ShoutOutRecipients, Comments, Reactions, User
+from src.models import Shoutout, ShoutoutRecipient, Comment, Reaction, User
 from .schemas import ShoutOutCreate, CommentCreate, CommentUpdate, ShoutOutUpdate
 from typing import List
 
 class ShoutoutService:
     @staticmethod
     def create_shoutout(db: Session, sender_id: int, data: ShoutOutCreate):
-        new_shoutout = ShoutOuts(
+        new_shoutout = Shoutout(
             sender_id=sender_id,
             message=data.message
         )
@@ -15,7 +15,7 @@ class ShoutoutService:
         db.flush() # Get ID
 
         for recipient_id in data.recipient_ids:
-            recipient = ShoutOutRecipients(
+            recipient = ShoutoutRecipient(
                 shoutout_id=new_shoutout.id,
                 recipient_id=recipient_id
             )
@@ -27,36 +27,33 @@ class ShoutoutService:
 
     @staticmethod
     def get_shoutouts(db: Session, user_id: int, view: str = "all"):
-        query = db.query(ShoutOuts)
+        query = db.query(Shoutout)
         
         if view == "toMe":
-            query = query.join(ShoutOutRecipients).filter(ShoutOutRecipients.recipient_id == user_id)
+            query = query.join(ShoutoutRecipient).filter(ShoutoutRecipient.recipient_id == user_id)
         elif view == "fromMe":
-            query = query.filter(ShoutOuts.sender_id == user_id)
+            query = query.filter(Shoutout.sender_id == user_id)
         elif view == "all":
-            # For "all", standard dashboard usually shows shoutouts involving the user
-            # but we can also just show all shoutouts in the company. 
-            # Dashboard.js: filtered = shoutouts.filter(shoutout => shoutout.sender === user.name || shoutout.recipient === user.name);
-            # So let's filter by involvement.
-            query = query.outerjoin(ShoutOutRecipients).filter(
-                (ShoutOuts.sender_id == user_id) | (ShoutOutRecipients.recipient_id == user_id)
+            # Filter by involvement
+            query = query.outerjoin(ShoutoutRecipient).filter(
+                (Shoutout.sender_id == user_id) | (ShoutoutRecipient.recipient_id == user_id)
             )
 
-        shoutouts = query.order_by(ShoutOuts.created_at.desc()).distinct().all()
+        shoutouts = query.order_by(Shoutout.created_at.desc()).distinct().all()
         
         result = []
         for s in shoutouts:
             # Map recipients
             recipients = db.query(User.id, User.name).join(
-                ShoutOutRecipients, User.id == ShoutOutRecipients.recipient_id
-            ).filter(ShoutOutRecipients.shoutout_id == s.id).all()
+                ShoutoutRecipient, User.id == ShoutoutRecipient.recipient_id
+            ).filter(ShoutoutRecipient.shoutout_id == s.id).all()
             
             s_recipients = [{"recipient_id": r.id, "recipient_name": r.name} for r in recipients]
             
             # Map comments
-            comments = db.query(Comments, User.name).join(
-                User, Comments.user_id == User.id
-            ).filter(Comments.shoutout_id == s.id).all()
+            comments = db.query(Comment, User.name).join(
+                User, Comment.user_id == User.id
+            ).filter(Comment.shoutout_id == s.id).all()
             
             s_comments = []
             for c, name in comments:
@@ -72,14 +69,14 @@ class ShoutoutService:
             # Reaction counts
             reaction_counts = {}
             for r_type in ['like', 'clap', 'star']:
-                count = db.query(func.count(Reactions.id)).filter(
-                    Reactions.shoutout_id == s.id, Reactions.type == r_type
+                count = db.query(func.count(Reaction.id)).filter(
+                    Reaction.shoutout_id == s.id, Reaction.type == r_type
                 ).scalar()
                 reaction_counts[r_type] = count
             
             # User reactions
-            user_reactions = [r.type for r in db.query(Reactions.type).filter(
-                Reactions.shoutout_id == s.id, Reactions.user_id == user_id
+            user_reactions = [r.type for r in db.query(Reaction.type).filter(
+                Reaction.shoutout_id == s.id, Reaction.user_id == user_id
             ).all()]
 
             # Sender name
@@ -101,17 +98,17 @@ class ShoutoutService:
 
     @staticmethod
     def toggle_reaction(db: Session, user_id: int, shoutout_id: int, reaction_type: str):
-        existing = db.query(Reactions).filter(
-            Reactions.shoutout_id == shoutout_id,
-            Reactions.user_id == user_id,
-            Reactions.type == reaction_type
+        existing = db.query(Reaction).filter(
+            Reaction.shoutout_id == shoutout_id,
+            Reaction.user_id == user_id,
+            Reaction.type == reaction_type
         ).first()
         
         if existing:
             db.delete(existing)
             message = "Reaction removed"
         else:
-            new_reaction = Reactions(
+            new_reaction = Reaction(
                 shoutout_id=shoutout_id,
                 user_id=user_id,
                 type=reaction_type
@@ -124,7 +121,7 @@ class ShoutoutService:
 
     @staticmethod
     def add_comment(db: Session, user_id: int, shoutout_id: int, data: CommentCreate):
-        comment = Comments(
+        comment = Comment(
             shoutout_id=shoutout_id,
             user_id=user_id,
             content=data.content
@@ -136,7 +133,7 @@ class ShoutoutService:
 
     @staticmethod
     def update_comment(db: Session, user_id: int, comment_id: int, data: CommentUpdate):
-        comment = db.query(Comments).filter(Comments.id == comment_id).first()
+        comment = db.query(Comment).filter(Comment.id == comment_id).first()
         if not comment:
             return None
         if comment.user_id != user_id:
@@ -149,7 +146,7 @@ class ShoutoutService:
 
     @staticmethod
     def delete_comment(db: Session, user_id: int, comment_id: int):
-        comment = db.query(Comments).filter(Comments.id == comment_id).first()
+        comment = db.query(Comment).filter(Comment.id == comment_id).first()
         if not comment:
             return False
         if comment.user_id != user_id:
@@ -161,7 +158,7 @@ class ShoutoutService:
 
     @staticmethod
     def update_shoutout(db: Session, user_id: int, shoutout_id: int, data: ShoutOutUpdate):
-        shoutout = db.query(ShoutOuts).filter(ShoutOuts.id == shoutout_id).first()
+        shoutout = db.query(Shoutout).filter(Shoutout.id == shoutout_id).first()
         if not shoutout:
             return None
         if shoutout.sender_id != user_id:
@@ -172,10 +169,10 @@ class ShoutoutService:
         
         if data.recipient_ids is not None:
             # Delete old recipients
-            db.query(ShoutOutRecipients).filter(ShoutOutRecipients.shoutout_id == shoutout_id).delete()
+            db.query(ShoutoutRecipient).filter(ShoutoutRecipient.shoutout_id == shoutout_id).delete()
             # Add new recipients
             for rid in data.recipient_ids:
-                db.add(ShoutOutRecipients(shoutout_id=shoutout_id, recipient_id=rid))
+                db.add(ShoutoutRecipient(shoutout_id=shoutout_id, recipient_id=rid))
         
         db.commit()
         db.refresh(shoutout)
@@ -183,16 +180,16 @@ class ShoutoutService:
 
     @staticmethod
     def delete_shoutout(db: Session, user_id: int, shoutout_id: int):
-        shoutout = db.query(ShoutOuts).filter(ShoutOuts.id == shoutout_id).first()
+        shoutout = db.query(Shoutout).filter(Shoutout.id == shoutout_id).first()
         if not shoutout:
             return False
         if shoutout.sender_id != user_id:
             raise Exception("Unauthorized to delete this shoutout")
 
         # Delete related data first
-        db.query(ShoutOutRecipients).filter(ShoutOutRecipients.shoutout_id == shoutout_id).delete()
-        db.query(Comments).filter(Comments.shoutout_id == shoutout_id).delete()
-        db.query(Reactions).filter(Reactions.shoutout_id == shoutout_id).delete()
+        db.query(ShoutoutRecipient).filter(ShoutoutRecipient.shoutout_id == shoutout_id).delete()
+        db.query(Comment).filter(Comment.shoutout_id == shoutout_id).delete()
+        db.query(Reaction).filter(Reaction.shoutout_id == shoutout_id).delete()
         
         db.delete(shoutout)
         db.commit()

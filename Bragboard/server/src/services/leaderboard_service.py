@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
-from models.user import User
-from models.leaderboard import Leaderboard
+from src.models import User, Leaderboard
 
 def get_leaderboard(db: Session):
     results = (

@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   // API Base URL - should be in .env in production
-  const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5000/api';
+  const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:8000';
 
   // Load user from localStorage on initial load
   useEffect(() => {
@@ -76,42 +76,45 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       // Mock login - replace with actual API call
-      // const response = await fetch(`${API_BASE}/auth/login`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password })
-      // });
+      // Real API Login
+      const response = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
 
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   throw new Error(errorData.message || 'Login failed');
-      // }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Login failed');
+      }
 
-      // const { user: userData, token } = await response.json();
+      const data = await response.json();
+      // data should contain { access_token, token_type, user: {...} } or similar?
+      // Check auth/routes.py login response.
+      // It returns Token(access_token, token_type). User details usually fetched separately via /me or included.
+      // My implementing of /auth/login in routes.py (viewed earlier or inferred)
+      // Standard OAuth2 returns access_token.
+      // Let's assume response is { access_token, token_type }. 
+      // We might need to fetch user profile immediately after.
 
-      // Mock response - simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Mock user data
-      const isAdmin = email === 'admin@bragboard.com';
-      const mockUser = {
-        id: isAdmin ? 1 : 2,
-        email,
-        name: isAdmin ? 'Admin User' : 'Employee User',
-        role: isAdmin ? 'admin' : 'employee',
-        department: isAdmin ? 'Administration' : 'Engineering',
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=random`
-      };
-
-      const token = `mock-jwt-token-${isAdmin ? 'admin' : 'user'}`;
-
-      // Store user data and token
+      const token = data.access_token;
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      setUser(mockUser);
 
-      // Return the user data including role for redirection
-      return mockUser;
+      // Fetch user profile
+      const userRes = await fetch(`${API_BASE}/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+        return userData;
+      } else {
+        // Fallback if /me fails? obtain basic info from somewhere?
+        // For now, simpler to just throw if profile fetch fails too
+        throw new Error("Failed to fetch user profile");
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message || 'Failed to login');
