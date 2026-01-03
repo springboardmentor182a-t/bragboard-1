@@ -1,26 +1,24 @@
-﻿from pydantic import BaseModel
-from datetime import datetime
+﻿# src/schemas_user.py
+from pydantic import BaseModel, EmailStr
 
-# Schema the client sends during registration
 class UserCreate(BaseModel):
     name: str
-    email: str
+    email: EmailStr
     password: str
-    department: str
+    department: str = None
 
-# Schema returned to the client after registration
-class UserOut(BaseModel):
-    id: int
-    name: str
-    email: str
-    department: str
-    role: str
-    joined_at: datetime
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
-    class Config:
-        from_attributes = True  # earlier it was orm_mode = True
-from pydantic import BaseModel
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
 
-class ChangePasswordRequest(BaseModel):
-    old_password: str
+class OTPVerifyRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    otp: str
     new_password: str

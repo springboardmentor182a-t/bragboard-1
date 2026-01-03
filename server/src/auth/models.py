@@ -1,21 +1,21 @@
-﻿# src/auth/models.py
+"""Pydantic models for authentication."""
 from pydantic import BaseModel, EmailStr
 
-class UserCreate(BaseModel):
+
+class UserLogin(BaseModel):
+    """User login request model."""
     email: EmailStr
     password: str
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
 
-class TokenData(BaseModel):
-    email: str | None = None
-
-class UserOut(BaseModel):
-    id: int
+class UserSignup(BaseModel):
+    """User signup request model."""
+    name: str
     email: EmailStr
-    is_active: bool
+    password: str
 
-    class Config:
-        orm_mode = True
+
+class AuthResponse(BaseModel):
+    """Authentication response model."""
+    token: str
+    user: dict
