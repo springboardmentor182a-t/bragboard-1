@@ -2,6 +2,7 @@
 from sqlalchemy import Column, Integer, String
 from src.database import Base
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -12,3 +13,9 @@ class User(Base):
 
     role = Column(String, nullable=False, default="employee")
     department = Column(String, nullable=True)
+
+    # role & join date
+    role = Column(String, default="employee")
+    joined_at = Column(DateTime(timezone=True), server_default=func.now())
+
+   

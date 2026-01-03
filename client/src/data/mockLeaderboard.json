@@ -1,0 +1,59 @@
+{
+  "leaderboard": [
+    {
+      "id": 1,
+      "name": "Keerthana",
+      "email": "keerthana@example.com",
+      "points": 101,
+      "level": "Gold",
+      "attempts": 28,
+      "lastActive": "2025-12-09T12:30:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Manish",
+      "email": "manish@example.com",
+      "points": 95,
+      "level": "Silver",
+      "attempts": 15,
+      "lastActive": "2025-12-08T09:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "Jeevitha",
+      "email": "jeevitha@example.com",
+      "points": 72,
+      "level": "Bronze",
+      "attempts": 12,
+      "lastActive": "2025-12-07T18:10:00Z"
+    },
+    {
+      "id": 4,
+      "name": "Yuktha",
+      "email": "yuktha@example.com",
+      "points": 68,
+      "level": "Bronze",
+      "attempts": 10,
+      "lastActive": "2025-12-06T14:20:00Z"
+    },
+    {
+      "id": 5,
+      "name": "Radha",
+      "email": "radha@example.com",
+      "points": 65,
+      "level": "Bronze",
+      "attempts": 9,
+      "lastActive": "2025-12-05T11:00:00Z"
+    }
+  ],
+  "chartData": {
+    "bar": {
+      "labels": ["Keerthana","Manish","Jeevitha","Yuktha","Radha"],
+      "values": [101,95,72,68,65]
+    },
+    "pie": {
+      "labels": ["Gold","Silver","Bronze"],
+      "values": [1,1,3]
+    }
+  }
+}
