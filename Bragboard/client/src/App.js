@@ -17,13 +17,17 @@ import Register from './features/authentication/pages/Register';
 // Styles
 import './App.css';
 
-// Protected Route Component
+/* ---------------- Protected Route ---------------- */
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
   if (!isAuthenticated()) {
@@ -37,7 +41,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   return children;
 };
 
-// App Content Component
+/* ---------------- App Routes ---------------- */
 const AppContent = () => {
   const { isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
@@ -45,18 +49,25 @@ const AppContent = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/login" element={
-        isAuthenticated() ?
-          <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace /> :
-          <LoginPage />
-      } />
-      <Route path="/signup" element={
-        isAuthenticated() ?
-          <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace /> :
-          <Register />
-      } />
+      <Route
+        path="/login"
+        element={
+          isAuthenticated()
+            ? <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace />
+            : <LoginPage />
+        }
+      />
 
-      {/* Protected Employee Routes */}
+      <Route
+        path="/signup"
+        element={
+          isAuthenticated()
+            ? <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace />
+            : <Register />
+        }
+      />
+
+      {/* Employee Routes */}
       <Route
         path="/dashboard"
         element={
@@ -65,6 +76,7 @@ const AppContent = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/shoutouts"
         element={
@@ -73,6 +85,7 @@ const AppContent = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/reports"
         element={
@@ -81,6 +94,7 @@ const AppContent = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/analytics"
         element={
@@ -89,6 +103,7 @@ const AppContent = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/settings"
         element={
@@ -98,56 +113,57 @@ const AppContent = () => {
         }
       />
 
-      {/* Protected Admin Routes */}
+      {/* Admin Routes */}
       <Route
         path="/admin/dashboard"
         element={
-          <ProtectedRoute adminOnly={true}>
+          <ProtectedRoute adminOnly>
             <AdminDashboard />
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/admin/export-report"
         element={
-          <ProtectedRoute adminOnly={true}>
+          <ProtectedRoute adminOnly>
             <ExportReport />
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/admin/users"
         element={
-          <ProtectedRoute adminOnly={true}>
+          <ProtectedRoute adminOnly>
             <UserManagement />
           </ProtectedRoute>
         }
       />
 
-      {/* Default Route */}
+      {/* Default & 404 */}
       <Route
         path="/"
         element={
-          isAuthenticated() ?
-            <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace /> :
-            <Navigate to="/login" state={{ from: location }} replace />
+          isAuthenticated()
+            ? <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace />
+            : <Navigate to="/login" state={{ from: location }} replace />
         }
       />
 
-      {/* 404 Route */}
       <Route
         path="*"
         element={
-          isAuthenticated() ?
-            <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace /> :
-            <Navigate to="/login" state={{ from: location }} replace />
+          isAuthenticated()
+            ? <Navigate to={isAdmin() ? "/admin/dashboard" : "/dashboard"} replace />
+            : <Navigate to="/login" replace />
         }
       />
     </Routes>
   );
 };
 
-// Main App Component
+/* ---------------- Main App ---------------- */
 const App = () => {
   return (
     <AuthProvider>
