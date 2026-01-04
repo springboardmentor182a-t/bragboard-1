@@ -30,6 +30,18 @@ const RequireAuth: React.FC<{
   return <>{children}</>;
 };
 
+
+const RootRedirect = () => {
+  const { isAuthenticated, userRole } = useAuth();
+
+  if (!isAuthenticated) return <Navigate to="/auth/login" />;
+
+  if (userRole === "employee") return <Navigate to="/employee/dashboard" />;
+  if (userRole === "admin") return <Navigate to="/admin/reports" />;
+
+  return <Navigate to="/auth/login" />;
+};
+
 const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -37,10 +49,14 @@ const App: React.FC = () => {
         <Toaster position="top-right" richColors />
 
         <Routes>
+          {/* AUTH */}
           <Route path="/auth/login" element={<LoginPage />} />
           <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/verify-otp" element={<OTPVerificationPage />} />
           <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+
+          {/* ROOT */}
+          <Route path="/" element={<RootRedirect />} />
 
           {/* EMPLOYEE */}
           <Route
@@ -71,7 +87,8 @@ const App: React.FC = () => {
             }
           />
 
-          <Route path="*" element={<Navigate to="/auth/login" />} />
+          {/* FALLBACK */}
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
     </AuthProvider>
