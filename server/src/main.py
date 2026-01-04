@@ -1,4 +1,4 @@
-"""Entry point for the BragBoard Admin API."""
+﻿"""Entry point for the BragBoard Admin API."""
 import uvicorn
 from .app import app
 from .config import HOST, PORT
@@ -14,7 +14,7 @@ from src.reports_controller import router as reports_router
 from src.admin.admin_analytics_controller import router as admin_analytics_router
 from src.admin.admin_shoutout_controller import router as admin_shoutout_router  
 from src.dashboard_controller import router as dashboard_router
-
+from src.dashboard_controller import router as dashboard_router
 
 # ---------------------------
 # Create FastAPI app
@@ -40,7 +40,7 @@ app.include_router(reports_router)
 app.include_router(admin_analytics_router)
 app.include_router(admin_shoutout_router)  
 app.include_router(dashboard_router)
-
+app.include_router(dashboard_router)
 
 # ---------------------------
 # Root endpoint
