@@ -54,3 +54,124 @@ a { color: var(--accent-end); text-decoration: none; }
 
 /* 6) Ensure root layout works — helpful for absolute/decorative circles */
 .app-layout { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+/* Add this to your existing index.css file */
+
+/* Theme Variables */
+:root {
+  /* Light theme */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+  --card-bg: #ffffff;
+  --shadow: 0 2px 4px rgba(0,0,0,0.1);
+  --primary-color: #007bff;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+}
+
+[data-theme="dark"] {
+  /* Dark theme */
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-primary: #f8f9fa;
+  --text-secondary: #adb5bd;
+  --border-color: #495057;
+  --card-bg: #2d2d2d;
+  --shadow: 0 2px 4px rgba(0,0,0,0.3);
+  --primary-color: #3d8bfd;
+  --success-color: #3dd47a;
+  --danger-color: #e35d6a;
+  --warning-color: #ffce3a;
+  --info-color: #39c0d0;
+}
+
+/* Apply theme to body */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Common components */
+.card, .modal-content, .form-container, .dashboard-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 10px 0;
+  transition: all 0.3s ease;
+}
+
+/* Form elements */
+input, select, textarea, .form-control {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 10px;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Buttons */
+button, .btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover, .btn:hover {
+  opacity: 0.9;
+}
+
+/* Tables */
+table {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+}
+
+th, td {
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px;
+  color: var(--text-primary);
+}
+
+/* Navigation */
+.navbar, .sidebar {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+/* Dashboard specific */
+.dashboard-header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Status badges */
+.badge-success { background: var(--success-color); }
+.badge-danger { background: var(--danger-color); }
+.badge-warning { background: var(--warning-color); }
+.badge-info { background: var(--info-color); }
+
+/* Keep your existing styles below this line */
+/* ... your existing CSS ... */
