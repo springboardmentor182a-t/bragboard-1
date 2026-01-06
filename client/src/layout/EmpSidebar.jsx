@@ -9,6 +9,7 @@ function EmpSidebar({ activeSection, setActiveSection }) {
     { id: "notifications", label: "Notifications" },
     { id: "profile", label: "Profile & Documents" },
     { id: "performance", label: "Performance & Analytics" },
+    {id: 'reportingshoutouts', label: 'ReportingShoutouts'},
     { id: "settings", label: "Settings" }
   ];
 
@@ -32,3 +33,4 @@ function EmpSidebar({ activeSection, setActiveSection }) {
 }
 
 export default EmpSidebar;
+
