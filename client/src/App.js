@@ -1,6 +1,5 @@
 // src/App.js
-import React, { useState } from "react";
-import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+
 import { AuthProvider } from "./lib/authContext";
 import BrandBadge from "./components/Common/BrandBadge";
 import Login from "./components/Auth/Login";
@@ -17,24 +16,17 @@ import EmployeeReportingShoutout from "./pages/EmployeeReportingShoutout";
 import ApprovalStatus from "./pages/ApprovalStatus";
 
 import "./index.css";
+
 function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
-  const handleLogin = ({ username, role }) => {
-    console.log("Logged in user:", { username, role });
+
     if (role === "admin") {
       navigate("/admin", { replace: true });
     } else {
       navigate("/employee", { replace: true });
     }
   };
-  const isAuthPage = [
-    "/login",
-    "/register",
-    "/forgot-password",
-    "/reset-password",
-    "/verify-otp",
-  ].includes(location.pathname);
   return (
     <>
       {isAuthPage && <BrandBadge />}
@@ -49,6 +41,7 @@ function AppShell() {
         <Route path="/reset-password" element={<ResetPassword />} />
         {/* Dashboards */}
         <Route path="/admin" element={<AdminDashboard />} />
+
         <Route path="/employee" element={<EmployeeDashboard />} />
 
         {/* Other Pages */}
@@ -57,19 +50,18 @@ function AppShell() {
         <Route path="/admin/shoutout-reports" element={<AdminShoutoutReports />} />
     
 
-        <Route path="/ApprovalStatus" element={<ApprovalStatus />} />
 
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+
+      {/* Add Theme Toggle button on all pages except auth pages */}
+      {!isAuthPage && <ThemeToggle />}
     </>
   );
 }
 function App() {
   return (
-    <AuthProvider>
-      <AppShell />
-    </AuthProvider>
+
   );
 }
 export default App;
