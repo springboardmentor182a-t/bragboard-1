@@ -8,6 +8,7 @@ import Leaderboard from "../components/employee/Leaderboard";
 import Notifications from "../components/employee/Notifications";
 import Performance from "../components/employee/Performance";
 import Settings from "../components/employee/Settings";
+import EmployeeReportingShoutout from "./EmployeeReportingShoutout";
 
 function EmpDashboard({ onLogout, userName }) {
   
@@ -42,6 +43,9 @@ function EmpDashboard({ onLogout, userName }) {
     case "performance":
       SectionComponent = <Performance />;
       break;
+    case 'reportingshoutouts':
+      SectionComponent = <EmployeeReportingShoutout />;
+      break;
     case "settings":
       SectionComponent = <Settings />;
       break;
@@ -62,3 +66,4 @@ function EmpDashboard({ onLogout, userName }) {
 }
 
 export default EmpDashboard;
+
