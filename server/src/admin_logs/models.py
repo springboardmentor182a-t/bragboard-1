@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, Text, ForeignKey, DateTime, String
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
-from src.database.core import Base
-from src.auth.models import User  
+from database.core import Base
+from auth.models import User  
 
 
 class AdminLog(Base):

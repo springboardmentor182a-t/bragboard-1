@@ -19,33 +19,58 @@ function ApprovalRequests() {
           },
         }
       );
-      setUsers(res.data);
+      console.log("API Response:", res.data); // Debug
+
+      // Backend returns { status: "success", data: [...] }
+      if (res.data.data && Array.isArray(res.data.data)) {
+        setUsers(res.data.data);
+      } else {
+        console.error("Unexpected response format:", res.data);
+        setUsers([]);
+      }
     } catch (err) {
       console.error(err);
-      alert("Failed to load pending approvals");
+      setUsers([]); // Reset to empty array on error
+      if (err.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        localStorage.removeItem("access_token");
+        window.location.href = "/login";
+      } else {
+        alert("Failed to load pending approvals");
+      }
     }
   };
 
   const approveUser = async (id) => {
-    await axios.post(
-      `http://localhost:8000/admin/users/${id}/approve`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    fetchPendingUsers();
+    try {
+      await axios.post(
+        `http://localhost:8000/admin/users/${id}/approve`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      fetchPendingUsers();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to approve user");
+    }
   };
 
   const rejectUser = async (id) => {
-    await axios.post(
-      `http://localhost:8000/admin/users/${id}/reject`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    fetchPendingUsers();
+    try {
+      await axios.post(
+        `http://localhost:8000/admin/users/${id}/reject`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      fetchPendingUsers();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to reject user");
+    }
   };
 
   return (
@@ -71,37 +96,36 @@ function ApprovalRequests() {
                 <td>{u.role}</td>
                 <td>{u.status}</td>
                 <td>
-  <div style={{ display: "flex", gap: "12px" }}>
-    <button
-      onClick={() => approveUser(u.id)}
-      style={{
-        padding: "6px 14px",
-        background: "#16a34a",
-        color: "white",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }}
-    >
-      Approve
-    </button>
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <button
+                      onClick={() => approveUser(u.id)}
+                      style={{
+                        padding: "6px 14px",
+                        background: "#16a34a",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Approve
+                    </button>
 
-    <button
-      onClick={() => rejectUser(u.id)}
-      style={{
-        padding: "6px 14px",
-        background: "#dc2626",
-        color: "white",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }}
-    >
-      Reject
-    </button>
-  </div>
-</td>
-
+                    <button
+                      onClick={() => rejectUser(u.id)}
+                      style={{
+                        padding: "6px 14px",
+                        background: "#dc2626",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

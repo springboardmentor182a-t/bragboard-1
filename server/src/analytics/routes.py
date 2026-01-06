@@ -3,8 +3,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from src.database.core import get_db
-from src.entities.analytics import Employee, Shoutout, Department  # change to your paths
+from database.core import get_db
+from entities.analytics import Employee, Department  # change to your paths
+from shoutouts.models import Shoutout
 
 router = APIRouter(
     prefix="/admin/dashboard",

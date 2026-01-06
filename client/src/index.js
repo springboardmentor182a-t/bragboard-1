@@ -1,14 +1,24 @@
 // client/src/index.js
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-
-import "./index.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-//import "./styles/shoutouts.css";
+import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+
+import "./index.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+
+// Force light theme BEFORE React renders (ignore saved/system preference)
+try {
+  const initial = "light";
+  if (typeof document !== "undefined") {
+    document.body.classList.remove("theme-light", "theme-dark");
+    document.body.classList.add(`theme-${initial}`);
+  }
+} catch (e) {
+  // Fail silently
+}
 
 const container = document.getElementById("root");
 
@@ -25,6 +35,5 @@ if (!container) {
   );
 }
 
-// If you want to start measuring performance, pass a function:
-// e.g. reportWebVitals(console.log);
+// Performance measuring (optional)
 reportWebVitals();

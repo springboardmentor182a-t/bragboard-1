@@ -1,177 +1,66 @@
 /* src/index.css */
 
-/* --- Fonts: use the proper Google Fonts URL (optional) --- */
-/* replace family with the font you actually need; Noto Sans used as example */
+/* Google Font */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,400;0,700;1,100;1,400;1,700&display=swap');
 
-/* --- Tailwind directives (keep these if your project uses Tailwind) --- */
+/* Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* --- Theme variables and base reset (custom) --- */
-:root{
-  --bg: #0F0F0F;
-  --card-bg: rgba(255,255,255,0.02);
-  --card-border: rgba(255,255,255,0.08);
-  --muted: #FFFFFF;
-  --text: #ffffff;
+/* Light theme variables (FIXED) */
+:root {
+  --bg: #f8fafc;              /* slate-50 */
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --muted: #64748b;           /* slate-500 */
+  --text: #0f172a;            /* slate-900 */
   --accent-start: #628EFF;
   --accent-end: #580475;
-  --input-border: rgba(255,255,255,0.12);
-  --input-placeholder: rgba(255,255,255,0.5);
+  --input-border: rgba(0, 0, 0, 0.12);
+  --input-placeholder: rgba(0, 0, 0, 0.4);
   --card-radius: 20px;
   --card-width: 520px;
 }
 
-/* 3) Global reset & page sizing */
-* { box-sizing: border-box; }
-html, body, #root { height: 100%; margin: 0; }
+/* Reset */
+* {
+  box-sizing: border-box;
+}
 
-/* Single unified body rule — merges both versions.
-   Uses custom theme variables and sensible system fallbacks.
-*/
-body {
+html,
+body,
+#root {
+  height: 100%;
   margin: 0;
-  font-family: 'Noto Sans', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background: var(--bg);
+}
+
+/* Body – Tailwind-friendly */
+body {
+  font-family: 'Noto Sans', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* code font-family (kept from incoming) */
+/* Code font */
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
-/* 4) Make sure links look right */
-a { color: var(--accent-end); text-decoration: none; }
-
-/* 5) Utility small helpers */
-.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-.center-vertical { display:flex; align-items:center; justify-content:center; min-height:100vh; }
-
-/* 6) Ensure root layout works — helpful for absolute/decorative circles */
-.app-layout { display:flex; align-items:center; justify-content:center; min-height:100vh; }
-/* Add this to your existing index.css file */
-
-/* Theme Variables */
-:root {
-  /* Light theme */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --text-primary: #212529;
-  --text-secondary: #6c757d;
-  --border-color: #dee2e6;
-  --card-bg: #ffffff;
-  --shadow: 0 2px 4px rgba(0,0,0,0.1);
-  --primary-color: #007bff;
-  --success-color: #28a745;
-  --danger-color: #dc3545;
-  --warning-color: #ffc107;
-  --info-color: #17a2b8;
+/* Links */
+a {
+  color: var(--accent-end);
+  text-decoration: none;
 }
 
-[data-theme="dark"] {
-  /* Dark theme */
-  --bg-primary: #121212;
-  --bg-secondary: #1e1e1e;
-  --text-primary: #f8f9fa;
-  --text-secondary: #adb5bd;
-  --border-color: #495057;
-  --card-bg: #2d2d2d;
-  --shadow: 0 2px 4px rgba(0,0,0,0.3);
-  --primary-color: #3d8bfd;
-  --success-color: #3dd47a;
-  --danger-color: #e35d6a;
-  --warning-color: #ffce3a;
-  --info-color: #39c0d0;
+/* Helpers */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
 }
 
-/* Apply theme to body */
-body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Common components */
-.card, .modal-content, .form-container, .dashboard-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow);
-  border-radius: 8px;
-  padding: 20px;
-  margin: 10px 0;
-  transition: all 0.3s ease;
-}
-
-/* Form elements */
-input, select, textarea, .form-control {
-  background: var(--card-bg);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 10px;
-  transition: all 0.3s ease;
-}
-
-input:focus, select:focus, textarea:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-/* Buttons */
-button, .btn {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-button:hover, .btn:hover {
-  opacity: 0.9;
-}
-
-/* Tables */
-table {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-}
-
-th, td {
-  border-bottom: 1px solid var(--border-color);
-  padding: 12px;
-  color: var(--text-primary);
-}
-
-/* Navigation */
-.navbar, .sidebar {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-color);
-}
-
-/* Dashboard specific */
-.dashboard-header {
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-/* Status badges */
-.badge-success { background: var(--success-color); }
-.badge-danger { background: var(--danger-color); }
-.badge-warning { background: var(--warning-color); }
-.badge-info { background: var(--info-color); }
-
-/* Keep your existing styles below this line */
-/* ... your existing CSS ... */
