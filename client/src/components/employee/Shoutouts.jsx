@@ -33,7 +33,8 @@ export default function Shoutouts() {
   const loadShoutouts = async () => {
     try {
       setLoading(true);
-      const response = await getJson("/shoutouts");
+      // Use trailing slash to avoid the 307 redirect FastAPI adds for the canonical route
+      const response = await getJson("/shoutouts/");
       const apiList = response.data || [];
 
       if (apiList.length > 0) {
@@ -83,14 +84,41 @@ export default function Shoutouts() {
     e.preventDefault();
     if (!recipients.length) return alert("Select at least one recipient");
 
+    // Map selected recipient names to employee IDs expected by the API
+    const recipientIds = recipients
+      .map((name) => EMPLOYEES.find((emp) => emp.name === name)?.id)
+      .filter(Boolean);
+
+    if (!recipientIds.length) {
+      return alert("Could not resolve recipients to employee IDs.");
+    }
+
     try {
-      const name = recipients.join(", ");
-      const response = await postJson("/shoutouts", { name, message });
+      setLoading(true);
+      const payloads = recipientIds.map((receiver_id) => ({
+        message,
+        sender_id: CURRENT_USER_ID,
+        receiver_id,
+        tag: categories[0] || "General",
+        emoji: "👏",
+      }));
+
+      for (const body of payloads) {
+        const resp = await postJson("/shoutouts/", body);
+        if (resp.status >= 400) {
+          throw new Error(resp.data?.detail || "Failed to create shoutout");
+        }
+      }
+
       setRecipients([]);
+      setCategories([]);
       setMessage("");
       await loadShoutouts();
     } catch (err) {
       console.error("Failed to post shoutout:", err);
+      alert(err.message || "Failed to post shoutout");
+    } finally {
+      setLoading(false);
     }
   };
 

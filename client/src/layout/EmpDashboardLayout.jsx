@@ -1,5 +1,5 @@
 // EmpDashboardLayout.jsx
-import EmpSidebar from "./EmpSiderbar";
+import EmpSidebar from "./EmpSidebar";
 import Navbar from "./Navbar";
 
 function EmployeeDashboardLayout({
