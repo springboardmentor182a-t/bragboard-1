@@ -16,7 +16,8 @@ export default function ExportReport() {
   const [selectedColumns, setSelectedColumns] = useState({
     id: true,
     shoutout_id: true,
-    reported_by: true,
+    reporter_name: true,
+    reported_by: false,
     reason: true,
     status: true,
     created_at: true,

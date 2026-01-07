@@ -17,11 +17,11 @@ const TrendChart = ({ data }) => {
     <div style={{ height: "100%", width: "100%" }}>
       <Line
         data={{
-          labels: data.map((_, i) => `Point ${i + 1}`),
+          labels: data.map((d) => d.date),
           datasets: [
             {
               label: "Advanced Trend",
-              data,
+              data: data.map((d) => d.activities),
               borderColor: "#10b981",
               backgroundColor: "rgba(16, 185, 129, 0.3)",
               tension: 0.4,

@@ -20,7 +20,7 @@ def get_db():
 def create_shoutout(
     data: ShoutOutCreate,
     db: Session = Depends(get_db),
-    current_user: TokenData = Depends(employee_required)
+    current_user: any = Depends(employee_required)
 ):
     return ShoutoutService.create_shoutout(db, current_user.id, data)
 
@@ -28,7 +28,7 @@ def create_shoutout(
 def list_shoutouts(
     view: str = "all", # "all", "toMe", "fromMe"
     db: Session = Depends(get_db),
-    current_user: TokenData = Depends(employee_required)
+    current_user: any = Depends(employee_required)
 ):
     return ShoutoutService.get_shoutouts(db, current_user.id, view)
 
@@ -37,7 +37,7 @@ def update_shoutout(
     shoutout_id: int,
     data: ShoutOutUpdate,
     db: Session = Depends(get_db),
-    current_user: TokenData = Depends(employee_required)
+    current_user: any = Depends(employee_required)
 ):
     try:
         shoutout = ShoutoutService.update_shoutout(db, current_user.id, shoutout_id, data)
@@ -51,7 +51,7 @@ def update_shoutout(
 def delete_shoutout(
     shoutout_id: int,
     db: Session = Depends(get_db),
-    current_user: TokenData = Depends(employee_required)
+    current_user: any = Depends(employee_required)
 ):
     try:
         success = ShoutoutService.delete_shoutout(db, current_user.id, shoutout_id)
@@ -66,7 +66,7 @@ def toggle_reaction(
     shoutout_id: int,
     reaction_type: str,
     db: Session = Depends(get_db),
-    current_user: TokenData = Depends(employee_required)
+    current_user: any = Depends(employee_required)
 ):
     # reaction_type should be 'like', 'clap', or 'star'
     if reaction_type not in ['like', 'clap', 'star']:
@@ -78,7 +78,7 @@ def add_comment(
     shoutout_id: int,
     data: CommentCreate,
     db: Session = Depends(get_db),
-    current_user: TokenData = Depends(employee_required)
+    current_user: any = Depends(employee_required)
 ):
     return ShoutoutService.add_comment(db, current_user.id, shoutout_id, data)
 
@@ -87,7 +87,7 @@ def update_comment(
     comment_id: int,
     data: CommentUpdate,
     db: Session = Depends(get_db),
-    current_user: TokenData = Depends(employee_required)
+    current_user: any = Depends(employee_required)
 ):
     comment = ShoutoutService.update_comment(db, current_user.id, comment_id, data)
     if not comment:
@@ -98,7 +98,7 @@ def update_comment(
 def delete_comment(
     comment_id: int,
     db: Session = Depends(get_db),
-    current_user: TokenData = Depends(employee_required)
+    current_user: any = Depends(employee_required)
 ):
     success = ShoutoutService.delete_comment(db, current_user.id, comment_id)
     if not success:

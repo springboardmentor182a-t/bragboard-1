@@ -41,12 +41,13 @@ class ReportService:
         report_id: int,
         admin_id: int,
         admin_notes: str | None = None,
+        status: str = "resolved",
     ):
         report = db.query(Report).filter(Report.id == report_id).first()
         if not report:
             return None
 
-        report.status = "resolved"
+        report.status = status
         report.resolved_at = datetime.utcnow()
         report.resolved_by = admin_id
         if admin_notes is not None:

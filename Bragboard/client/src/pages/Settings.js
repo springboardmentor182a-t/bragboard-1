@@ -22,6 +22,12 @@ const Settings = () => {
   // Check if settings have changed
   useEffect(() => {
     const hasUnsavedChanges = JSON.stringify(settings) !== JSON.stringify(userSettings);
+    console.log("Settings Debug:", {
+      settingsMatchesContext: !hasUnsavedChanges,
+      settingsProfile: settings.profile,
+      contextProfile: userSettings?.profile,
+      hasUnsavedChanges
+    });
     setHasChanges(hasUnsavedChanges);
   }, [settings, userSettings]);
 
@@ -206,7 +212,7 @@ const Settings = () => {
                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Email Address</label>
                     <input
                       type="email"
-                      defaultValue={settings.profile?.email || "jane.doe@company.com"}
+                      defaultValue={settings.profile?.email || user?.email || ""}
                       onChange={(e) => handleProfileChange('email', e.target.value)}
                       className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
@@ -219,11 +225,13 @@ const Settings = () => {
                       onChange={(e) => handleProfileChange('department', e.target.value)}
                       className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
-                      <option>Software Engineering</option>
+                      <option>Engineering</option>
                       <option>Marketing</option>
                       <option>Sales</option>
                       <option>Design</option>
                       <option>Human Resources</option>
+                      <option>IT</option>
+                      <option>Administration</option>
                     </select>
                   </div>
 
@@ -231,7 +239,8 @@ const Settings = () => {
                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Job Title</label>
                     <input
                       type="text"
-                      defaultValue={settings.profile?.jobTitle || "Senior Software Engineer"}
+                      defaultValue={settings.profile?.jobTitle || ""}
+                      placeholder="e.g. Senior Software Engineer"
                       onChange={(e) => handleProfileChange('jobTitle', e.target.value)}
                       className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
@@ -241,7 +250,8 @@ const Settings = () => {
                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Bio</label>
                     <textarea
                       rows="4"
-                      defaultValue={settings.profile?.bio || "Passionate about building great software!"}
+                      defaultValue={settings.profile?.bio || ""}
+                      placeholder="Tell us about yourself..."
                       onChange={(e) => handleProfileChange('bio', e.target.value)}
                       className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
