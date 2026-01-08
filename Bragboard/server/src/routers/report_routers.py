@@ -93,6 +93,7 @@ def resolve_report(
         report_id=report_id,
         admin_id=current_user.id,
         admin_notes=data.admin_notes,
+        status=data.status,
     )
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")

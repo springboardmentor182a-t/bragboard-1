@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from src.models import Shoutout, ShoutoutRecipient, Comment, Reaction, User
+from src.models import Shoutout, ShoutoutRecipient, Comment, Reaction, User, Report
 from .schemas import ShoutOutCreate, CommentCreate, CommentUpdate, ShoutOutUpdate
 from typing import List
 
@@ -23,7 +23,25 @@ class ShoutoutService:
         
         db.commit()
         db.refresh(new_shoutout)
-        return new_shoutout
+        
+        # Return dict to ensure Pydantic model compatibility (missing fields on ORM object)
+        # Manually format recipients to match ShoutOutRecipientOut schema
+        formatted_recipients = [
+            {"recipient_id": r.id, "recipient_name": (r.name or "").strip() or "Unknown"} 
+            for r in new_shoutout.recipients
+        ]
+
+        return {
+            "id": new_shoutout.id,
+            "sender_id": new_shoutout.sender_id,
+            "sender_name": new_shoutout.sender.name if new_shoutout.sender else "Unknown",
+            "message": new_shoutout.message,
+            "created_at": new_shoutout.created_at,
+            "recipients": formatted_recipients,
+            "comments": [],
+            "reaction_counts": {},
+            "user_reactions": []
+        }
 
     @staticmethod
     def get_shoutouts(db: Session, user_id: int, view: str = "all"):
@@ -34,34 +52,32 @@ class ShoutoutService:
         elif view == "fromMe":
             query = query.filter(Shoutout.sender_id == user_id)
         elif view == "all":
-            # Filter by involvement
-            query = query.outerjoin(ShoutoutRecipient).filter(
-                (Shoutout.sender_id == user_id) | (ShoutoutRecipient.recipient_id == user_id)
-            )
+            # Show all shoutouts to everyone
+            pass
 
         shoutouts = query.order_by(Shoutout.created_at.desc()).distinct().all()
         
         result = []
         for s in shoutouts:
             # Map recipients
-            recipients = db.query(User.id, User.name).join(
+            recipients = db.query(User).join(
                 ShoutoutRecipient, User.id == ShoutoutRecipient.recipient_id
             ).filter(ShoutoutRecipient.shoutout_id == s.id).all()
             
-            s_recipients = [{"recipient_id": r.id, "recipient_name": r.name} for r in recipients]
+            s_recipients = [{"recipient_id": r.id, "recipient_name": (r.name or "").strip() or "Unknown"} for r in recipients]
             
             # Map comments
-            comments = db.query(Comment, User.name).join(
+            comments = db.query(Comment, User).join(
                 User, Comment.user_id == User.id
             ).filter(Comment.shoutout_id == s.id).all()
             
             s_comments = []
-            for c, name in comments:
+            for c, u in comments:
                 s_comments.append({
                     "id": c.id,
                     "shoutout_id": c.shoutout_id,
                     "user_id": c.user_id,
-                    "user_name": name,
+                    "user_name": (u.name or "").strip() or "Unknown",
                     "content": c.content,
                     "created_at": c.created_at
                 })
@@ -80,12 +96,13 @@ class ShoutoutService:
             ).all()]
 
             # Sender name
-            sender = db.query(User.name).filter(User.id == s.sender_id).first()
+            sender = db.query(User).filter(User.id == s.sender_id).first()
+            sender_name = (sender.name or "").strip() if sender else "Unknown"
 
             result.append({
                 "id": s.id,
                 "sender_id": s.sender_id,
-                "sender_name": sender.name if sender else "Unknown",
+                "sender_name": sender_name,
                 "message": s.message,
                 "created_at": s.created_at,
                 "recipients": s_recipients,
@@ -183,13 +200,20 @@ class ShoutoutService:
         shoutout = db.query(Shoutout).filter(Shoutout.id == shoutout_id).first()
         if not shoutout:
             return False
-        if shoutout.sender_id != user_id:
+            
+        # Check permissions: Sender OR Admin
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+             raise Exception("User not found")
+             
+        if shoutout.sender_id != user_id and user.role != 'admin':
             raise Exception("Unauthorized to delete this shoutout")
 
         # Delete related data first
         db.query(ShoutoutRecipient).filter(ShoutoutRecipient.shoutout_id == shoutout_id).delete()
         db.query(Comment).filter(Comment.shoutout_id == shoutout_id).delete()
         db.query(Reaction).filter(Reaction.shoutout_id == shoutout_id).delete()
+        db.query(Report).filter(Report.shoutout_id == shoutout_id).delete()
         
         db.delete(shoutout)
         db.commit()

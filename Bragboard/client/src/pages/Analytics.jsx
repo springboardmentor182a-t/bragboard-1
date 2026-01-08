@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { analytics as analyticsApi } from "../services/api"; // Rename import to avoid conflict
 import DashboardLayout from "../components/Layout/DashboardLayout.jsx";
 import DonutChart from "../components/AnalyticsCharts/DonutChart";
 import PieChart from "../components/AnalyticsCharts/PieChart";
@@ -13,110 +14,74 @@ const Analytics = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  /** ANALYTICS DATA */
-  const analytics = {
-    week: {
-      shoutoutsSent: 12,
-      reactionsReceived: 36,
-      commentsMade: 8,
-      contributors: [
-        { name: "John Smith", count: 15 },
-        { name: "Mike Chen", count: 12 },
-        { name: "Alex Rivera", count: 10 },
-      ],
-      mostTagged: [
-        { name: "Sarah Lee", count: 7 },
-        { name: "Jane Doe", count: 5 },
-        { name: "Tom White", count: 4 },
-      ],
-      departments: [
-        { name: "Engineering", shoutouts: 45 },
-        { name: "Sales", shoutouts: 32 },
-        { name: "Marketing", shoutouts: 28 },
-        { name: "Design", shoutouts: 19 },
-      ],
-      trend: [5, 7, 6, 9, 8, 10, 11],
-    },
+  // State for real data
+  const [data, setData] = useState({
+    shoutoutsSent: 0,
+    reactionsReceived: 0,
+    commentsMade: 0,
+    contributors: [],
+    mostTagged: [],
+    departments: [],
+    trend: [],
+  });
+  const [loading, setLoading] = useState(true);
 
-    month: {
-      shoutoutsSent: 42,
-      reactionsReceived: 128,
-      commentsMade: 35,
-      contributors: [
-        { name: "John Smith", count: 58 },
-        { name: "Mike Chen", count: 45 },
-        { name: "Alex Rivera", count: 35 },
-      ],
-      mostTagged: [
-        { name: "Kevin Patel", count: 14 },
-        { name: "Sarah Lee", count: 10 },
-        { name: "Jane Doe", count: 9 },
-      ],
-      departments: [
-        { name: "Engineering", shoutouts: 165 },
-        { name: "Sales", shoutouts: 142 },
-        { name: "Marketing", shoutouts: 98 },
-        { name: "Design", shoutouts: 76 },
-      ],
-      trend: [6, 8, 7, 10, 9, 11, 12],
-    },
+  // Fetch Logic
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [overviewRes, contributorsRes, taggedRes, deptRes, trendRes] = await Promise.all([
+          analyticsApi.getOverview(),
+          analyticsApi.getTopContributors(5),
+          analyticsApi.getMostTagged(5),
+          analyticsApi.getDepartmentStats(),
+          analyticsApi.getEngagementTrend(range === 'week' ? 7 : range === 'month' ? 30 : range === 'quarter' ? 90 : 365)
+        ]);
 
-    quarter: {
-      shoutoutsSent: 120,
-      reactionsReceived: 350,
-      commentsMade: 96,
-      contributors: [
-        { name: "John Smith", count: 140 },
-        { name: "Mike Chen", count: 115 },
-        { name: "Alex Rivera", count: 100 },
-      ],
-      mostTagged: [
-        { name: "Sarah Lee", count: 28 },
-        { name: "Jane Doe", count: 21 },
-        { name: "Kevin Patel", count: 18 },
-      ],
-      departments: [
-        { name: "Engineering", shoutouts: 410 },
-        { name: "Sales", shoutouts: 290 },
-        { name: "Marketing", shoutouts: 225 },
-        { name: "Design", shoutouts: 160 },
-      ],
-      trend: [10, 12, 11, 15, 17, 18, 19],
-    },
+        setData({
+          shoutoutsSent: overviewRes.data.total_shoutouts,
+          reactionsReceived: overviewRes.data.total_reactions,
+          commentsMade: overviewRes.data.total_comments,
+          contributors: contributorsRes.data,
+          mostTagged: taggedRes.data,
+          departments: deptRes.data,
+          trend: trendRes.data // Pass full object for Date usage
+        });
+      } catch (error) {
+        console.error("Error fetching analytics:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    year: {
-      shoutoutsSent: 520,
-      reactionsReceived: 1460,
-      commentsMade: 420,
-      contributors: [
-        { name: "John Smith", count: 530 },
-        { name: "Mike Chen", count: 488 },
-        { name: "Alex Rivera", count: 445 },
-      ],
-      mostTagged: [
-        { name: "Kevin Patel", count: 65 },
-        { name: "Sarah Lee", count: 56 },
-        { name: "Jane Doe", count: 54 },
-      ],
-      departments: [
-        { name: "Engineering", shoutouts: 1450 },
-        { name: "Sales", shoutouts: 1090 },
-        { name: "Marketing", shoutouts: 830 },
-        { name: "Design", shoutouts: 760 },
-      ],
-      trend: [20, 25, 22, 30, 32, 35, 38],
-    },
-  };
-
-  const current = analytics[range];
+    fetchData();
+  }, [range]); // Refetch when range changes
 
   const applyCustomRange = () => {
     if (!startDate || !endDate) {
       alert("Please select both dates!");
       return;
     }
+    // Note: Backend endpoint for custom range would need to be added. 
+    // For now, we alert.
     alert(`Custom Filter Applied: ${startDate} → ${endDate}`);
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-xl font-semibold text-gray-500">Loading Analytics...</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Map state to render variables
+  const current = data;
+
+
 
   return (
     <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>

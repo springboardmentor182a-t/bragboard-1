@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout.jsx';
-import { analytics, shoutouts as shoutoutsApi } from '../../services/api';
+import { analytics, shoutouts as shoutoutsApi, reports } from '../../services/api';
 import { useAuth } from "../../Context/AuthContext";
 
 const AdminDashboard = () => {
@@ -24,6 +24,10 @@ const AdminDashboard = () => {
   const [commentInputs, setCommentInputs] = useState({});
   const [editingComment, setEditingComment] = useState(null);
 
+  // Report Modal State
+  const [reportModal, setReportModal] = useState({ isOpen: false, shoutoutId: null });
+  const [reportReason, setReportReason] = useState('');
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,30 +48,68 @@ const AdminDashboard = () => {
     };
 
     fetchData();
-    fetchShoutouts();
-  }, []);
+  }, [user]);
+
+  const fetchData = async () => {
+    try {
+      const [overviewRes, contributorsRes, deptRes] = await Promise.all([
+        analytics.getOverview(),
+        analytics.getTopContributors(5),
+        analytics.getDepartmentStats()
+      ]);
+
+      setStats(overviewRes.data);
+      // Process contributors to show names
+      const processedContributors = (contributorsRes.data || []).map(contributor => ({
+        ...contributor,
+        name: contributor.name || contributor.employee_name || contributor.sender_name ||
+          (contributor.employee_id ? `Employee #${contributor.employee_id}` : 'Unknown')
+      }));
+      setContributors(processedContributors);
+      setDepartments(deptRes.data);
+    } catch (error) {
+      console.error("Error fetching admin dashboard analytics:", error);
+    }
+  };
 
   const fetchShoutouts = async () => {
     try {
       const response = await shoutoutsApi.getAll();
       const formattedShoutouts = response.data.map(s => ({
         id: s.id,
-        sender: s.sender?.name || 'Unknown',
+        sender: s.sender_name || s.sender?.name || 'Unknown',
         senderDept: s.sender?.department || 'General',
-        recipients: s.recipients.map(r => r.name), // Array for logic
-        recipientDisplay: s.recipients.map(r => r.name).join(', '), // String for display
+        recipients: s.recipients.map(r => r.recipient_name || r.name),
+        recipientDisplay: s.recipients.map(r => r.recipient_name || r.name).join(', '),
         recipientDept: s.recipients[0]?.department || 'General',
         message: s.message,
         timestamp: new Date(s.created_at).toLocaleString(),
-        reactions: processReactions(s.reactions),
+        reactions: s.reaction_counts || processReactions(s.reactions),
         comments: s.comments.map(c => ({
           id: c.id,
-          user: c.user?.name || 'Unknown',
-          message: c.text,
+          user: c.user_name || c.user?.name || 'Unknown',
+          message: c.content,
           timestamp: new Date(c.created_at).toLocaleString()
         }))
       }));
       setShoutouts(formattedShoutouts);
+
+      // Populate user reactions state from API
+      const initialUserReactions = {};
+      if (user) {
+        response.data.forEach(s => {
+          if (s.user_reactions && s.user_reactions.length > 0) {
+            const userKey = `${user.name}-${s.id}`;
+            const reactionsState = { like: false, clap: false, star: false };
+            s.user_reactions.forEach(type => {
+              reactionsState[type] = true;
+            });
+            initialUserReactions[userKey] = reactionsState;
+          }
+        });
+        setUserReactions(prev => ({ ...prev, ...initialUserReactions }));
+      }
+
     } catch (error) {
       console.error("Failed to fetch shoutouts", error);
     } finally {
@@ -100,7 +142,25 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleReaction = (shoutoutId, reactionType) => {
+  const handleReport = async () => {
+    if (!reportReason.trim()) return;
+    try {
+      await reports.create({
+        shoutout_id: reportModal.shoutoutId,
+        reason: reportReason
+      });
+      alert("Report submitted successfully.");
+      setReportModal({ isOpen: false, shoutoutId: null });
+      setReportReason('');
+    } catch (error) {
+      console.error("Failed to submit report", error);
+      alert("Failed to submit report.");
+    }
+  };
+
+
+
+  const handleReaction = async (shoutoutId, reactionType) => {
     const userKey = user ? `${user.name}-${shoutoutId}` : `guest-${shoutoutId}`;
     const currentUserReactions = userReactions[userKey] || {};
     const hasReacted = currentUserReactions[reactionType];
@@ -145,6 +205,15 @@ const AdminDashboard = () => {
         [userKey]: newUserReactions
       };
     });
+
+    // Call API to persist change
+    if (user) {
+      try {
+        await shoutoutsApi.toggleReaction(shoutoutId, reactionType);
+      } catch (error) {
+        console.error("Failed to toggle reaction:", error);
+      }
+    }
   };
 
   const getReactionEmoji = (type) => {
@@ -156,12 +225,14 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleAddComment = (shoutoutId) => {
+  const handleAddComment = async (shoutoutId) => {
     const commentText = commentInputs[shoutoutId]?.trim();
     if (!commentText) return;
 
+    // Optimistic Update
+    const tempId = Date.now();
     const newComment = {
-      id: Date.now(),
+      id: tempId,
       user: user.name,
       message: commentText,
       timestamp: "Just now"
@@ -174,6 +245,20 @@ const AdminDashboard = () => {
     ));
 
     setCommentInputs(prev => ({ ...prev, [shoutoutId]: '' }));
+
+    // API Call
+    try {
+      await shoutoutsApi.addComment(shoutoutId, { content: commentText });
+    } catch (error) {
+      console.error("Failed to add comment", error);
+      // Revert optimistic update on failure
+      setShoutouts(prev => prev.map(shoutout =>
+        shoutout.id === shoutoutId
+          ? { ...shoutout, comments: shoutout.comments.filter(c => c.id !== tempId) }
+          : shoutout
+      ));
+      alert("Failed to post comment. Please try again.");
+    }
   };
 
   const handleEditComment = (shoutoutId, commentId, newMessage) => {
@@ -274,7 +359,7 @@ const AdminDashboard = () => {
                       {index + 1}
                     </div>
                     {/* Note: backend returns 'employee_id' currently */}
-                    <span className="font-medium text-gray-800 dark:text-gray-200">Employee #{c.employee_id}</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-200">{c.name || `Employee #${c.employee_id}`}</span>
                   </div>
                   <span className="text-sm text-gray-500 dark:text-gray-400">{c.sent_shoutouts} shoutouts</span>
                 </div>
@@ -289,8 +374,8 @@ const AdminDashboard = () => {
             <div className="space-y-5">
               {departments.map((d, i) => (
                 <div key={i} className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-300 font-medium">{d.department || 'Unassigned'}</span>
-                  <span className="text-gray-500 dark:text-gray-400 text-sm">{d.employees} employees</span>
+                  <span className="text-gray-600 dark:text-gray-300 font-medium">{d.name || 'Unassigned'}</span>
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">{d.shoutouts} shoutouts</span>
                 </div>
               ))}
               {departments.length === 0 && <p className="text-gray-500">No department data.</p>}
@@ -498,7 +583,38 @@ const AdminDashboard = () => {
         </div>
 
       </div>
-    </DashboardLayout>
+
+      {reportModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-96 shadow-xl">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Report Shoutout</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Please provide a reason for reporting this shoutout.</p>
+            <textarea
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 bg-white dark:bg-gray-700 dark:text-white"
+              rows="3"
+              placeholder="Reason..."
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setReportModal({ isOpen: false, shoutoutId: null })}
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReport}
+                disabled={!reportReason.trim()}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+              >
+                Submit Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </DashboardLayout >
   );
 };
 

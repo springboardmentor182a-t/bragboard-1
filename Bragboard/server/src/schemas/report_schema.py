@@ -10,6 +10,7 @@ class ReportCreate(BaseModel):
 
 class ResolveReport(BaseModel):
     admin_notes: Optional[str] = None
+    status: Optional[str] = "resolved"
 
 
 class ReportOut(BaseModel):
@@ -23,6 +24,16 @@ class ReportOut(BaseModel):
     created_at: datetime
     resolved_at: Optional[datetime] = None
     resolved_by: Optional[int] = None
+    reporter_name: str = None
 
     class Config:
         orm_mode = True
+
+    @classmethod
+    def from_orm(cls, obj):
+        # Allow default behavior but inject reporter_name
+        # Since reporter is a relationship, we can access obj.reporter.name
+        model = super().from_orm(obj)
+        if obj.reporter:
+            model.reporter_name = obj.reporter.name
+        return model

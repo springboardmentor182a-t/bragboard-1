@@ -38,9 +38,15 @@ const UserManagement = () => {
         }
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to remove this user?')) {
-            setUsers(users.filter(u => u.id !== id));
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to remove this user? This action cannot be undone.')) {
+            try {
+                await userApi.delete(id);
+                setUsers(users.filter(u => u.id !== id));
+            } catch (error) {
+                console.error("Failed to delete user", error);
+                alert("Failed to delete user. Please try again.");
+            }
         }
     };
 
@@ -158,6 +164,11 @@ const UserManagement = () => {
                                                 className="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-md text-sm transition-colors mr-2">
                                                 Edit Rule
                                             </button>
+                                            <button
+                                                onClick={() => handleDelete(user.id)}
+                                                className="text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md text-sm transition-colors">
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -185,12 +196,19 @@ const UserManagement = () => {
                                 </div>
                                 <div className="mb-6">
                                     <label className="block text-gray-700 dark:text-gray-300 mb-2">Department</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={editFormData.department}
                                         onChange={(e) => setEditFormData({ ...editFormData, department: e.target.value })}
                                         className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-                                    />
+                                    >
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Sales">Sales</option>
+                                        <option value="Design">Design</option>
+                                        <option value="Human Resources">Human Resources</option>
+                                        <option value="IT">IT</option>
+                                        <option value="Administration">Administration</option>
+                                    </select>
                                 </div>
                                 <div className="flex justify-end gap-2">
                                     <button

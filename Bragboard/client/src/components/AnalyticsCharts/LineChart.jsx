@@ -17,11 +17,11 @@ const LineChart = ({ data }) => {
     <div style={{ height: "100%", width: "100%" }}>
       <Line
         data={{
-          labels: data.map((_, i) => `Day ${i + 1}`),
+          labels: data.map((d) => d.date),
           datasets: [
             {
               label: "Trend",
-              data,
+              data: data.map((d) => d.activities),
               borderColor: "#2563eb",
               backgroundColor: "rgba(37, 99, 235, 0.4)",
               tension: 0.4,

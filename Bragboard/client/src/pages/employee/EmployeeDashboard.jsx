@@ -4,7 +4,7 @@ import Leaderboard from '../../components/Dashboard/Leaderboard';
 import DepartmentStats from '../../components/Dashboard/DepartmentStats';
 import DashboardLayout from '../../components/Layout/DashboardLayout.jsx';
 import { useAuth } from "../../Context/AuthContext";
-import { shoutouts as shoutoutsApi, analytics } from '../../services/api';
+import { shoutouts as shoutoutsApi, analytics, reports } from '../../services/api';
 
 const EmployeeDashboard = () => {
   const { user } = useAuth();
@@ -17,6 +17,10 @@ const EmployeeDashboard = () => {
   const [commentInputs, setCommentInputs] = useState({});
   const [editingComment, setEditingComment] = useState(null);
 
+  // Report Modal State
+  const [reportModal, setReportModal] = useState({ isOpen: false, shoutoutId: null });
+  const [reportReason, setReportReason] = useState('');
+
   // Analytics State
   const [stats, setStats] = useState({
     total_shoutouts: 0,
@@ -28,7 +32,7 @@ const EmployeeDashboard = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [user]);
 
   const fetchData = async () => {
     try {
@@ -42,27 +46,54 @@ const EmployeeDashboard = () => {
       // Process shoutouts
       const formattedShoutouts = shoutoutsRes.data.map(s => ({
         id: s.id,
-        sender: s.sender?.name || 'Unknown',
+        sender: s.sender_name || s.sender?.name || 'Unknown',
         senderDept: s.sender?.department || 'General',
-        recipients: s.recipients.map(r => r.name),
-        recipientDisplay: s.recipients.map(r => r.name).join(', '),
+        recipients: s.recipients.map(r => r.recipient_name || r.name),
+        recipientDisplay: s.recipients.map(r => r.recipient_name || r.name).join(', '),
         recipientDept: s.recipients[0]?.department || 'General',
         message: s.message,
         timestamp: new Date(s.created_at).toLocaleString(),
-        reactions: processReactions(s.reactions),
+        reactions: s.reaction_counts || processReactions(s.reactions), // Use reaction_counts if available?? No, processReactions handles list. Wait.
         comments: (s.comments || []).map(c => ({
           id: c.id,
-          user: c.user?.name || 'Unknown',
-          message: c.text,
+          user: c.user_name || c.user?.name || 'Unknown',
+          message: c.content,
           timestamp: new Date(c.created_at).toLocaleString()
         }))
       }));
       setShoutouts(formattedShoutouts);
 
+      // Populate user reactions state from API
+      const initialUserReactions = {};
+      if (user) {
+        shoutoutsRes.data.forEach(s => {
+          if (s.user_reactions && s.user_reactions.length > 0) {
+            const userKey = `${user.name}-${s.id}`;
+            const reactionsState = { like: false, clap: false, star: false };
+            s.user_reactions.forEach(type => {
+              reactionsState[type] = true;
+            });
+            initialUserReactions[userKey] = reactionsState;
+          }
+        });
+        setUserReactions(prev => ({ ...prev, ...initialUserReactions }));
+      }
+
+      // Process contributors data to ensure names are properly handled
+      const processedContributors = (contributorsRes.data || []).map(contributor => ({
+        ...contributor,
+        // Use the most appropriate name field available
+        name: contributor.name || contributor.employee_name || contributor.sender_name ||
+          (contributor.employee_id ? `Employee #${contributor.employee_id}` : 'Unknown')
+      }));
+
       // Set Analytics
       setStats(overviewRes.data);
-      setContributors(contributorsRes.data);
+      setContributors(processedContributors);
       setDepartments(deptRes.data);
+
+      // Log data for debugging
+      console.log('Processed contributors:', processedContributors);
 
     } catch (error) {
       console.error("Failed to fetch dashboard data", error);
@@ -86,18 +117,39 @@ const EmployeeDashboard = () => {
       try {
         await shoutoutsApi.delete(shoutoutId);
         setShoutouts(prev => prev.filter(s => s.id !== shoutoutId));
+        // Update stats immediately
+        setStats(prev => ({ ...prev, total_shoutouts: Math.max(0, prev.total_shoutouts - 1) }));
+        alert("Shout-out is deleted successfully");
       } catch (error) {
         console.error("Failed to delete shoutout", error);
         alert("Failed to delete shoutout");
       }
     }
+  }
+
+
+  const handleReport = async () => {
+    if (!reportReason.trim()) return;
+    try {
+      await reports.create({
+        shoutout_id: reportModal.shoutoutId,
+        reason: reportReason
+      });
+      alert("Report submitted successfully.");
+      setReportModal({ isOpen: false, shoutoutId: null });
+      setReportReason('');
+    } catch (error) {
+      console.error("Failed to submit report", error);
+      alert("Failed to submit report.");
+    }
   };
 
-  const handleReaction = (shoutoutId, reactionType) => {
+  const handleReaction = async (shoutoutId, reactionType) => {
     const userKey = user ? `${user.name}-${shoutoutId}` : `guest-${shoutoutId}`;
     const currentUserReactions = userReactions[userKey] || {};
     const hasReacted = currentUserReactions[reactionType];
 
+    // Optimistically update UI
     setShoutouts(prev => prev.map(shoutout => {
       if (shoutout.id === shoutoutId) {
         const newReactions = { ...shoutout.reactions };
@@ -119,7 +171,7 @@ const EmployeeDashboard = () => {
       return shoutout;
     }));
 
-    // Update user's reactions state
+    // Update user's reactions state locally
     setUserReactions(prev => {
       const newUserReactions = { ...currentUserReactions };
 
@@ -138,6 +190,16 @@ const EmployeeDashboard = () => {
         [userKey]: newUserReactions
       };
     });
+
+    // Call API to persist change
+    if (user) {
+      try {
+        await shoutoutsApi.toggleReaction(shoutoutId, reactionType);
+      } catch (error) {
+        console.error("Failed to toggle reaction:", error);
+        // Ideally revert optimistic update here, but for now just log
+      }
+    }
   };
 
   const getReactionEmoji = (type) => {
@@ -149,12 +211,14 @@ const EmployeeDashboard = () => {
     }
   };
 
-  const handleAddComment = (shoutoutId) => {
+  const handleAddComment = async (shoutoutId) => {
     const commentText = commentInputs[shoutoutId]?.trim();
     if (!commentText) return;
 
+    // Optimistic Update
+    const tempId = Date.now();
     const newComment = {
-      id: Date.now(),
+      id: tempId,
       user: user.name,
       message: commentText,
       timestamp: "Just now"
@@ -167,6 +231,22 @@ const EmployeeDashboard = () => {
     ));
 
     setCommentInputs(prev => ({ ...prev, [shoutoutId]: '' }));
+
+    // API Call
+    try {
+      await shoutoutsApi.addComment(shoutoutId, { content: commentText });
+      // In a real app we might replace the temp comment with the real one from response,
+      // but for now, simple persistence is the goal.
+    } catch (error) {
+      console.error("Failed to add comment", error);
+      // Revert optimistic update on failure
+      setShoutouts(prev => prev.map(shoutout =>
+        shoutout.id === shoutoutId
+          ? { ...shoutout, comments: shoutout.comments.filter(c => c.id !== tempId) }
+          : shoutout
+      ));
+      alert("Failed to post comment. Please try again.");
+    }
   };
 
   const handleEditComment = (shoutoutId, commentId, newMessage) => {
@@ -322,17 +402,29 @@ const EmployeeDashboard = () => {
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{shoutout.timestamp}</p>
                     </div>
-                    {user?.role === 'admin' && (
+                    <div className="flex items-center space-x-2">
+                      {user?.role === 'admin' && (
+                        <button
+                          onClick={() => handleDeleteShoutout(shoutout.id)}
+                          className="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors p-1"
+                          title="Delete Shoutout (Admin only)"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      )}
+
                       <button
-                        onClick={() => handleDeleteShoutout(shoutout.id)}
-                        className="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors p-1"
-                        title="Delete Shoutout (Admin only)"
+                        onClick={() => setReportModal({ isOpen: true, shoutoutId: shoutout.id })}
+                        className="text-gray-400 hover:text-yellow-500 dark:text-gray-500 dark:hover:text-yellow-400 transition-colors p-1"
+                        title="Report this shoutout"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                       </button>
-                    )}
+                    </div>
                   </div>
 
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg p-4 mb-4">
@@ -454,6 +546,37 @@ const EmployeeDashboard = () => {
 
         </div>
       </div>
+
+      {reportModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-96 shadow-xl">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Report Shoutout</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Please provide a reason for reporting this shoutout.</p>
+            <textarea
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 bg-white dark:bg-gray-700 dark:text-white"
+              rows="3"
+              placeholder="Reason..."
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setReportModal({ isOpen: false, shoutoutId: null })}
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReport}
+                disabled={!reportReason.trim()}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+              >
+                Submit Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };
