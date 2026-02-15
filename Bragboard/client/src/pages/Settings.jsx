@@ -1,4 +1,5 @@
-import DashboardLayout from "../components/Layout/DashboardLayout.jsx";
+import React from "react";
+import DashboardLayout from "../components/Layout/DashboardLayout";
 
 const Settings = () => {
   return (
