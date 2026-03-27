@@ -1,0 +1,54 @@
+.header {
+  background: #fff;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 18px 30px;
+  color: #222;
+}
+.header input {
+  margin-right: 15px;
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  color: #222;
+}
+.profile span {
+  font-weight: bold;
+  color: #800080;
+}
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px; /* adjust as needed */
+  background: var(--card-bg, #fff);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  z-index: 100; /* ensures header stays above other content */
+  box-shadow: 0 2px 8px #0001;
+}
+
+/* To make sure the rest of your layout accounts for the header's height, add top padding/margin to your content wrapper: */
+
+.main-content {
+  padding-top: 74px; /* header height + a bit extra */
+}
+.header {
+  position: fixed;
+  top: 0;
+  left: 220px;   /* ✅ shift right so sidebar is not covered */
+  right: 0;
+  height: 64px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  z-index: 100;
+  box-shadow: 0 2px 8px #0001;
+}
